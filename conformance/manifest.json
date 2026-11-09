@@ -1,0 +1,695 @@
+{
+  "format": "spu",
+  "invalid": [
+    {
+      "about": "The file is not a ZIP archive.",
+      "file": "invalid/not-a-zip.spu"
+    },
+    {
+      "about": "The archive has no sprite.json.",
+      "file": "invalid/no-manifest.spu"
+    },
+    {
+      "about": "sprite.json is not JSON.",
+      "file": "invalid/manifest-not-json.spu"
+    },
+    {
+      "about": "The format name is not 'spu'.",
+      "file": "invalid/other-format.spu"
+    },
+    {
+      "about": "The version is newer than this specification.",
+      "file": "invalid/future-version.spu"
+    },
+    {
+      "about": "The file requires a capability the reader does not have.",
+      "file": "invalid/unknown-required-capability.spu"
+    },
+    {
+      "about": "There are no views.",
+      "file": "invalid/no-views.spu"
+    },
+    {
+      "about": "A view has no animations.",
+      "file": "invalid/no-animations.spu"
+    },
+    {
+      "about": "An animation is zero ticks long.",
+      "file": "invalid/zero-length-animation.spu"
+    },
+    {
+      "about": "The canvas has no width.",
+      "file": "invalid/empty-canvas.spu"
+    },
+    {
+      "about": "The canvas is not on whole pixels.",
+      "file": "invalid/fractional-canvas.spu"
+    },
+    {
+      "about": "Two parts share an id.",
+      "file": "invalid/duplicate-part-id.spu"
+    },
+    {
+      "about": "An id is empty.",
+      "file": "invalid/empty-id.spu"
+    },
+    {
+      "about": "A part names a parent that does not exist.",
+      "file": "invalid/unknown-parent.spu"
+    },
+    {
+      "about": "Two parts are each other's parent.",
+      "file": "invalid/parent-cycle.spu"
+    },
+    {
+      "about": "A track names a part that does not exist.",
+      "file": "invalid/unknown-track-part.spu"
+    },
+    {
+      "about": "An animation has two tracks for the same part.",
+      "file": "invalid/two-tracks-one-part.spu"
+    },
+    {
+      "about": "A key shows a drawing that does not exist.",
+      "file": "invalid/unknown-drawing-in-key.spu"
+    },
+    {
+      "about": "Keys are not in increasing tick order.",
+      "file": "invalid/keys-out-of-order.spu"
+    },
+    {
+      "about": "Two keys share a tick.",
+      "file": "invalid/two-keys-one-tick.spu"
+    },
+    {
+      "about": "A key is before tick 0.",
+      "file": "invalid/negative-tick.spu"
+    },
+    {
+      "about": "A key uses an easing curve that does not exist.",
+      "file": "invalid/unknown-ease.spu"
+    },
+    {
+      "about": "A drawing's image is not in the archive.",
+      "file": "invalid/missing-image-file.spu"
+    },
+    {
+      "about": "A drawing's image is not a PNG.",
+      "file": "invalid/image-not-png.spu"
+    },
+    {
+      "about": "A material map is not the size of its drawing.",
+      "file": "invalid/map-size-mismatch.spu"
+    },
+    {
+      "about": "A drawing names a material that does not exist.",
+      "file": "invalid/unknown-material.spu"
+    },
+    {
+      "about": "A material's roughness is above 1.",
+      "file": "invalid/material-factor-out-of-range.spu"
+    },
+    {
+      "about": "A palette color is not #rrggbb or #rrggbbaa.",
+      "file": "invalid/bad-palette-color.spu"
+    },
+    {
+      "about": "A palette has no colors.",
+      "file": "invalid/empty-palette.spu"
+    },
+    {
+      "about": "A variant names a palette that does not exist.",
+      "file": "invalid/unknown-variant-palette.spu"
+    },
+    {
+      "about": "A variant replaces a drawing with one that does not exist.",
+      "file": "invalid/unknown-replacement-drawing.spu"
+    },
+    {
+      "about": "A drawing lists an overlay that does not exist.",
+      "file": "invalid/unknown-overlay.spu"
+    },
+    {
+      "about": "A drawing lists itself as an overlay.",
+      "file": "invalid/overlay-on-itself.spu"
+    }
+  ],
+  "valid": [
+    {
+      "about": "One full-color drawing at the origin. The picture is the drawing itself, placed on the canvas.",
+      "file": "valid/still.spu",
+      "frames": [
+        {
+          "animation": "main",
+          "expected": "expected/still/main.0.png",
+          "tick": 0.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/still/main.5.png",
+          "tick": 5.0,
+          "variants": [],
+          "view": "front"
+        }
+      ]
+    },
+    {
+      "about": "Indexed drawings take their colors from the file's palettes, not from the PNG. Index 0 is transparent; index 4 is half transparent. One variant swaps the palette, another swaps the drawing, and both can be active together.",
+      "file": "valid/palettes-and-variants.spu",
+      "frames": [
+        {
+          "animation": "main",
+          "expected": "expected/palettes-and-variants/main.0.png",
+          "tick": 0.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/palettes-and-variants/main.0.shiny.png",
+          "tick": 0.0,
+          "variants": [
+            "shiny"
+          ],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/palettes-and-variants/main.0.hat.png",
+          "tick": 0.0,
+          "variants": [
+            "hat"
+          ],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/palettes-and-variants/main.0.shiny.hat.png",
+          "tick": 0.0,
+          "variants": [
+            "shiny",
+            "hat"
+          ],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/palettes-and-variants/main.0.hat.shiny.png",
+          "tick": 0.0,
+          "variants": [
+            "hat",
+            "shiny"
+          ],
+          "view": "front"
+        }
+      ]
+    },
+    {
+      "about": "Each key moves toward the next along its own curve: step, linear, easeIn, easeOut, easeInOut. Positions between pixels are sampled, not rounded.",
+      "file": "valid/easing.spu",
+      "frames": [
+        {
+          "animation": "main",
+          "expected": "expected/easing/main.0.png",
+          "tick": 0.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/easing/main.9.png",
+          "tick": 9.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/easing/main.10.png",
+          "tick": 10.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/easing/main.13.png",
+          "tick": 13.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/easing/main.15.png",
+          "tick": 15.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/easing/main.20.png",
+          "tick": 20.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/easing/main.23.png",
+          "tick": 23.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/easing/main.27.png",
+          "tick": 27.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/easing/main.30.png",
+          "tick": 30.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/easing/main.33.png",
+          "tick": 33.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/easing/main.37.png",
+          "tick": 37.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/easing/main.40.png",
+          "tick": 40.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/easing/main.43.png",
+          "tick": 43.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/easing/main.45.png",
+          "tick": 45.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/easing/main.47.png",
+          "tick": 47.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/easing/main.50.png",
+          "tick": 50.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/easing/main.59.png",
+          "tick": 59.0,
+          "variants": [],
+          "view": "front"
+        }
+      ]
+    },
+    {
+      "about": "A part turns clockwise about its origin and scales per axis; a negative scale mirrors. Pixels come from nearest-neighbor sampling at pixel centers.",
+      "file": "valid/rotation-and-scale.spu",
+      "frames": [
+        {
+          "animation": "main",
+          "expected": "expected/rotation-and-scale/main.0.png",
+          "tick": 0.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/rotation-and-scale/main.1.png",
+          "tick": 1.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/rotation-and-scale/main.2.png",
+          "tick": 2.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/rotation-and-scale/main.3.png",
+          "tick": 3.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/rotation-and-scale/main.4.png",
+          "tick": 4.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/rotation-and-scale/main.5.png",
+          "tick": 5.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/rotation-and-scale/main.6.png",
+          "tick": 6.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/rotation-and-scale/main.7.png",
+          "tick": 7.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/rotation-and-scale/main.8.png",
+          "tick": 8.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/rotation-and-scale/main.9.png",
+          "tick": 9.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/rotation-and-scale/main.10.png",
+          "tick": 10.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/rotation-and-scale/main.11.png",
+          "tick": 11.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/rotation-and-scale/main.12.png",
+          "tick": 12.0,
+          "variants": [],
+          "view": "front"
+        }
+      ]
+    },
+    {
+      "about": "A child follows its parent: its position goes through the parent's whole placement, its rotation adds (reversed under a mirrored parent), its scale multiplies. A child never skews, even under a parent squashed on one axis. A parent may be listed after its child.",
+      "file": "valid/joined-parts.spu",
+      "frames": [
+        {
+          "animation": "main",
+          "expected": "expected/joined-parts/main.0.png",
+          "tick": 0.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/joined-parts/main.1.png",
+          "tick": 1.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/joined-parts/main.2.png",
+          "tick": 2.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/joined-parts/main.3.png",
+          "tick": 3.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/joined-parts/main.4.png",
+          "tick": 4.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/joined-parts/main.5.png",
+          "tick": 5.0,
+          "variants": [],
+          "view": "front"
+        }
+      ]
+    },
+    {
+      "about": "Parts draw from lowest z to highest; equal z draws in the order parts are listed. A hidden part or a part with no drawing draws nothing, but its children still draw: a parent passes on placement only.",
+      "file": "valid/draw-order-and-visibility.spu",
+      "frames": [
+        {
+          "animation": "main",
+          "expected": "expected/draw-order-and-visibility/main.0.png",
+          "tick": 0.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/draw-order-and-visibility/main.1.png",
+          "tick": 1.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/draw-order-and-visibility/main.2.png",
+          "tick": 2.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/draw-order-and-visibility/main.3.png",
+          "tick": 3.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/draw-order-and-visibility/main.4.png",
+          "tick": 4.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/draw-order-and-visibility/main.5.png",
+          "tick": 5.0,
+          "variants": [],
+          "view": "front"
+        }
+      ]
+    },
+    {
+      "about": "A part's opacity multiplies its drawing's own transparency and blends over what is behind. A parent's opacity does not fade its children.",
+      "file": "valid/opacity.spu",
+      "frames": [
+        {
+          "animation": "main",
+          "expected": "expected/opacity/main.0.png",
+          "tick": 0.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/opacity/main.1.png",
+          "tick": 1.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/opacity/main.2.png",
+          "tick": 2.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/opacity/main.3.png",
+          "tick": 3.0,
+          "variants": [],
+          "view": "front"
+        }
+      ]
+    },
+    {
+      "about": "Before a property's first key, the first key's value holds. A looping animation wraps at its length; one that does not loop holds its last tick. A key past the end is never reached but still shapes the motion toward it.",
+      "file": "valid/looping-and-holding.spu",
+      "frames": [
+        {
+          "animation": "main",
+          "expected": "expected/looping-and-holding/main.0.png",
+          "tick": 0.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/looping-and-holding/main.2.png",
+          "tick": 2.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/looping-and-holding/main.7.png",
+          "tick": 7.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/looping-and-holding/main.8.png",
+          "tick": 8.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/looping-and-holding/main.21.png",
+          "tick": 21.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "once",
+          "expected": "expected/looping-and-holding/once.7.png",
+          "tick": 7.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "once",
+          "expected": "expected/looping-and-holding/once.8.png",
+          "tick": 8.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "once",
+          "expected": "expected/looping-and-holding/once.500.png",
+          "tick": 500.0,
+          "variants": [],
+          "view": "front"
+        }
+      ]
+    },
+    {
+      "about": "A drawing can carry overlays: other drawings painted straight over it, moving with the same part. A variant can replace an overlay, which is how a blink is stored.",
+      "file": "valid/overlays.spu",
+      "frames": [
+        {
+          "animation": "main",
+          "expected": "expected/overlays/main.0.png",
+          "tick": 0.0,
+          "variants": [],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/overlays/main.0.blink.png",
+          "tick": 0.0,
+          "variants": [
+            "blink"
+          ],
+          "view": "front"
+        },
+        {
+          "animation": "main",
+          "expected": "expected/overlays/main.1.blink.png",
+          "tick": 1.0,
+          "variants": [
+            "blink"
+          ],
+          "view": "front"
+        }
+      ]
+    },
+    {
+      "about": "Fields and archive members a reader does not know are ignored when drawing and kept when saving. The picture equals the 'still' case.",
+      "file": "valid/unknown-fields.spu",
+      "frames": [
+        {
+          "animation": "main",
+          "expected": "expected/unknown-fields/main.0.png",
+          "tick": 0.0,
+          "variants": [],
+          "view": "front"
+        }
+      ]
+    },
+    {
+      "about": "The canvas is a window onto sprite space: its x and y say which point is the top-left pixel, and anything outside it is cut off.",
+      "file": "valid/canvas.spu",
+      "frames": [
+        {
+          "animation": "main",
+          "expected": "expected/canvas/main.0.png",
+          "tick": 0.0,
+          "variants": [],
+          "view": "front"
+        }
+      ]
+    },
+    {
+      "about": "Materials and their maps describe how light treats a drawing. The reference picture has no light, so it equals the 'still' case.",
+      "file": "valid/materials-do-not-change-the-reference.spu",
+      "frames": [
+        {
+          "animation": "main",
+          "expected": "expected/materials-do-not-change-the-reference/main.0.png",
+          "tick": 0.0,
+          "variants": [],
+          "view": "front"
+        }
+      ]
+    }
+  ],
+  "version": 1
+}

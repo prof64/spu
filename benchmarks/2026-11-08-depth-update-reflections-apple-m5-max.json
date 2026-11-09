@@ -1,0 +1,372 @@
+{
+  "adapter": {
+    "backend": "Metal",
+    "deviceType": "IntegratedGpu",
+    "driver": "",
+    "driverInfo": "",
+    "name": "Apple M5 Max"
+  },
+  "arch": "aarch64",
+  "atlas": [
+    1024,
+    256
+  ],
+  "createdUnix": 1794197826,
+  "framebufferBytes": 10391552,
+  "kind": "sprite-lab-native-benchmark",
+  "load": [
+    {
+      "archiveAndTextureDecode": {
+        "maxMs": 2.523833,
+        "medianMs": 2.202583,
+        "minMs": 2.158875,
+        "p95Ms": 2.523833,
+        "samples": 12
+      },
+      "asset": "Charizard",
+      "compressedBytes": 119153
+    },
+    {
+      "archiveAndTextureDecode": {
+        "maxMs": 0.537334,
+        "medianMs": 0.448,
+        "minMs": 0.431333,
+        "p95Ms": 0.537334,
+        "samples": 12
+      },
+      "asset": "Glalie",
+      "compressedBytes": 33725
+    },
+    {
+      "archiveAndTextureDecode": {
+        "maxMs": 1.0285,
+        "medianMs": 0.9283330000000001,
+        "minMs": 0.8856660000000001,
+        "p95Ms": 1.0285,
+        "samples": 12
+      },
+      "asset": "Cryogonal",
+      "compressedBytes": 47720
+    }
+  ],
+  "measuredFrames": 90,
+  "method": "Monotonic wall clock. Each completed frame includes independent phased animation, batch preparation, buffer upload, GPU submission, and blocking GPU completion. No v-sync; no frame screenshots in timed samples. This is not an isolated GPU timestamp. Fit uses shrinking sprites, overlap uses 64px-tall sprites. Texture upload and pipeline compilation excluded from steady-state cases; archive loading measured separately. All sprites on screen; full material shader; Six main draw calls including backdrop/foreground, two HDR bloom passes and display conversion. Rain/depth add one draw capturing four animated front/back views shared by the scene. Captures and uploads are timed. Crowd depth uses shared environment cards, not a separate opponent for each sprite; the single-sprite wet floor reflection is disabled in crowds.",
+  "os": "macos",
+  "release": true,
+  "results": [
+    {
+      "animationAndBatch": {
+        "maxMs": 0.0052499999999999995,
+        "medianMs": 0.00175,
+        "minMs": 0.000625,
+        "p95Ms": 0.003291,
+        "samples": 90
+      },
+      "completedFrame": {
+        "maxMs": 1.5074999999999998,
+        "medianMs": 1.345167,
+        "minMs": 1.113083,
+        "p95Ms": 1.3877080000000002,
+        "samples": 90
+      },
+      "drawCalls": 6,
+      "instanceBytesPerFrame": 1536,
+      "layout": "fit",
+      "reflectionCaptureInstances": 0,
+      "sprites": 1,
+      "uploadAndSubmit": {
+        "maxMs": 0.228541,
+        "medianMs": 0.076375,
+        "minMs": 0.046583,
+        "p95Ms": 0.108375,
+        "samples": 90
+      },
+      "visibleParts": 16
+    },
+    {
+      "animationAndBatch": {
+        "maxMs": 0.073709,
+        "medianMs": 0.052875,
+        "minMs": 0.044208000000000004,
+        "p95Ms": 0.07166600000000001,
+        "samples": 90
+      },
+      "completedFrame": {
+        "maxMs": 1.4670830000000001,
+        "medianMs": 1.421125,
+        "minMs": 1.169125,
+        "p95Ms": 1.455292,
+        "samples": 90
+      },
+      "drawCalls": 6,
+      "instanceBytesPerFrame": 115584,
+      "layout": "fit",
+      "reflectionCaptureInstances": 0,
+      "sprites": 100,
+      "uploadAndSubmit": {
+        "maxMs": 0.129042,
+        "medianMs": 0.09525,
+        "minMs": 0.076792,
+        "p95Ms": 0.11887500000000001,
+        "samples": 90
+      },
+      "visibleParts": 1204
+    },
+    {
+      "animationAndBatch": {
+        "maxMs": 1.127875,
+        "medianMs": 0.651208,
+        "minMs": 0.513625,
+        "p95Ms": 0.775833,
+        "samples": 90
+      },
+      "completedFrame": {
+        "maxMs": 5.322584,
+        "medianMs": 3.3899999999999997,
+        "minMs": 2.107625,
+        "p95Ms": 4.263917,
+        "samples": 90
+      },
+      "drawCalls": 6,
+      "instanceBytesPerFrame": 1152384,
+      "layout": "fit",
+      "reflectionCaptureInstances": 0,
+      "sprites": 1000,
+      "uploadAndSubmit": {
+        "maxMs": 0.629666,
+        "medianMs": 0.318834,
+        "minMs": 0.24841700000000003,
+        "p95Ms": 0.473792,
+        "samples": 90
+      },
+      "visibleParts": 12004
+    },
+    {
+      "animationAndBatch": {
+        "maxMs": 2.340792,
+        "medianMs": 2.061125,
+        "minMs": 1.6752500000000001,
+        "p95Ms": 2.232792,
+        "samples": 90
+      },
+      "completedFrame": {
+        "maxMs": 8.265708,
+        "medianMs": 6.550917,
+        "minMs": 5.930084000000001,
+        "p95Ms": 6.974374999999999,
+        "samples": 90
+      },
+      "drawCalls": 6,
+      "instanceBytesPerFrame": 5759808,
+      "layout": "fit",
+      "reflectionCaptureInstances": 0,
+      "sprites": 5000,
+      "uploadAndSubmit": {
+        "maxMs": 0.937709,
+        "medianMs": 0.664541,
+        "minMs": 0.5454169999999999,
+        "p95Ms": 0.8582909999999999,
+        "samples": 90
+      },
+      "visibleParts": 59998
+    },
+    {
+      "animationAndBatch": {
+        "maxMs": 3.546459,
+        "medianMs": 3.392542,
+        "minMs": 3.29325,
+        "p95Ms": 3.453875,
+        "samples": 90
+      },
+      "completedFrame": {
+        "maxMs": 8.292375,
+        "medianMs": 6.943417,
+        "minMs": 5.748666,
+        "p95Ms": 8.157582999999999,
+        "samples": 90
+      },
+      "drawCalls": 6,
+      "instanceBytesPerFrame": 11520384,
+      "layout": "fit",
+      "reflectionCaptureInstances": 0,
+      "sprites": 10000,
+      "uploadAndSubmit": {
+        "maxMs": 1.329458,
+        "medianMs": 1.003708,
+        "minMs": 0.896083,
+        "p95Ms": 1.182041,
+        "samples": 90
+      },
+      "visibleParts": 120004
+    },
+    {
+      "animationAndBatch": {
+        "maxMs": 0.105417,
+        "medianMs": 0.0405,
+        "minMs": 0.034041999999999996,
+        "p95Ms": 0.077792,
+        "samples": 90
+      },
+      "completedFrame": {
+        "maxMs": 2.6967499999999998,
+        "medianMs": 1.395417,
+        "minMs": 1.358125,
+        "p95Ms": 2.6687920000000003,
+        "samples": 90
+      },
+      "drawCalls": 6,
+      "instanceBytesPerFrame": 115584,
+      "layout": "overlap-64px",
+      "reflectionCaptureInstances": 0,
+      "sprites": 100,
+      "uploadAndSubmit": {
+        "maxMs": 0.09525,
+        "medianMs": 0.06875,
+        "minMs": 0.06025,
+        "p95Ms": 0.081709,
+        "samples": 90
+      },
+      "visibleParts": 1204
+    },
+    {
+      "animationAndBatch": {
+        "maxMs": 0.542583,
+        "medianMs": 0.458333,
+        "minMs": 0.443542,
+        "p95Ms": 0.500708,
+        "samples": 90
+      },
+      "completedFrame": {
+        "maxMs": 3.309458,
+        "medianMs": 1.919208,
+        "minMs": 1.776417,
+        "p95Ms": 3.228459,
+        "samples": 90
+      },
+      "drawCalls": 6,
+      "instanceBytesPerFrame": 1152384,
+      "layout": "overlap-64px",
+      "reflectionCaptureInstances": 0,
+      "sprites": 1000,
+      "uploadAndSubmit": {
+        "maxMs": 0.25791699999999995,
+        "medianMs": 0.19141699999999998,
+        "minMs": 0.158625,
+        "p95Ms": 0.234791,
+        "samples": 90
+      },
+      "visibleParts": 12004
+    },
+    {
+      "animationAndBatch": {
+        "maxMs": 2.534333,
+        "medianMs": 2.312792,
+        "minMs": 2.15525,
+        "p95Ms": 2.492125,
+        "samples": 90
+      },
+      "completedFrame": {
+        "maxMs": 8.068999999999999,
+        "medianMs": 6.753125,
+        "minMs": 5.50275,
+        "p95Ms": 8.024083,
+        "samples": 90
+      },
+      "drawCalls": 6,
+      "instanceBytesPerFrame": 5759808,
+      "layout": "overlap-64px",
+      "reflectionCaptureInstances": 0,
+      "sprites": 5000,
+      "uploadAndSubmit": {
+        "maxMs": 0.7651249999999999,
+        "medianMs": 0.6252500000000001,
+        "minMs": 0.577708,
+        "p95Ms": 0.7178329999999999,
+        "samples": 90
+      },
+      "visibleParts": 59998
+    },
+    {
+      "animationAndBatch": {
+        "maxMs": 4.000833,
+        "medianMs": 3.649541,
+        "minMs": 3.543625,
+        "p95Ms": 3.9432080000000003,
+        "samples": 90
+      },
+      "completedFrame": {
+        "maxMs": 10.103791000000001,
+        "medianMs": 8.441709000000001,
+        "minMs": 8.271584,
+        "p95Ms": 9.667542,
+        "samples": 90
+      },
+      "drawCalls": 6,
+      "instanceBytesPerFrame": 11520384,
+      "layout": "overlap-64px",
+      "reflectionCaptureInstances": 0,
+      "sprites": 10000,
+      "uploadAndSubmit": {
+        "maxMs": 1.337459,
+        "medianMs": 0.975417,
+        "minMs": 0.877458,
+        "p95Ms": 1.164125,
+        "samples": 90
+      },
+      "visibleParts": 120004
+    }
+  ],
+  "scene": "reflections",
+  "sceneSettings": {
+    "ambient": 0.20000000298023224,
+    "animation": 0,
+    "asset": 0,
+    "background": 5,
+    "bloom": 0.20000000298023224,
+    "count": 1,
+    "emission": 0.15000000596046448,
+    "exposure": 1.0,
+    "light": [
+      0.30000001192092896,
+      0.20000000298023224,
+      0.6000000238418579
+    ],
+    "lightPower": 0.11999999731779099,
+    "mixed": false,
+    "mode": 0,
+    "normals": 0.4000000059604645,
+    "opacity": 1.0,
+    "overlap": false,
+    "partner": 0,
+    "phased": true,
+    "pixelTiming": true,
+    "probe": [
+      0.5,
+      0.5
+    ],
+    "probeEnabled": true,
+    "probeFront": true,
+    "rain": 0.699999988079071,
+    "reflectionFocus": true,
+    "reflectivity": 2.0,
+    "roughness": 0.699999988079071,
+    "sourceDepth": 0.8999999761581421,
+    "sourceOffset": 0.0,
+    "sourceTrainer": false,
+    "spill": 1.0,
+    "trainers": true,
+    "transmission": 0.0,
+    "view": 0,
+    "wetness": 0.800000011920929,
+    "wind": 0.25,
+    "zoom": 1.0
+  },
+  "sourceFingerprint": "fnv1a64:37fd8e41c8de7343",
+  "textureBytes": 4194304,
+  "version": 1,
+  "viewport": [
+    1280,
+    720
+  ],
+  "warmupFrames": 12
+}

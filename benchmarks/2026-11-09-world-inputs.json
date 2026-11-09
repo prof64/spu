@@ -1,0 +1,66 @@
+{
+  "catalogSha256": "5cb1f895b9b4bfc0ed21cb59b23d6c1d5501a764c3309e9cff23efeeaa563ed0",
+  "sourceFingerprint": "fnv1a64:78e1e94c053a0ed8",
+  "assets": [
+    {
+      "id": "showcase-cindermaw",
+      "path": "web/examples/showcase-cindermaw.sprite",
+      "bytes": 74159,
+      "contentFingerprint": "fnv1a64:bf02548f95491fdf",
+      "sha256": "9c1a4c0caae718efaaa211b4ff49f5d4b10fcbc9d2b8131e80791ffe6520711a"
+    },
+    {
+      "id": "mirror-knight",
+      "path": "web/examples/mirror-knight.sprite",
+      "bytes": 27397,
+      "contentFingerprint": "fnv1a64:183c1010e3fa2d55",
+      "sha256": "aa6a390896a4e1ec0c9040ddf8db5b489231b08a46cd4c3153e557da574018aa"
+    },
+    {
+      "id": "showcase-prismcoil",
+      "path": "web/examples/showcase-prismcoil.sprite",
+      "bytes": 37153,
+      "contentFingerprint": "fnv1a64:a30f7fd62e2dad64",
+      "sha256": "71ac974cd806f487416503a85a7460751e063268f7b5b582feb70113f2a34090"
+    },
+    {
+      "id": "dungeon-scout",
+      "path": "web/examples/dungeon-scout.sprite",
+      "bytes": 75560,
+      "contentFingerprint": "fnv1a64:1a3eb404689bfeed",
+      "sha256": "0ce00372a03a9b0dc01b040549def7b95474d611d1d02796b02e79dfff2febf5"
+    },
+    {
+      "id": "obsidian-hall",
+      "path": "web/examples/obsidian-hall.sprite",
+      "bytes": 232189,
+      "contentFingerprint": "fnv1a64:a9d813ff20ecc4c9",
+      "sha256": "66fe88c1a00cc117776b9b8b72bcaeb9f34dbe7de5a424a6d18eb5646942b9da"
+    },
+    {
+      "id": "moss-stone",
+      "path": "web/examples/moss-stone.sprite",
+      "bytes": 2480,
+      "contentFingerprint": "fnv1a64:fa7a7d1fa618a467",
+      "sha256": "8b631e2713f827171901bfb62499da66c1b6727237260c7228a490781ab95759"
+    },
+    {
+      "id": "lantern",
+      "path": "web/examples/lantern.sprite",
+      "bytes": 5545,
+      "contentFingerprint": "fnv1a64:f506cdcf0bc24533",
+      "sha256": "cf8a8ec35737e04a0009b6fdebd1842aa4fd2c65fec77457162e60e5683fd14b"
+    }
+  ],
+  "sourceAndAssetsUnchanged": true,
+  "verifiedRuns": [
+    "benchmarks/2026-11-09-world-1280x720-base.json",
+    "benchmarks/2026-11-09-world-1280x720-full.json",
+    "benchmarks/2026-11-09-world-1280x720-lights.json",
+    "benchmarks/2026-11-09-world-1920x1080-base.json",
+    "benchmarks/2026-11-09-world-1920x1080-full.json",
+    "benchmarks/2026-11-09-world-1920x1080-lights.json",
+    "benchmarks/2026-11-09-world-1920x1080-sustained.json"
+  ],
+  "verification": "Computed FNV-1a from actual source/asset bytes before and after all measurements; compared every raw native load record. SHA-256 values provide an additional content check."
+}

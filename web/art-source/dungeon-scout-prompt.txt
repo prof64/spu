@@ -1,0 +1,13 @@
+Create a professional native pixel-art sprite sheet of ONE original cute red-panda dungeon explorer, evocative of high-end Nintendo DS mystery-dungeon RPG sprite art. This is a game production asset, not a poster. Character identity: warm terracotta-red fur, cream cheeks and muzzle, dark brown limbs, fluffy ringed tail, large dark ears, bright curious eyes, short blue scarf, small tan leather backpack/satchel, carrying a little warm amber lantern in one hand. Chibi animal proportions, large expressive head, small purposeful body; excellent deliberate pixel clusters with colored outlines and 4-tone material ramps.
+
+EXACT SHEET: eight equal square cells arranged FOUR COLUMNS x TWO ROWS, transparent background, wide 2:1 image. Each cell contains exactly one complete full-body character at identical native pixel density and scale, feet aligned. No labels, no text, no borders, no floor or cast shadows, no extra props outside character. Keep generous transparent margins around each.
+Directions in reading order:
+row1 col1: SOUTH, facing viewer directly.
+row1 col2: SOUTHEAST, facing down-right three-quarter, both eyes visible.
+row1 col3: EAST, facing right strict side profile.
+row1 col4: NORTHEAST, facing upper-right rear three-quarter, mostly back of head.
+row2 col1: NORTH, full back view, backpack and striped tail clear.
+row2 col2: NORTHWEST, facing upper-left rear three-quarter.
+row2 col3: WEST, facing left strict side profile.
+row2 col4: SOUTHWEST, facing down-left front three-quarter.
+Direction means where the character's face points, not where body is placed. Every pose same equipment, same character model. Do not draw front faces on back views. Character fits about 48x54 actual logical pixels; render at large integer enlargement while retaining crisp block pixels. Every view standing in a ready-to-walk slight alternating foot stance. Warm lantern is subtle and physically attached to the hand, no blurry halo. Keep the pixel art compact, beautiful, readable, richly shaded, never simple geometric cartoon shapes.

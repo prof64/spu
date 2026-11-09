@@ -1,0 +1,4188 @@
+{
+  "format": "sprite-lab",
+  "version": 0,
+  "name": "Dungeon scout",
+  "ticksPerSecond": 60,
+  "required": [
+    "core-0"
+  ],
+  "materials": [
+    {
+      "id": "fur",
+      "name": "Fur, cloth and leather",
+      "roughness": 0.9,
+      "metalness": 0,
+      "transmission": 0,
+      "emission": 0,
+      "normalStrength": 0.32,
+      "reflectivity": 0.25
+    },
+    {
+      "id": "lantern",
+      "name": "Amber lantern",
+      "roughness": 0.4,
+      "metalness": 0,
+      "transmission": 0,
+      "emission": 3.3,
+      "normalStrength": 0.5,
+      "reflectivity": 1.1
+    }
+  ],
+  "views": [
+    {
+      "id": "south",
+      "name": "South",
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 72,
+        "height": 72
+      },
+      "parts": [
+        {
+          "id": "body",
+          "name": "Body"
+        },
+        {
+          "id": "foot-left",
+          "name": "Foot Left",
+          "parent": "body"
+        },
+        {
+          "id": "foot-right",
+          "name": "Foot Right",
+          "parent": "body"
+        },
+        {
+          "id": "lantern",
+          "name": "Lantern",
+          "parent": "body"
+        }
+      ],
+      "images": [
+        {
+          "id": "body",
+          "name": "Body",
+          "x": 14,
+          "y": 8,
+          "material": "fur",
+          "color": "south/body-color.png",
+          "normal": "south/body-normal.png",
+          "surface": "south/body-surface.png",
+          "emission": "south/body-emission.png"
+        },
+        {
+          "id": "foot-left",
+          "name": "Foot Left",
+          "x": 26,
+          "y": 57,
+          "material": "fur",
+          "color": "south/foot-left-color.png",
+          "normal": "south/foot-left-normal.png",
+          "surface": "south/foot-left-surface.png",
+          "emission": "south/foot-left-emission.png"
+        },
+        {
+          "id": "foot-right",
+          "name": "Foot Right",
+          "x": 36,
+          "y": 57,
+          "material": "fur",
+          "color": "south/foot-right-color.png",
+          "normal": "south/foot-right-normal.png",
+          "surface": "south/foot-right-surface.png",
+          "emission": "south/foot-right-emission.png"
+        },
+        {
+          "id": "lantern",
+          "name": "Lantern",
+          "x": 49,
+          "y": 46,
+          "material": "lantern",
+          "color": "south/lantern-color.png",
+          "normal": "south/lantern-normal.png",
+          "surface": "south/lantern-surface.png",
+          "emission": "south/lantern-emission.png"
+        }
+      ],
+      "animations": [
+        {
+          "id": "idle",
+          "name": "Idle",
+          "length": 100,
+          "looping": true,
+          "tracks": [
+            {
+              "part": "body",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "body",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 50,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 56,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 68,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 100,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-left",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-left",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-right",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-right",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "lantern",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "lantern",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 2,
+                  "ease": "easeInOut"
+                }
+              ],
+              "emission": [
+                {
+                  "tick": 0,
+                  "value": 1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 25,
+                  "value": 0.82,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 55,
+                  "value": 1.12,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 75,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 100,
+                  "value": 1,
+                  "ease": "easeInOut"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "walk",
+          "name": "Walk",
+          "length": 28,
+          "looping": true,
+          "tracks": [
+            {
+              "part": "body",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "body",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-left",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-left",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -2,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-right",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-right",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -2,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "lantern",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "lantern",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 2,
+                  "ease": "easeInOut"
+                }
+              ],
+              "emission": [
+                {
+                  "tick": 0,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 7,
+                  "value": 1.05,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 14,
+                  "value": 0.82,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 28,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "southeast",
+      "name": "SouthEast",
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 72,
+        "height": 72
+      },
+      "parts": [
+        {
+          "id": "body",
+          "name": "Body"
+        },
+        {
+          "id": "foot-left",
+          "name": "Foot Left",
+          "parent": "body"
+        },
+        {
+          "id": "foot-right",
+          "name": "Foot Right",
+          "parent": "body"
+        },
+        {
+          "id": "lantern",
+          "name": "Lantern",
+          "parent": "body"
+        }
+      ],
+      "images": [
+        {
+          "id": "body",
+          "name": "Body",
+          "x": 11,
+          "y": 8,
+          "material": "fur",
+          "color": "southeast/body-color.png",
+          "normal": "southeast/body-normal.png",
+          "surface": "southeast/body-surface.png",
+          "emission": "southeast/body-emission.png"
+        },
+        {
+          "id": "foot-left",
+          "name": "Foot Left",
+          "x": 25,
+          "y": 57,
+          "material": "fur",
+          "color": "southeast/foot-left-color.png",
+          "normal": "southeast/foot-left-normal.png",
+          "surface": "southeast/foot-left-surface.png",
+          "emission": "southeast/foot-left-emission.png"
+        },
+        {
+          "id": "foot-right",
+          "name": "Foot Right",
+          "x": 36,
+          "y": 57,
+          "material": "fur",
+          "color": "southeast/foot-right-color.png",
+          "normal": "southeast/foot-right-normal.png",
+          "surface": "southeast/foot-right-surface.png",
+          "emission": "southeast/foot-right-emission.png"
+        },
+        {
+          "id": "lantern",
+          "name": "Lantern",
+          "x": 49,
+          "y": 46,
+          "material": "lantern",
+          "color": "southeast/lantern-color.png",
+          "normal": "southeast/lantern-normal.png",
+          "surface": "southeast/lantern-surface.png",
+          "emission": "southeast/lantern-emission.png"
+        }
+      ],
+      "animations": [
+        {
+          "id": "idle",
+          "name": "Idle",
+          "length": 100,
+          "looping": true,
+          "tracks": [
+            {
+              "part": "body",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "body",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 50,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 56,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 68,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 100,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-left",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-left",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-right",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-right",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "lantern",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "lantern",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 2,
+                  "ease": "easeInOut"
+                }
+              ],
+              "emission": [
+                {
+                  "tick": 0,
+                  "value": 1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 25,
+                  "value": 0.82,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 55,
+                  "value": 1.12,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 75,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 100,
+                  "value": 1,
+                  "ease": "easeInOut"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "walk",
+          "name": "Walk",
+          "length": 28,
+          "looping": true,
+          "tracks": [
+            {
+              "part": "body",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "body",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-left",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-left",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -2,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-right",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-right",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -2,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "lantern",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "lantern",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 2,
+                  "ease": "easeInOut"
+                }
+              ],
+              "emission": [
+                {
+                  "tick": 0,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 7,
+                  "value": 1.05,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 14,
+                  "value": 0.82,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 28,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "east",
+      "name": "East",
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 72,
+        "height": 72
+      },
+      "parts": [
+        {
+          "id": "body",
+          "name": "Body"
+        },
+        {
+          "id": "foot-left",
+          "name": "Foot Left",
+          "parent": "body"
+        },
+        {
+          "id": "foot-right",
+          "name": "Foot Right",
+          "parent": "body"
+        },
+        {
+          "id": "lantern",
+          "name": "Lantern",
+          "parent": "body"
+        }
+      ],
+      "images": [
+        {
+          "id": "body",
+          "name": "Body",
+          "x": 12,
+          "y": 8,
+          "material": "fur",
+          "color": "east/body-color.png",
+          "normal": "east/body-normal.png",
+          "surface": "east/body-surface.png",
+          "emission": "east/body-emission.png"
+        },
+        {
+          "id": "foot-left",
+          "name": "Foot Left",
+          "x": 25,
+          "y": 57,
+          "material": "fur",
+          "color": "east/foot-left-color.png",
+          "normal": "east/foot-left-normal.png",
+          "surface": "east/foot-left-surface.png",
+          "emission": "east/foot-left-emission.png"
+        },
+        {
+          "id": "foot-right",
+          "name": "Foot Right",
+          "x": 36,
+          "y": 57,
+          "material": "fur",
+          "color": "east/foot-right-color.png",
+          "normal": "east/foot-right-normal.png",
+          "surface": "east/foot-right-surface.png",
+          "emission": "east/foot-right-emission.png"
+        },
+        {
+          "id": "lantern",
+          "name": "Lantern",
+          "x": 49,
+          "y": 46,
+          "material": "lantern",
+          "color": "east/lantern-color.png",
+          "normal": "east/lantern-normal.png",
+          "surface": "east/lantern-surface.png",
+          "emission": "east/lantern-emission.png"
+        }
+      ],
+      "animations": [
+        {
+          "id": "idle",
+          "name": "Idle",
+          "length": 100,
+          "looping": true,
+          "tracks": [
+            {
+              "part": "body",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "body",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 50,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 56,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 68,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 100,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-left",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-left",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-right",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-right",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "lantern",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "lantern",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 2,
+                  "ease": "easeInOut"
+                }
+              ],
+              "emission": [
+                {
+                  "tick": 0,
+                  "value": 1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 25,
+                  "value": 0.82,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 55,
+                  "value": 1.12,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 75,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 100,
+                  "value": 1,
+                  "ease": "easeInOut"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "walk",
+          "name": "Walk",
+          "length": 28,
+          "looping": true,
+          "tracks": [
+            {
+              "part": "body",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "body",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-left",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-left",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -2,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-right",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-right",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -2,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "lantern",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "lantern",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 2,
+                  "ease": "easeInOut"
+                }
+              ],
+              "emission": [
+                {
+                  "tick": 0,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 7,
+                  "value": 1.05,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 14,
+                  "value": 0.82,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 28,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "northeast",
+      "name": "NorthEast",
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 72,
+        "height": 72
+      },
+      "parts": [
+        {
+          "id": "body",
+          "name": "Body"
+        },
+        {
+          "id": "foot-left",
+          "name": "Foot Left",
+          "parent": "body"
+        },
+        {
+          "id": "foot-right",
+          "name": "Foot Right",
+          "parent": "body"
+        },
+        {
+          "id": "lantern",
+          "name": "Lantern",
+          "parent": "body"
+        }
+      ],
+      "images": [
+        {
+          "id": "body",
+          "name": "Body",
+          "x": 14,
+          "y": 8,
+          "material": "fur",
+          "color": "northeast/body-color.png",
+          "normal": "northeast/body-normal.png",
+          "surface": "northeast/body-surface.png",
+          "emission": "northeast/body-emission.png"
+        },
+        {
+          "id": "foot-left",
+          "name": "Foot Left",
+          "x": 25,
+          "y": 57,
+          "material": "fur",
+          "color": "northeast/foot-left-color.png",
+          "normal": "northeast/foot-left-normal.png",
+          "surface": "northeast/foot-left-surface.png",
+          "emission": "northeast/foot-left-emission.png"
+        },
+        {
+          "id": "foot-right",
+          "name": "Foot Right",
+          "x": 36,
+          "y": 57,
+          "material": "fur",
+          "color": "northeast/foot-right-color.png",
+          "normal": "northeast/foot-right-normal.png",
+          "surface": "northeast/foot-right-surface.png",
+          "emission": "northeast/foot-right-emission.png"
+        },
+        {
+          "id": "lantern",
+          "name": "Lantern",
+          "x": 49,
+          "y": 46,
+          "material": "lantern",
+          "color": "northeast/lantern-color.png",
+          "normal": "northeast/lantern-normal.png",
+          "surface": "northeast/lantern-surface.png",
+          "emission": "northeast/lantern-emission.png"
+        }
+      ],
+      "animations": [
+        {
+          "id": "idle",
+          "name": "Idle",
+          "length": 100,
+          "looping": true,
+          "tracks": [
+            {
+              "part": "body",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "body",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 50,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 56,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 68,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 100,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-left",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-left",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-right",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-right",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "lantern",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "lantern",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 2,
+                  "ease": "easeInOut"
+                }
+              ],
+              "emission": [
+                {
+                  "tick": 0,
+                  "value": 1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 25,
+                  "value": 0.82,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 55,
+                  "value": 1.12,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 75,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 100,
+                  "value": 1,
+                  "ease": "easeInOut"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "walk",
+          "name": "Walk",
+          "length": 28,
+          "looping": true,
+          "tracks": [
+            {
+              "part": "body",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "body",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-left",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-left",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -2,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-right",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-right",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -2,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "lantern",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "lantern",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 2,
+                  "ease": "easeInOut"
+                }
+              ],
+              "emission": [
+                {
+                  "tick": 0,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 7,
+                  "value": 1.05,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 14,
+                  "value": 0.82,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 28,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "north",
+      "name": "North",
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 72,
+        "height": 72
+      },
+      "parts": [
+        {
+          "id": "body",
+          "name": "Body"
+        },
+        {
+          "id": "foot-left",
+          "name": "Foot Left",
+          "parent": "body"
+        },
+        {
+          "id": "foot-right",
+          "name": "Foot Right",
+          "parent": "body"
+        },
+        {
+          "id": "lantern",
+          "name": "Lantern",
+          "parent": "body"
+        }
+      ],
+      "images": [
+        {
+          "id": "body",
+          "name": "Body",
+          "x": 18,
+          "y": 9,
+          "material": "fur",
+          "color": "north/body-color.png",
+          "normal": "north/body-normal.png",
+          "surface": "north/body-surface.png",
+          "emission": "north/body-emission.png"
+        },
+        {
+          "id": "foot-left",
+          "name": "Foot Left",
+          "x": 25,
+          "y": 57,
+          "material": "fur",
+          "color": "north/foot-left-color.png",
+          "normal": "north/foot-left-normal.png",
+          "surface": "north/foot-left-surface.png",
+          "emission": "north/foot-left-emission.png"
+        },
+        {
+          "id": "foot-right",
+          "name": "Foot Right",
+          "x": 43,
+          "y": 57,
+          "material": "fur",
+          "color": "north/foot-right-color.png",
+          "normal": "north/foot-right-normal.png",
+          "surface": "north/foot-right-surface.png",
+          "emission": "north/foot-right-emission.png"
+        },
+        {
+          "id": "lantern",
+          "name": "Lantern",
+          "x": 16,
+          "y": 46,
+          "material": "lantern",
+          "color": "north/lantern-color.png",
+          "normal": "north/lantern-normal.png",
+          "surface": "north/lantern-surface.png",
+          "emission": "north/lantern-emission.png"
+        }
+      ],
+      "animations": [
+        {
+          "id": "idle",
+          "name": "Idle",
+          "length": 100,
+          "looping": true,
+          "tracks": [
+            {
+              "part": "body",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "body",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 50,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 56,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 68,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 100,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-left",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-left",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-right",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-right",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "lantern",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "lantern",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 2,
+                  "ease": "easeInOut"
+                }
+              ],
+              "emission": [
+                {
+                  "tick": 0,
+                  "value": 1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 25,
+                  "value": 0.82,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 55,
+                  "value": 1.12,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 75,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 100,
+                  "value": 1,
+                  "ease": "easeInOut"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "walk",
+          "name": "Walk",
+          "length": 28,
+          "looping": true,
+          "tracks": [
+            {
+              "part": "body",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "body",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-left",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-left",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -2,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-right",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-right",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -2,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "lantern",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "lantern",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 2,
+                  "ease": "easeInOut"
+                }
+              ],
+              "emission": [
+                {
+                  "tick": 0,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 7,
+                  "value": 1.05,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 14,
+                  "value": 0.82,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 28,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "northwest",
+      "name": "NorthWest",
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 72,
+        "height": 72
+      },
+      "parts": [
+        {
+          "id": "body",
+          "name": "Body"
+        },
+        {
+          "id": "foot-left",
+          "name": "Foot Left",
+          "parent": "body"
+        },
+        {
+          "id": "foot-right",
+          "name": "Foot Right",
+          "parent": "body"
+        },
+        {
+          "id": "lantern",
+          "name": "Lantern",
+          "parent": "body"
+        }
+      ],
+      "images": [
+        {
+          "id": "body",
+          "name": "Body",
+          "x": 15,
+          "y": 8,
+          "material": "fur",
+          "color": "northwest/body-color.png",
+          "normal": "northwest/body-normal.png",
+          "surface": "northwest/body-surface.png",
+          "emission": "northwest/body-emission.png"
+        },
+        {
+          "id": "foot-left",
+          "name": "Foot Left",
+          "x": 25,
+          "y": 57,
+          "material": "fur",
+          "color": "northwest/foot-left-color.png",
+          "normal": "northwest/foot-left-normal.png",
+          "surface": "northwest/foot-left-surface.png",
+          "emission": "northwest/foot-left-emission.png"
+        },
+        {
+          "id": "foot-right",
+          "name": "Foot Right",
+          "x": 36,
+          "y": 57,
+          "material": "fur",
+          "color": "northwest/foot-right-color.png",
+          "normal": "northwest/foot-right-normal.png",
+          "surface": "northwest/foot-right-surface.png",
+          "emission": "northwest/foot-right-emission.png"
+        },
+        {
+          "id": "lantern",
+          "name": "Lantern",
+          "x": 14,
+          "y": 46,
+          "material": "lantern",
+          "color": "northwest/lantern-color.png",
+          "normal": "northwest/lantern-normal.png",
+          "surface": "northwest/lantern-surface.png",
+          "emission": "northwest/lantern-emission.png"
+        }
+      ],
+      "animations": [
+        {
+          "id": "idle",
+          "name": "Idle",
+          "length": 100,
+          "looping": true,
+          "tracks": [
+            {
+              "part": "body",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "body",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 50,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 56,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 68,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 100,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-left",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-left",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-right",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-right",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "lantern",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "lantern",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 2,
+                  "ease": "easeInOut"
+                }
+              ],
+              "emission": [
+                {
+                  "tick": 0,
+                  "value": 1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 25,
+                  "value": 0.82,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 55,
+                  "value": 1.12,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 75,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 100,
+                  "value": 1,
+                  "ease": "easeInOut"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "walk",
+          "name": "Walk",
+          "length": 28,
+          "looping": true,
+          "tracks": [
+            {
+              "part": "body",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "body",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-left",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-left",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -2,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-right",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-right",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -2,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "lantern",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "lantern",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 2,
+                  "ease": "easeInOut"
+                }
+              ],
+              "emission": [
+                {
+                  "tick": 0,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 7,
+                  "value": 1.05,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 14,
+                  "value": 0.82,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 28,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "west",
+      "name": "West",
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 72,
+        "height": 72
+      },
+      "parts": [
+        {
+          "id": "body",
+          "name": "Body"
+        },
+        {
+          "id": "foot-left",
+          "name": "Foot Left",
+          "parent": "body"
+        },
+        {
+          "id": "foot-right",
+          "name": "Foot Right",
+          "parent": "body"
+        },
+        {
+          "id": "lantern",
+          "name": "Lantern",
+          "parent": "body"
+        }
+      ],
+      "images": [
+        {
+          "id": "body",
+          "name": "Body",
+          "x": 13,
+          "y": 8,
+          "material": "fur",
+          "color": "west/body-color.png",
+          "normal": "west/body-normal.png",
+          "surface": "west/body-surface.png",
+          "emission": "west/body-emission.png"
+        },
+        {
+          "id": "foot-left",
+          "name": "Foot Left",
+          "x": 25,
+          "y": 57,
+          "material": "fur",
+          "color": "west/foot-left-color.png",
+          "normal": "west/foot-left-normal.png",
+          "surface": "west/foot-left-surface.png",
+          "emission": "west/foot-left-emission.png"
+        },
+        {
+          "id": "foot-right",
+          "name": "Foot Right",
+          "x": 36,
+          "y": 57,
+          "material": "fur",
+          "color": "west/foot-right-color.png",
+          "normal": "west/foot-right-normal.png",
+          "surface": "west/foot-right-surface.png",
+          "emission": "west/foot-right-emission.png"
+        },
+        {
+          "id": "lantern",
+          "name": "Lantern",
+          "x": 14,
+          "y": 46,
+          "material": "lantern",
+          "color": "west/lantern-color.png",
+          "normal": "west/lantern-normal.png",
+          "surface": "west/lantern-surface.png",
+          "emission": "west/lantern-emission.png"
+        }
+      ],
+      "animations": [
+        {
+          "id": "idle",
+          "name": "Idle",
+          "length": 100,
+          "looping": true,
+          "tracks": [
+            {
+              "part": "body",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "body",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 50,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 56,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 68,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 100,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-left",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-left",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-right",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-right",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "lantern",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "lantern",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 2,
+                  "ease": "easeInOut"
+                }
+              ],
+              "emission": [
+                {
+                  "tick": 0,
+                  "value": 1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 25,
+                  "value": 0.82,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 55,
+                  "value": 1.12,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 75,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 100,
+                  "value": 1,
+                  "ease": "easeInOut"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "walk",
+          "name": "Walk",
+          "length": 28,
+          "looping": true,
+          "tracks": [
+            {
+              "part": "body",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "body",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-left",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-left",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -2,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-right",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-right",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -2,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "lantern",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "lantern",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 2,
+                  "ease": "easeInOut"
+                }
+              ],
+              "emission": [
+                {
+                  "tick": 0,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 7,
+                  "value": 1.05,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 14,
+                  "value": 0.82,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 28,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "southwest",
+      "name": "SouthWest",
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 72,
+        "height": 72
+      },
+      "parts": [
+        {
+          "id": "body",
+          "name": "Body"
+        },
+        {
+          "id": "foot-left",
+          "name": "Foot Left",
+          "parent": "body"
+        },
+        {
+          "id": "foot-right",
+          "name": "Foot Right",
+          "parent": "body"
+        },
+        {
+          "id": "lantern",
+          "name": "Lantern",
+          "parent": "body"
+        }
+      ],
+      "images": [
+        {
+          "id": "body",
+          "name": "Body",
+          "x": 14,
+          "y": 8,
+          "material": "fur",
+          "color": "southwest/body-color.png",
+          "normal": "southwest/body-normal.png",
+          "surface": "southwest/body-surface.png",
+          "emission": "southwest/body-emission.png"
+        },
+        {
+          "id": "foot-left",
+          "name": "Foot Left",
+          "x": 25,
+          "y": 57,
+          "material": "fur",
+          "color": "southwest/foot-left-color.png",
+          "normal": "southwest/foot-left-normal.png",
+          "surface": "southwest/foot-left-surface.png",
+          "emission": "southwest/foot-left-emission.png"
+        },
+        {
+          "id": "foot-right",
+          "name": "Foot Right",
+          "x": 36,
+          "y": 57,
+          "material": "fur",
+          "color": "southwest/foot-right-color.png",
+          "normal": "southwest/foot-right-normal.png",
+          "surface": "southwest/foot-right-surface.png",
+          "emission": "southwest/foot-right-emission.png"
+        },
+        {
+          "id": "lantern",
+          "name": "Lantern",
+          "x": 14,
+          "y": 46,
+          "material": "lantern",
+          "color": "southwest/lantern-color.png",
+          "normal": "southwest/lantern-normal.png",
+          "surface": "southwest/lantern-surface.png",
+          "emission": "southwest/lantern-emission.png"
+        }
+      ],
+      "animations": [
+        {
+          "id": "idle",
+          "name": "Idle",
+          "length": 100,
+          "looping": true,
+          "tracks": [
+            {
+              "part": "body",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "body",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 50,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 56,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 68,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 100,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-left",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-left",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-right",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-right",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "lantern",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "lantern",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 2,
+                  "ease": "easeInOut"
+                }
+              ],
+              "emission": [
+                {
+                  "tick": 0,
+                  "value": 1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 25,
+                  "value": 0.82,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 55,
+                  "value": 1.12,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 75,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 100,
+                  "value": 1,
+                  "ease": "easeInOut"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "walk",
+          "name": "Walk",
+          "length": 28,
+          "looping": true,
+          "tracks": [
+            {
+              "part": "body",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "body",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-left",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-left",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": -2,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "foot-right",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "foot-right",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 7,
+                  "value": 1,
+                  "ease": "step"
+                },
+                {
+                  "tick": 14,
+                  "value": 0,
+                  "ease": "step"
+                },
+                {
+                  "tick": 21,
+                  "value": -2,
+                  "ease": "step"
+                },
+                {
+                  "tick": 28,
+                  "value": 0,
+                  "ease": "step"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "lantern",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "lantern",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 2,
+                  "ease": "easeInOut"
+                }
+              ],
+              "emission": [
+                {
+                  "tick": 0,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 7,
+                  "value": 1.05,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 14,
+                  "value": 0.82,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 21,
+                  "value": 1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 28,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "role": "actor",
+  "nativeSize": [
+    72,
+    72
+  ],
+  "worldSize": 1,
+  "provenance": {
+    "source": "imagegen built-in, original character",
+    "sourceFile": "web/art-source/dungeon-scout-generated.png",
+    "conversionPalette": "web/art-source/dungeon-scout-palette.json"
+  },
+  "anchor": [
+    36,
+    64
+  ],
+  "properties": {
+    "lightFuel": "amber moss",
+    "movement": "eight-direction"
+  }
+}

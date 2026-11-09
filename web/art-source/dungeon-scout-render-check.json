@@ -1,0 +1,129 @@
+{
+  "adapter": {
+    "backend": "Metal",
+    "deviceType": "IntegratedGpu",
+    "driver": "",
+    "driverInfo": "",
+    "name": "Apple M5 Max"
+  },
+  "arch": "aarch64",
+  "atlas": [
+    1024,
+    64
+  ],
+  "createdUnix": 1794213662,
+  "framebufferBytes": 8650752,
+  "kind": "sprite-lab-native-benchmark",
+  "load": [
+    {
+      "archiveAndTextureDecode": {
+        "maxMs": 1.9,
+        "medianMs": 1.48925,
+        "minMs": 1.345833,
+        "p95Ms": 1.9,
+        "samples": 12
+      },
+      "asset": "Dungeon scout",
+      "compressedBytes": 75560
+    }
+  ],
+  "measuredFrames": 5,
+  "method": "Monotonic wall clock. Each completed frame includes independent phased animation, batch preparation, buffer upload, GPU submission, and blocking GPU completion. No v-sync; no frame screenshots in timed samples. This is not an isolated GPU timestamp. Fit uses shrinking sprites, overlap uses 64px-tall sprites. Texture upload and pipeline compilation excluded from steady-state cases; archive loading measured separately. All sprites on screen; full material shader; Six main draw calls including backdrop/foreground, two HDR bloom passes and display conversion. Rain/depth add one draw capturing four animated front/back views shared by the scene. Captures and uploads are timed. Crowd depth uses shared environment cards, not a separate opponent for each sprite; the single-sprite wet floor reflection is disabled in crowds.",
+  "os": "macos",
+  "release": true,
+  "results": [
+    {
+      "activeLights": 0,
+      "animationAndBatch": {
+        "maxMs": 0.0011250000000000001,
+        "medianMs": 0.000583,
+        "minMs": 0.00025,
+        "p95Ms": 0.0011250000000000001,
+        "samples": 5
+      },
+      "completedFrame": {
+        "maxMs": 2.8648749999999996,
+        "medianMs": 1.608333,
+        "minMs": 1.593833,
+        "p95Ms": 2.8648749999999996,
+        "samples": 5
+      },
+      "drawCalls": 6,
+      "instanceBytesPerFrame": 448,
+      "layout": "fit",
+      "lightTileSize": 64,
+      "maxLightsPerTile": 8,
+      "reflectionCaptureInstances": 0,
+      "reflectionSteps": 0,
+      "sprites": 1,
+      "terrainTiles": 0,
+      "uploadAndSubmit": {
+        "maxMs": 0.151291,
+        "medianMs": 0.090875,
+        "minMs": 0.078125,
+        "p95Ms": 0.151291,
+        "samples": 5
+      },
+      "visibleParts": 4,
+      "worldCaptureParts": 0
+    }
+  ],
+  "scene": "studio",
+  "sceneSettings": {
+    "ambient": 0.6499999761581421,
+    "animation": 0,
+    "asset": 0,
+    "background": 0,
+    "battle": false,
+    "bloom": 0.3499999940395355,
+    "count": 1,
+    "emission": 1.0,
+    "exposure": 1.0,
+    "light": [
+      0.30000001192092896,
+      0.20000000298023224,
+      0.6000000238418579
+    ],
+    "lightPower": 1.100000023841858,
+    "lights": 32,
+    "mixed": false,
+    "mode": 0,
+    "normals": 1.0,
+    "opacity": 1.0,
+    "overlap": false,
+    "partner": 0,
+    "phased": true,
+    "pixelTiming": true,
+    "probe": [
+      0.5799999833106995,
+      0.5
+    ],
+    "probeEnabled": true,
+    "probeFront": false,
+    "rain": 0.699999988079071,
+    "reflectionFocus": true,
+    "reflectionSteps": 16,
+    "reflectivity": 1.0,
+    "roughness": 1.0,
+    "sourceDepth": 0.8999999761581421,
+    "sourceOffset": 0.0,
+    "sourceTrainer": false,
+    "spill": 1.0,
+    "trainers": true,
+    "transmission": 1.0,
+    "view": 0,
+    "wetness": 0.800000011920929,
+    "wind": 0.25,
+    "world": false,
+    "worldSize": 48.0,
+    "zoom": 1.0
+  },
+  "sourceFingerprint": "fnv1a64:3193648571df1793",
+  "textureBytes": 1048576,
+  "version": 1,
+  "viewport": [
+    512,
+    512
+  ],
+  "warmupFrames": 12
+}

@@ -1,0 +1,951 @@
+{
+  "format": "sprite-lab",
+  "version": 0,
+  "name": "Tin Beetle",
+  "ticksPerSecond": 60,
+  "required": [
+    "core-0"
+  ],
+  "materials": [
+    {
+      "id": "steel",
+      "name": "Polished steel",
+      "roughness": 0.18,
+      "metalness": 0.92,
+      "transmission": 0,
+      "emission": 0,
+      "normalStrength": 0.65,
+      "reflectivity": 1.4,
+      "properties": {
+        "magnetism": 0.95
+      }
+    },
+    {
+      "id": "brass",
+      "name": "Brass joints",
+      "roughness": 0.33,
+      "metalness": 0.8,
+      "transmission": 0,
+      "emission": 0,
+      "normalStrength": 0.65,
+      "reflectivity": 1
+    },
+    {
+      "id": "eye",
+      "name": "Signal lens",
+      "roughness": 0.1,
+      "metalness": 0,
+      "transmission": 0,
+      "emission": 2.3,
+      "normalStrength": 0.65,
+      "reflectivity": 1
+    }
+  ],
+  "views": [
+    {
+      "id": "front",
+      "name": "Front",
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 56,
+        "height": 56
+      },
+      "parts": [
+        {
+          "id": "leg-l-0",
+          "name": "Leg L 0",
+          "parent": "shell"
+        },
+        {
+          "id": "leg-r-0",
+          "name": "Leg R 0",
+          "parent": "shell"
+        },
+        {
+          "id": "leg-l-1",
+          "name": "Leg L 1",
+          "parent": "shell"
+        },
+        {
+          "id": "leg-r-1",
+          "name": "Leg R 1",
+          "parent": "shell"
+        },
+        {
+          "id": "leg-l-2",
+          "name": "Leg L 2",
+          "parent": "shell"
+        },
+        {
+          "id": "leg-r-2",
+          "name": "Leg R 2",
+          "parent": "shell"
+        },
+        {
+          "id": "shell",
+          "name": "Shell"
+        },
+        {
+          "id": "head",
+          "name": "Head",
+          "parent": "shell"
+        },
+        {
+          "id": "eyes",
+          "name": "Eyes",
+          "parent": "head"
+        }
+      ],
+      "images": [
+        {
+          "id": "leg-l-0",
+          "name": "Leg L 0",
+          "x": -13,
+          "y": -4,
+          "material": "steel",
+          "color": "front/leg-l-0-color.png",
+          "normal": "front/leg-l-0-normal.png",
+          "surface": "front/leg-l-0-surface.png",
+          "emission": "front/leg-l-0-emission.png"
+        },
+        {
+          "id": "leg-r-0",
+          "name": "Leg R 0",
+          "x": 0,
+          "y": -4,
+          "material": "steel",
+          "color": "front/leg-r-0-color.png",
+          "normal": "front/leg-r-0-normal.png",
+          "surface": "front/leg-r-0-surface.png",
+          "emission": "front/leg-r-0-emission.png"
+        },
+        {
+          "id": "leg-l-1",
+          "name": "Leg L 1",
+          "x": -13,
+          "y": -3,
+          "material": "steel",
+          "color": "front/leg-l-1-color.png",
+          "normal": "front/leg-l-1-normal.png",
+          "surface": "front/leg-l-1-surface.png",
+          "emission": "front/leg-l-1-emission.png"
+        },
+        {
+          "id": "leg-r-1",
+          "name": "Leg R 1",
+          "x": 0,
+          "y": -3,
+          "material": "steel",
+          "color": "front/leg-r-1-color.png",
+          "normal": "front/leg-r-1-normal.png",
+          "surface": "front/leg-r-1-surface.png",
+          "emission": "front/leg-r-1-emission.png"
+        },
+        {
+          "id": "leg-l-2",
+          "name": "Leg L 2",
+          "x": -13,
+          "y": -3,
+          "material": "steel",
+          "color": "front/leg-l-2-color.png",
+          "normal": "front/leg-l-2-normal.png",
+          "surface": "front/leg-l-2-surface.png",
+          "emission": "front/leg-l-2-emission.png"
+        },
+        {
+          "id": "leg-r-2",
+          "name": "Leg R 2",
+          "x": 0,
+          "y": -3,
+          "material": "steel",
+          "color": "front/leg-r-2-color.png",
+          "normal": "front/leg-r-2-normal.png",
+          "surface": "front/leg-r-2-surface.png",
+          "emission": "front/leg-r-2-emission.png"
+        },
+        {
+          "id": "shell",
+          "name": "Shell",
+          "x": -14,
+          "y": -18,
+          "material": "steel",
+          "color": "front/shell-color.png",
+          "normal": "front/shell-normal.png",
+          "surface": "front/shell-surface.png",
+          "emission": "front/shell-emission.png"
+        },
+        {
+          "id": "head",
+          "name": "Head",
+          "x": -13,
+          "y": -6,
+          "material": "brass",
+          "color": "front/head-color.png",
+          "normal": "front/head-normal.png",
+          "surface": "front/head-surface.png",
+          "emission": "front/head-emission.png"
+        },
+        {
+          "id": "eyes",
+          "name": "Eyes",
+          "x": -5,
+          "y": 1,
+          "material": "eye",
+          "color": "front/eyes-color.png",
+          "normal": "front/eyes-normal.png",
+          "surface": "front/eyes-surface.png",
+          "emission": "front/eyes-emission.png"
+        }
+      ],
+      "animations": [
+        {
+          "id": "idle",
+          "name": "Idle",
+          "length": 80,
+          "looping": true,
+          "tracks": [
+            {
+              "part": "leg-l-0",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "leg-l-0",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": -8,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": -6,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "leg-r-0",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "leg-r-0",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 7,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": -6,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 1,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "leg-l-1",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "leg-l-1",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": -8,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 1,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 2,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "leg-r-1",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "leg-r-1",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 7,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 1,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 3,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "leg-l-2",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "leg-l-2",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": -8,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 7,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 4,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "leg-r-2",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "leg-r-2",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 7,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 7,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 5,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "shell",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "shell",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 28,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 28,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 6,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "head",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "head",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 11,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 7,
+                  "ease": "easeInOut"
+                }
+              ],
+              "rotation": [
+                {
+                  "tick": 0,
+                  "value": -3,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 40,
+                  "value": 3,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 80,
+                  "value": -3,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "eyes",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "eyes",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 8,
+                  "ease": "easeInOut"
+                }
+              ],
+              "emission": [
+                {
+                  "tick": 0,
+                  "value": 0.65,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 40,
+                  "value": 1.1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 80,
+                  "value": 0.65,
+                  "ease": "easeInOut"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "walk",
+          "name": "Walk",
+          "length": 28,
+          "looping": true,
+          "tracks": [
+            {
+              "part": "leg-l-0",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "leg-l-0",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": -8,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": -6,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "rotation": [
+                {
+                  "tick": 0,
+                  "value": -9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 14,
+                  "value": 9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 28,
+                  "value": -9,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "leg-r-0",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "leg-r-0",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 7,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": -6,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 1,
+                  "ease": "easeInOut"
+                }
+              ],
+              "rotation": [
+                {
+                  "tick": 0,
+                  "value": 9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 14,
+                  "value": -9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 28,
+                  "value": 9,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "leg-l-1",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "leg-l-1",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": -8,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 1,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 2,
+                  "ease": "easeInOut"
+                }
+              ],
+              "rotation": [
+                {
+                  "tick": 0,
+                  "value": 9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 14,
+                  "value": -9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 28,
+                  "value": 9,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "leg-r-1",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "leg-r-1",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 7,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 1,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 3,
+                  "ease": "easeInOut"
+                }
+              ],
+              "rotation": [
+                {
+                  "tick": 0,
+                  "value": -9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 14,
+                  "value": 9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 28,
+                  "value": -9,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "leg-l-2",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "leg-l-2",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": -8,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 7,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 4,
+                  "ease": "easeInOut"
+                }
+              ],
+              "rotation": [
+                {
+                  "tick": 0,
+                  "value": -9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 14,
+                  "value": 9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 28,
+                  "value": -9,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "leg-r-2",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "leg-r-2",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 7,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 7,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 5,
+                  "ease": "easeInOut"
+                }
+              ],
+              "rotation": [
+                {
+                  "tick": 0,
+                  "value": 9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 14,
+                  "value": -9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 28,
+                  "value": 9,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "shell",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "shell",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 28,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 28,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 7,
+                  "value": 27,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 14,
+                  "value": 28,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 21,
+                  "value": 27,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 28,
+                  "value": 28,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 6,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "head",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "head",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 11,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 7,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "eyes",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "eyes",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 8,
+                  "ease": "easeInOut"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "role": "actor",
+  "nativeSize": [
+    56,
+    56
+  ],
+  "worldSize": 1,
+  "provenance": "Original artwork created for Sprite Lab. Dedicated to the public domain under CC0 1.0; https://creativecommons.org/publicdomain/zero/1.0/ . No game artwork is included.",
+  "anchor": [
+    28,
+    48
+  ],
+  "properties": {
+    "magnetism": 0.9,
+    "weight": 2.4,
+    "walkSpeed": 1.3
+  }
+}

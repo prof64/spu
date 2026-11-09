@@ -1,0 +1,11 @@
+/target/
+/web/pkg/
+/web/fixtures/
+/artifacts/
+/node_modules/
+/.DS_Store
+*.log
+__pycache__/
+*.pyc
+/tools/corpus-check/target/
+/tools/corpus-check/target/

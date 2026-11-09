@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sprite Lab</title><meta name="description" content="Compare original Pokémon sprites with lighting and material effects.">
+<link rel="icon" href="data:,"><link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><h1>Sprite Lab</h1><span id="document-name">Charizard</span><div class="file-actions"><button id="open">Open file…</button><button id="save" disabled>Save copy</button><input id="file" type="file" accept=".sprite,.zip" hidden></div></header>
+<div class="workspace">
+<aside class="library-panel" aria-label="Sprites"><h2>Pokémon</h2><div id="library"></div></aside>
+<main>
+<div class="toolbar">
+<label>View <select id="layout"><option value="front">Front</option><option value="back">Back</option><option value="battle">Battle</option><option value="world">Stress test</option></select></label>
+<label id="opponent-label" hidden>Opponent <select id="opponent"></select></label>
+<label id="count-label" hidden>Count <select id="population"><option>100</option><option>500</option><option>1000</option><option>5000</option><option>10000</option></select></label>
+<label id="animation-label">Animation <select id="clip"></select></label>
+<label class="zoom-label">Zoom <select id="zoom"><option value="0.75">75%</option><option value="1" selected>100%</option><option value="1.25">125%</option><option value="1.5">150%</option><option value="2">200%</option></select></label>
+</div>
+<div id="comparison">
+<section class="preview" aria-label="Original sprite"><div class="pane-heading"><h2>Original</h2><span id="original-caption">Gen 5</span></div><div class="viewport" id="original-stage"><canvas id="original" width="512" height="512" aria-label="Original sprite without material effects"></canvas></div></section>
+<section class="preview" aria-label="Sprite with material effects"><div class="pane-heading"><h2>With materials</h2><label class="compact"><input id="effects-enabled" type="checkbox" checked> Enabled</label></div><div class="viewport" id="effect-stage"><canvas id="canvas" width="512" height="512" aria-label="Sprite with effects. Drag to move the light."></canvas><button id="light" aria-label="Move light" title="Drag to move the light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 1v3m0 16v3M1 12h3m16 0h3M4.2 4.2l2.1 2.1m11.4 11.4 2.1 2.1M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></button></div></section>
+<div id="loading" role="status">Loading Pokémon…</div>
+<div id="drop" hidden>Open .sprite file</div>
+</div>
+<div class="transport"><button id="play" aria-label="Pause animation" disabled>Pause</button><input id="timeline" type="range" min="0" max="1" step=".001" value="0" aria-label="Animation time"><output id="time">0.00 s</output><select id="speed" aria-label="Playback speed"><option value=".25">¼ speed</option><option value=".5">½ speed</option><option value="1" selected>1× speed</option><option value="2">2× speed</option></select></div>
+<footer><span id="status">WebGPU</span><span id="fps"></span></footer>
+</main>
+<aside class="inspector" aria-label="Material controls">
+<div class="inspector-title"><h2>Materials</h2><button id="reset">Reset</button></div>
+<label class="field">Environment<select id="environment"><option value="0">Studio</option><option value="4">Cave</option><option value="6">Rain</option></select></label>
+<div class="parameter"><label for="emission">Emission</label><output data-output="emission"></output><input id="emission" data-setting="emission" type="range" min="0" max="4" step=".05"></div>
+<div class="parameter"><label for="reflectivity">Reflection</label><output data-output="reflectivity"></output><input id="reflectivity" data-setting="reflectivity" type="range" min="0" max="4" step=".05"></div>
+<div class="parameter"><label for="transmission">Transmission</label><output data-output="transmission"></output><input id="transmission" data-setting="transmission" type="range" min="0" max="2" step=".05"></div>
+<div class="parameter"><label for="roughness">Roughness</label><output data-output="roughness"></output><input id="roughness" data-setting="roughness" type="range" min=".1" max="2" step=".05"></div>
+<h2 class="section-title">Light</h2>
+<div class="parameter"><label for="ambient">Ambient</label><output data-output="ambient"></output><input id="ambient" data-setting="ambient" type="range" min="0" max="1.5" step=".01"></div>
+<div class="parameter"><label for="lightPower">Strength</label><output data-output="lightPower"></output><input id="lightPower" data-setting="lightPower" type="range" min="0" max="4" step=".05"></div>
+<label class="check"><input id="orbit" type="checkbox"> Animate light</label>
+<details><summary>Advanced</summary>
+<div class="parameter"><label for="normals">Normal depth</label><output data-output="normals"></output><input id="normals" data-setting="normals" type="range" min="0" max="2" step=".05"></div>
+<div class="parameter"><label for="bloom">Bloom</label><output data-output="bloom"></output><input id="bloom" data-setting="bloom" type="range" min="0" max="2" step=".05"></div>
+<div class="parameter"><label for="opacity">Opacity</label><output data-output="opacity"></output><input id="opacity" data-setting="opacity" type="range" min=".05" max="1" step=".05"></div>
+<div class="parameter"><label for="height">Light height</label><output id="height-value"></output><input id="height" type="range" min=".05" max="1.5" step=".05" value=".6"></div>
+<label class="field">Map<select id="channel"><option value="0">Shaded</option><option value="1">Color</option><option value="2">Normals</option><option value="3">Surface</option><option value="4">Emission</option><option value="5">Reflection</option></select></label>
+<label class="field">Light budget<select id="lights"><option>8</option><option selected>32</option><option>128</option><option>512</option></select></label>
+<label class="field">Reflection quality<select id="quality"><option value="0">Off</option><option value="8">Fast</option><option value="16" selected>Standard</option><option value="32">Detailed</option></select></label>
+<label class="check"><input id="pixel-timing" type="checkbox" checked> Source frame timing</label>
+</details>
+</aside>
+</div>
+<div id="message" role="status" hidden></div>
+<script type="module" src="app.js"></script>
+</body></html>

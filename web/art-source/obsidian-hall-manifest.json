@@ -1,0 +1,88 @@
+{
+  "format": "sprite-lab",
+  "version": 0,
+  "name": "Obsidian hall",
+  "ticksPerSecond": 60,
+  "required": [
+    "core-0"
+  ],
+  "role": "terrain",
+  "showcaseOnly": true,
+  "nativeSize": [
+    640,
+    360
+  ],
+  "anchor": [
+    320,
+    360
+  ],
+  "repeatable": false,
+  "properties": {
+    "environment": true,
+    "friction": 0.85
+  },
+  "provenance": "Original composition generated with OpenAI built-in image_gen for Sprite Lab, 2026-11-09. Prompt and full generated source retained in web/art-source/. Native 640x360 conversion by tools/make_obsidian_hall.py. No extracted game artwork. Project artwork dedicated under CC0 1.0.",
+  "materials": [
+    {
+      "id": "stone",
+      "name": "Obsidian and bronze",
+      "roughness": 0.96,
+      "metalness": 0.0,
+      "transmission": 0.0,
+      "emission": 0.0,
+      "normalStrength": 0.0,
+      "reflectivity": 0.15
+    }
+  ],
+  "views": [
+    {
+      "id": "room",
+      "name": "Room",
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 360
+      },
+      "parts": [
+        {
+          "id": "architecture",
+          "name": "Architecture"
+        }
+      ],
+      "images": [
+        {
+          "id": "room",
+          "name": "Room",
+          "x": 0,
+          "y": 0,
+          "material": "stone",
+          "color": "room/color.png",
+          "normal": "room/normal.png",
+          "surface": "room/surface.png",
+          "emission": "room/emission.png"
+        }
+      ],
+      "animations": [
+        {
+          "id": "still",
+          "name": "Still",
+          "length": 60,
+          "looping": true,
+          "tracks": [
+            {
+              "part": "architecture",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "room",
+                  "ease": "step"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

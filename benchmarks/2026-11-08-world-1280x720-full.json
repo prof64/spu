@@ -1,0 +1,324 @@
+{
+  "adapter": {
+    "backend": "Metal",
+    "deviceType": "IntegratedGpu",
+    "driver": "",
+    "driverInfo": "",
+    "name": "Apple M5 Max"
+  },
+  "arch": "aarch64",
+  "atlas": [
+    1024,
+    128
+  ],
+  "createdUnix": 1794203279,
+  "framebufferBytes": 25137152,
+  "kind": "sprite-lab-native-benchmark",
+  "load": [
+    {
+      "archiveAndTextureDecode": {
+        "maxMs": 0.893459,
+        "medianMs": 0.6014160000000001,
+        "minMs": 0.5298339999999999,
+        "p95Ms": 0.893459,
+        "samples": 12
+      },
+      "asset": "Emberwing",
+      "compressedBytes": 36337
+    },
+    {
+      "archiveAndTextureDecode": {
+        "maxMs": 2.126667,
+        "medianMs": 1.8745420000000002,
+        "minMs": 1.854833,
+        "p95Ms": 2.126667,
+        "samples": 12
+      },
+      "asset": "Moss Scout",
+      "compressedBytes": 171632
+    },
+    {
+      "archiveAndTextureDecode": {
+        "maxMs": 0.09175,
+        "medianMs": 0.068416,
+        "minMs": 0.06754099999999999,
+        "p95Ms": 0.09175,
+        "samples": 12
+      },
+      "asset": "Lantern",
+      "compressedBytes": 5545
+    },
+    {
+      "archiveAndTextureDecode": {
+        "maxMs": 0.092625,
+        "medianMs": 0.075708,
+        "minMs": 0.069875,
+        "p95Ms": 0.092625,
+        "samples": 12
+      },
+      "asset": "Glass vial",
+      "compressedBytes": 5485
+    },
+    {
+      "archiveAndTextureDecode": {
+        "maxMs": 0.053709,
+        "medianMs": 0.040083,
+        "minMs": 0.039208999999999994,
+        "p95Ms": 0.053709,
+        "samples": 12
+      },
+      "asset": "Moss stone",
+      "compressedBytes": 2480
+    },
+    {
+      "archiveAndTextureDecode": {
+        "maxMs": 0.216875,
+        "medianMs": 0.180208,
+        "minMs": 0.171959,
+        "p95Ms": 0.216875,
+        "samples": 12
+      },
+      "asset": "Tin Beetle",
+      "compressedBytes": 13440
+    }
+  ],
+  "measuredFrames": 180,
+  "method": "Completed frame wall time includes animation of all objects, depth ordering, material preparation, strongest luminous part per object, spatial light-list building, uploads, full-scene color/depth capture, shading, one-bounce screen-space reflection ray marching, bloom and blocking GPU completion. Fixed-size canvases (worldSize in settings), all objects on screen, plus 48px terrain tiles. Overlap grows with population; sprites are never shrunk or culled. Up to the requested number of evenly distributed emissive objects become local lights (actual count reported), eight strongest local lights per 64px tile. Reflection steps and requested light count are recorded. Roughness >=0.85 skips coherent reflections; rain wetness lowers the floor roughness so the wet-floor test traces those pixels too. Reflections use visible color/depth only; no offscreen, hidden-side, recursive or shadow rays. Capture retains current-view color and emission and stays active for transmission even when reflection steps are zero. GPU/animation rendering workload only: excludes game logic, collision, networking, audio, asset streaming and pipeline/texture creation. No v-sync or screenshots in timed cases.",
+  "os": "macos",
+  "release": true,
+  "results": [
+    {
+      "activeLights": 100,
+      "animationAndBatch": {
+        "maxMs": 0.058832999999999996,
+        "medianMs": 0.026625,
+        "minMs": 0.022041,
+        "p95Ms": 0.032792,
+        "samples": 180
+      },
+      "completedFrame": {
+        "maxMs": 1.446667,
+        "medianMs": 1.3775840000000001,
+        "minMs": 1.192875,
+        "p95Ms": 1.4071660000000001,
+        "samples": 180
+      },
+      "drawCalls": 7,
+      "instanceBytesPerFrame": 103600,
+      "layout": "world",
+      "lightTileSize": 64,
+      "maxLightsPerTile": 8,
+      "reflectionCaptureInstances": 0,
+      "reflectionSteps": 16,
+      "sprites": 100,
+      "terrainTiles": 405,
+      "uploadAndSubmit": {
+        "maxMs": 0.148333,
+        "medianMs": 0.085959,
+        "minMs": 0.076125,
+        "p95Ms": 0.10074999999999999,
+        "samples": 180
+      },
+      "visibleParts": 925,
+      "worldCaptureParts": 925
+    },
+    {
+      "activeLights": 128,
+      "animationAndBatch": {
+        "maxMs": 0.154042,
+        "medianMs": 0.099584,
+        "minMs": 0.088166,
+        "p95Ms": 0.109042,
+        "samples": 180
+      },
+      "completedFrame": {
+        "maxMs": 2.585666,
+        "medianMs": 1.486542,
+        "minMs": 1.452042,
+        "p95Ms": 1.509333,
+        "samples": 180
+      },
+      "drawCalls": 7,
+      "instanceBytesPerFrame": 336560,
+      "layout": "world",
+      "lightTileSize": 64,
+      "maxLightsPerTile": 8,
+      "reflectionCaptureInstances": 0,
+      "reflectionSteps": 16,
+      "sprites": 500,
+      "terrainTiles": 405,
+      "uploadAndSubmit": {
+        "maxMs": 0.15275,
+        "medianMs": 0.12025,
+        "minMs": 0.09979199999999999,
+        "p95Ms": 0.135375,
+        "samples": 180
+      },
+      "visibleParts": 3005,
+      "worldCaptureParts": 3005
+    },
+    {
+      "activeLights": 128,
+      "animationAndBatch": {
+        "maxMs": 0.6070840000000001,
+        "medianMs": 0.318583,
+        "minMs": 0.173959,
+        "p95Ms": 0.520625,
+        "samples": 180
+      },
+      "completedFrame": {
+        "maxMs": 6.40875,
+        "medianMs": 3.071583,
+        "minMs": 2.711875,
+        "p95Ms": 6.155875,
+        "samples": 180
+      },
+      "drawCalls": 7,
+      "instanceBytesPerFrame": 627760,
+      "layout": "world",
+      "lightTileSize": 64,
+      "maxLightsPerTile": 8,
+      "reflectionCaptureInstances": 0,
+      "reflectionSteps": 16,
+      "sprites": 1000,
+      "terrainTiles": 405,
+      "uploadAndSubmit": {
+        "maxMs": 0.717083,
+        "medianMs": 0.224167,
+        "minMs": 0.13958399999999999,
+        "p95Ms": 0.584709,
+        "samples": 180
+      },
+      "visibleParts": 5605,
+      "worldCaptureParts": 5605
+    },
+    {
+      "activeLights": 128,
+      "animationAndBatch": {
+        "maxMs": 2.1723749999999997,
+        "medianMs": 1.680958,
+        "minMs": 1.1253330000000001,
+        "p95Ms": 1.9835,
+        "samples": 180
+      },
+      "completedFrame": {
+        "maxMs": 11.793792000000002,
+        "medianMs": 8.755125000000001,
+        "minMs": 6.982583,
+        "p95Ms": 11.502082999999999,
+        "samples": 180
+      },
+      "drawCalls": 7,
+      "instanceBytesPerFrame": 2957360,
+      "layout": "world",
+      "lightTileSize": 64,
+      "maxLightsPerTile": 8,
+      "reflectionCaptureInstances": 0,
+      "reflectionSteps": 16,
+      "sprites": 5000,
+      "terrainTiles": 405,
+      "uploadAndSubmit": {
+        "maxMs": 1.201583,
+        "medianMs": 0.706417,
+        "minMs": 0.380583,
+        "p95Ms": 0.860125,
+        "samples": 180
+      },
+      "visibleParts": 26405,
+      "worldCaptureParts": 26405
+    },
+    {
+      "activeLights": 128,
+      "animationAndBatch": {
+        "maxMs": 2.784875,
+        "medianMs": 2.4576659999999997,
+        "minMs": 1.718,
+        "p95Ms": 2.7545,
+        "samples": 180
+      },
+      "completedFrame": {
+        "maxMs": 13.375459,
+        "medianMs": 10.754916999999999,
+        "minMs": 9.658583,
+        "p95Ms": 11.158208,
+        "samples": 180
+      },
+      "drawCalls": 7,
+      "instanceBytesPerFrame": 5869360,
+      "layout": "world",
+      "lightTileSize": 64,
+      "maxLightsPerTile": 8,
+      "reflectionCaptureInstances": 0,
+      "reflectionSteps": 16,
+      "sprites": 10000,
+      "terrainTiles": 405,
+      "uploadAndSubmit": {
+        "maxMs": 0.96875,
+        "medianMs": 0.705917,
+        "minMs": 0.521,
+        "p95Ms": 0.824166,
+        "samples": 180
+      },
+      "visibleParts": 52405,
+      "worldCaptureParts": 52405
+    }
+  ],
+  "scene": "world-rain",
+  "sceneSettings": {
+    "ambient": 0.27000001072883606,
+    "animation": 0,
+    "asset": 0,
+    "background": 6,
+    "battle": false,
+    "bloom": 0.44999998807907104,
+    "count": 1,
+    "emission": 1.100000023841858,
+    "exposure": 1.0,
+    "light": [
+      0.30000001192092896,
+      0.20000000298023224,
+      0.6000000238418579
+    ],
+    "lightPower": 0.75,
+    "lights": 128,
+    "mixed": false,
+    "mode": 0,
+    "normals": 1.0,
+    "opacity": 1.0,
+    "overlap": false,
+    "partner": 0,
+    "phased": true,
+    "pixelTiming": true,
+    "probe": [
+      0.5799999833106995,
+      0.5
+    ],
+    "probeEnabled": false,
+    "probeFront": false,
+    "rain": 0.699999988079071,
+    "reflectionFocus": true,
+    "reflectionSteps": 16,
+    "reflectivity": 2.0,
+    "roughness": 1.0,
+    "sourceDepth": 0.8999999761581421,
+    "sourceOffset": 0.0,
+    "sourceTrainer": false,
+    "spill": 1.2999999523162842,
+    "trainers": true,
+    "transmission": 0.6499999761581421,
+    "view": 0,
+    "wetness": 0.800000011920929,
+    "wind": 0.25,
+    "world": true,
+    "worldSize": 48.0,
+    "zoom": 1.0
+  },
+  "sourceFingerprint": "fnv1a64:3193648571df1793",
+  "textureBytes": 2097152,
+  "version": 1,
+  "viewport": [
+    1280,
+    720
+  ],
+  "warmupFrames": 12
+}

@@ -1,0 +1,297 @@
+{
+  "format": "sprite-lab",
+  "version": 0,
+  "name": "Lantern",
+  "ticksPerSecond": 60,
+  "required": [
+    "core-0"
+  ],
+  "materials": [
+    {
+      "id": "brass",
+      "name": "Brass",
+      "roughness": 0.28,
+      "metalness": 0.85,
+      "transmission": 0,
+      "emission": 0,
+      "normalStrength": 0.65,
+      "reflectivity": 1,
+      "properties": {
+        "magnetism": 0.25
+      }
+    },
+    {
+      "id": "glass",
+      "name": "Warm glass",
+      "roughness": 0.12,
+      "metalness": 0,
+      "transmission": 0.35,
+      "emission": 3.0,
+      "normalStrength": 0.65,
+      "reflectivity": 1,
+      "ior": 1.5
+    }
+  ],
+  "views": [
+    {
+      "id": "front",
+      "name": "Front",
+      "canvas": {
+        "x": 0,
+        "y": 0,
+        "width": 48,
+        "height": 48
+      },
+      "parts": [
+        {
+          "id": "glass",
+          "name": "Glass",
+          "parent": "frame"
+        },
+        {
+          "id": "flame",
+          "name": "Flame",
+          "parent": "frame"
+        },
+        {
+          "id": "frame",
+          "name": "Frame"
+        }
+      ],
+      "images": [
+        {
+          "id": "glass",
+          "name": "Glass",
+          "x": -9,
+          "y": -5,
+          "material": "glass",
+          "color": "front/glass-color.png",
+          "normal": "front/glass-normal.png",
+          "surface": "front/glass-surface.png",
+          "emission": "front/glass-emission.png"
+        },
+        {
+          "id": "flame",
+          "name": "Flame",
+          "x": -4,
+          "y": -2,
+          "material": "glass",
+          "color": "front/flame-color.png",
+          "normal": "front/flame-normal.png",
+          "surface": "front/flame-surface.png",
+          "emission": "front/flame-emission.png"
+        },
+        {
+          "id": "frame",
+          "name": "Frame",
+          "x": -12,
+          "y": -20,
+          "material": "brass",
+          "color": "front/frame-color.png",
+          "normal": "front/frame-normal.png",
+          "surface": "front/frame-surface.png",
+          "emission": "front/frame-emission.png"
+        }
+      ],
+      "animations": [
+        {
+          "id": "flicker",
+          "name": "Flicker",
+          "length": 60,
+          "looping": true,
+          "tracks": [
+            {
+              "part": "glass",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "glass",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "emission": [
+                {
+                  "tick": 0,
+                  "value": 0.7,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 13,
+                  "value": 1.1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 26,
+                  "value": 0.8,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 43,
+                  "value": 1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 60,
+                  "value": 0.7,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "flame",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "flame",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 0,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 1,
+                  "ease": "easeInOut"
+                }
+              ],
+              "emission": [
+                {
+                  "tick": 0,
+                  "value": 0.7,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 13,
+                  "value": 1.1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 26,
+                  "value": 0.8,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 43,
+                  "value": 1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 60,
+                  "value": 0.7,
+                  "ease": "easeInOut"
+                }
+              ],
+              "scaleX": [
+                {
+                  "tick": 0,
+                  "value": 1,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 13,
+                  "value": 0.78,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 26,
+                  "value": 1.15,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 43,
+                  "value": 0.9,
+                  "ease": "easeInOut"
+                },
+                {
+                  "tick": 60,
+                  "value": 1,
+                  "ease": "easeInOut"
+                }
+              ]
+            },
+            {
+              "part": "frame",
+              "image": [
+                {
+                  "tick": 0,
+                  "value": "frame",
+                  "ease": "step"
+                }
+              ],
+              "x": [
+                {
+                  "tick": 0,
+                  "value": 24,
+                  "ease": "easeInOut"
+                }
+              ],
+              "y": [
+                {
+                  "tick": 0,
+                  "value": 24,
+                  "ease": "easeInOut"
+                }
+              ],
+              "z": [
+                {
+                  "tick": 0,
+                  "value": 2,
+                  "ease": "easeInOut"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "role": "prop",
+  "nativeSize": [
+    48,
+    48
+  ],
+  "worldSize": 1,
+  "provenance": "Original artwork created for Sprite Lab. Dedicated to the public domain under CC0 1.0; https://creativecommons.org/publicdomain/zero/1.0/ . No game artwork is included.",
+  "anchor": [
+    24,
+    42
+  ],
+  "properties": {
+    "fuelSeconds": 240,
+    "pickup": true
+  }
+}

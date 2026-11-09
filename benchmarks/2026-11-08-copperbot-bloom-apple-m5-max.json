@@ -1,0 +1,332 @@
+{
+  "adapter": {
+    "backend": "Metal",
+    "deviceType": "IntegratedGpu",
+    "driver": "",
+    "driverInfo": "",
+    "name": "Apple M5 Max"
+  },
+  "arch": "aarch64",
+  "atlas": [
+    1024,
+    64
+  ],
+  "createdUnix": 1794195221,
+  "framebufferBytes": 8294400,
+  "kind": "sprite-lab-native-benchmark",
+  "load": [
+    {
+      "archiveAndTextureDecode": {
+        "maxMs": 0.808875,
+        "medianMs": 0.35075,
+        "minMs": 0.26545799999999997,
+        "p95Ms": 0.808875,
+        "samples": 12
+      },
+      "asset": "Copperbot",
+      "compressedBytes": 11070
+    }
+  ],
+  "measuredFrames": 90,
+  "method": "Monotonic wall clock. Each completed frame includes independent phased animation, batch preparation, buffer upload, GPU submission, and blocking GPU completion. No v-sync; no frame screenshots in timed samples. This is not an isolated GPU timestamp. Fit uses shrinking sprites, overlap uses 64px-tall sprites. Texture upload and pipeline compilation excluded from steady-state cases; archive loading measured separately. All sprites on screen; full material shader; six draw calls including backdrop/foreground, two quarter-resolution HDR bloom passes, and linear-to-display pass.",
+  "os": "macos",
+  "release": true,
+  "results": [
+    {
+      "animationAndBatch": {
+        "maxMs": 0.0275,
+        "medianMs": 0.001459,
+        "minMs": 0.000916,
+        "p95Ms": 0.0027080000000000003,
+        "samples": 90
+      },
+      "completedFrame": {
+        "maxMs": 3.1458329999999997,
+        "medianMs": 1.563333,
+        "minMs": 1.240667,
+        "p95Ms": 2.972334,
+        "samples": 90
+      },
+      "drawCalls": 6,
+      "instanceBytesPerFrame": 288,
+      "layout": "fit",
+      "sprites": 1,
+      "uploadAndSubmit": {
+        "maxMs": 0.5742079999999999,
+        "medianMs": 0.231417,
+        "minMs": 0.148625,
+        "p95Ms": 0.44025,
+        "samples": 90
+      },
+      "visibleParts": 3
+    },
+    {
+      "animationAndBatch": {
+        "maxMs": 0.110458,
+        "medianMs": 0.009917,
+        "minMs": 0.00625,
+        "p95Ms": 0.041124999999999995,
+        "samples": 90
+      },
+      "completedFrame": {
+        "maxMs": 2.225917,
+        "medianMs": 1.612917,
+        "minMs": 1.335583,
+        "p95Ms": 1.9325830000000002,
+        "samples": 90
+      },
+      "drawCalls": 6,
+      "instanceBytesPerFrame": 28800,
+      "layout": "fit",
+      "sprites": 100,
+      "uploadAndSubmit": {
+        "maxMs": 0.7729170000000001,
+        "medianMs": 0.294584,
+        "minMs": 0.164167,
+        "p95Ms": 0.517791,
+        "samples": 90
+      },
+      "visibleParts": 300
+    },
+    {
+      "animationAndBatch": {
+        "maxMs": 0.183834,
+        "medianMs": 0.085958,
+        "minMs": 0.056582999999999994,
+        "p95Ms": 0.14300000000000002,
+        "samples": 90
+      },
+      "completedFrame": {
+        "maxMs": 2.063958,
+        "medianMs": 1.717208,
+        "minMs": 1.41625,
+        "p95Ms": 1.8818750000000002,
+        "samples": 90
+      },
+      "drawCalls": 6,
+      "instanceBytesPerFrame": 288000,
+      "layout": "fit",
+      "sprites": 1000,
+      "uploadAndSubmit": {
+        "maxMs": 0.555292,
+        "medianMs": 0.304292,
+        "minMs": 0.17758300000000002,
+        "p95Ms": 0.4705,
+        "samples": 90
+      },
+      "visibleParts": 3000
+    },
+    {
+      "animationAndBatch": {
+        "maxMs": 0.687084,
+        "medianMs": 0.429667,
+        "minMs": 0.294209,
+        "p95Ms": 0.5325,
+        "samples": 90
+      },
+      "completedFrame": {
+        "maxMs": 3.645541,
+        "medianMs": 2.205167,
+        "minMs": 1.826375,
+        "p95Ms": 2.5139590000000003,
+        "samples": 90
+      },
+      "drawCalls": 6,
+      "instanceBytesPerFrame": 1440000,
+      "layout": "fit",
+      "sprites": 5000,
+      "uploadAndSubmit": {
+        "maxMs": 0.9691660000000001,
+        "medianMs": 0.45683300000000004,
+        "minMs": 0.27975,
+        "p95Ms": 0.6147499999999999,
+        "samples": 90
+      },
+      "visibleParts": 15000
+    },
+    {
+      "animationAndBatch": {
+        "maxMs": 1.3475,
+        "medianMs": 0.8735,
+        "minMs": 0.626916,
+        "p95Ms": 1.089958,
+        "samples": 90
+      },
+      "completedFrame": {
+        "maxMs": 7.218834,
+        "medianMs": 4.060916000000001,
+        "minMs": 2.734125,
+        "p95Ms": 4.88025,
+        "samples": 90
+      },
+      "drawCalls": 6,
+      "instanceBytesPerFrame": 2880000,
+      "layout": "fit",
+      "sprites": 10000,
+      "uploadAndSubmit": {
+        "maxMs": 1.1471660000000001,
+        "medianMs": 0.6651670000000001,
+        "minMs": 0.502,
+        "p95Ms": 0.9535,
+        "samples": 90
+      },
+      "visibleParts": 30000
+    },
+    {
+      "animationAndBatch": {
+        "maxMs": 0.051584,
+        "medianMs": 0.0115,
+        "minMs": 0.007,
+        "p95Ms": 0.0375,
+        "samples": 90
+      },
+      "completedFrame": {
+        "maxMs": 3.185625,
+        "medianMs": 1.578958,
+        "minMs": 1.339708,
+        "p95Ms": 1.895875,
+        "samples": 90
+      },
+      "drawCalls": 6,
+      "instanceBytesPerFrame": 28800,
+      "layout": "overlap-64px",
+      "sprites": 100,
+      "uploadAndSubmit": {
+        "maxMs": 0.6408330000000001,
+        "medianMs": 0.26425,
+        "minMs": 0.152292,
+        "p95Ms": 0.45079199999999997,
+        "samples": 90
+      },
+      "visibleParts": 300
+    },
+    {
+      "animationAndBatch": {
+        "maxMs": 0.35966699999999996,
+        "medianMs": 0.11220799999999999,
+        "minMs": 0.078833,
+        "p95Ms": 0.183583,
+        "samples": 90
+      },
+      "completedFrame": {
+        "maxMs": 3.345584,
+        "medianMs": 1.73825,
+        "minMs": 1.448333,
+        "p95Ms": 3.090791,
+        "samples": 90
+      },
+      "drawCalls": 6,
+      "instanceBytesPerFrame": 288000,
+      "layout": "overlap-64px",
+      "sprites": 1000,
+      "uploadAndSubmit": {
+        "maxMs": 0.574958,
+        "medianMs": 0.290916,
+        "minMs": 0.152,
+        "p95Ms": 0.491,
+        "samples": 90
+      },
+      "visibleParts": 3000
+    },
+    {
+      "animationAndBatch": {
+        "maxMs": 1.2974169999999998,
+        "medianMs": 0.60875,
+        "minMs": 0.413792,
+        "p95Ms": 0.7701669999999999,
+        "samples": 90
+      },
+      "completedFrame": {
+        "maxMs": 5.240333,
+        "medianMs": 3.699542,
+        "minMs": 3.286541,
+        "p95Ms": 4.972542,
+        "samples": 90
+      },
+      "drawCalls": 6,
+      "instanceBytesPerFrame": 1440000,
+      "layout": "overlap-64px",
+      "sprites": 5000,
+      "uploadAndSubmit": {
+        "maxMs": 0.988875,
+        "medianMs": 0.49233299999999997,
+        "minMs": 0.36866699999999997,
+        "p95Ms": 0.776708,
+        "samples": 90
+      },
+      "visibleParts": 15000
+    },
+    {
+      "animationAndBatch": {
+        "maxMs": 1.54275,
+        "medianMs": 1.2201250000000001,
+        "minMs": 0.871459,
+        "p95Ms": 1.4711660000000002,
+        "samples": 90
+      },
+      "completedFrame": {
+        "maxMs": 8.226542,
+        "medianMs": 6.518209,
+        "minMs": 5.444166,
+        "p95Ms": 7.656666,
+        "samples": 90
+      },
+      "drawCalls": 6,
+      "instanceBytesPerFrame": 2880000,
+      "layout": "overlap-64px",
+      "sprites": 10000,
+      "uploadAndSubmit": {
+        "maxMs": 1.276833,
+        "medianMs": 0.673917,
+        "minMs": 0.557542,
+        "p95Ms": 1.117459,
+        "samples": 90
+      },
+      "visibleParts": 30000
+    }
+  ],
+  "scene": "studio",
+  "sceneSettings": {
+    "ambient": 0.6499999761581421,
+    "animation": 0,
+    "asset": 0,
+    "background": 0,
+    "bloom": 0.3499999940395355,
+    "count": 1,
+    "emission": 1.0,
+    "exposure": 1.0,
+    "light": [
+      0.30000001192092896,
+      0.20000000298023224,
+      0.6000000238418579
+    ],
+    "lightPower": 1.100000023841858,
+    "mixed": false,
+    "mode": 0,
+    "normals": 1.0,
+    "opacity": 1.0,
+    "overlap": false,
+    "phased": true,
+    "pixelTiming": true,
+    "probe": [
+      0.5799999833106995,
+      0.5
+    ],
+    "probeEnabled": true,
+    "probeFront": false,
+    "reflectivity": 1.0,
+    "roughness": 1.0,
+    "spill": 1.0,
+    "transmission": 1.0,
+    "view": 0,
+    "zoom": 1.0
+  },
+  "sourceFingerprint": "fnv1a64:f4432dc934d47141",
+  "textureBytes": 1048576,
+  "version": 1,
+  "viewport": [
+    1280,
+    720
+  ],
+  "warmupFrames": 12
+}
