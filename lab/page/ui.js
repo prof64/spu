@@ -16,7 +16,7 @@ function setMode(){
   S.mode = S.tab === 'light' ? (S.flat ? 1 : 0) : S.tab === 'materials' ? (S.byMat ? 3 : 0) : S.tab === 'surface' ? 2 : S.tab === 'glow' ? (S.glowOnly ? 4 : 0) : S.tab === 'parts' ? 5 : 0;
 }
 function traits(r){
-  if(r.lib === 'outline') return ['line art', 'takes light flat'];
+  if(!r.ramp.length || r.lib === 'outline') return ['line art', 'takes light flat'];
   return [finishWord(r.f), bodyWord(r.b)].concat(r.glow ? ['glows'] : []);
 }
 function materialList(){
@@ -76,7 +76,7 @@ const PANELS = {
   views: () => `<h2>Front and back</h2>
     <p>One sprite holds several views of the same creature. Each view has its own pair of sheets, so a game loads only the angles it uses. Materials and lighting data exist for every view.</p>
     <div class="seg" id="viewseg"></div>
-    <p class="small">In today's files each view keeps its own list of parts. The version 2 draft shares one list across views.</p>`,
+    <p class="small">Parts, drawings and animations are shared by every view. Each view keeps its own order of parts and its own length for each animation.</p>`,
   looks: () => `<h2>Alternate looks</h2>
     <p>A look reuses the same animation. Some swap the <b>palette</b>: glow and lighting follow the new colors, because they are worked out from the pixel's color. Some swap <b>drawings</b>: closed eyes, or a whole different body. Looks combine. On the other tabs this page uses Eyes closed to blink.</p>
     <div class="seg wrapping" id="palseg"></div>
@@ -159,7 +159,7 @@ function show(tab){
     seg($('#speed'), [[.25, '¼ speed'], [.5, '½ speed'], [1, 'Full speed']], () => S.speed, (x) => { S.speed = x; });
     $('#motionstats').textContent = `${v.length} ticks at ${v.tps} a second, ${v.parts.length} parts, ${v.keys.toLocaleString('en')} keys, ${v.starts.length} distinct poses.`;
   }
-  if(tab === 'views') seg($('#viewseg'), [['front', 'Front'], ['back', 'Back', !sp.views.back]], () => S.view, (x) => { S.view = x; syncAnim(); });
+  if(tab === 'views') seg($('#viewseg'), Object.keys(sp.views).map((id) => [id, id[0].toUpperCase() + id.slice(1)]), () => S.view, (x) => { S.view = x; syncAnim(); });
   if(tab === 'looks'){
     const plain = (l) => !Object.keys(l.swaps).length, bases = v.looks.filter((l) => l.palette && plain(l) && l.id !== 'shiny' && !l.id.endsWith('-shiny'));
     const pals = $('#palseg'); pals.hidden = !bases.length;
@@ -172,7 +172,7 @@ function show(tab){
     $('#lookstats').textContent = `${v.title} carries ${n} palette${n === 1 ? '' : 's'} and ${m} look${m === 1 ? ' that swaps' : 's that swap'} drawings.`;
   }
   if(tab === 'file'){
-    $('#filestats').textContent = `${v.title}, ${S.view}: ${v.parts.length} parts, ${v.drawings.length} drawings, ${v.colors} colors, ${v.rows.length} materials, ${v.length} ticks of animation. Packed for this page it is about ${Math.max(1, Math.round(v.bytes / 1024))} KB.`;
+    $('#filestats').textContent = `${v.title}.spu holds ${Object.keys(sp.views).length > 1 ? 'both views' : 'this view'} in ${Math.max(1, Math.round(v.bytes / 1024))} KB: ${sp.fileParts} parts, ${sp.fileDrawings} drawings, ${Object.keys(sp.palettes).length} palettes, ${v.rows.length} materials. This view uses ${v.colors} colors and has ${v.anims.length} animation${v.anims.length === 1 ? '' : 's'}. The page reads the file itself; drop any .spu file on the stage to see it.`;
     sheets();
   }
 }
@@ -183,23 +183,33 @@ onFrame = () => {
 };
 async function pick(i){
   S.sprite = i; S.ball = null; S.ballEl = null; const sp = DATA.sprites[i]; await load(sp);
-  if(!sp.views[S.view]) S.view = 'front';
+  if(!sp.views[S.view]) S.view = Object.keys(sp.views)[0];
   S.palBase = 'normal'; S.looks = {};
   if(!S.placeChosen) S.place = sp.scene;
   mark(); show(S.tab);
 }
+function addSprite(sp, i){
+  const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-pressed', 'false');
+  b.innerHTML = (sp.thumb ? `<img alt="" src="data:image/png;base64,${sp.thumb}">` : '') + `<span></span>`; b.lastChild.textContent = sp.title || sp.id;
+  b.onclick = () => pick(i); $('#sprites').appendChild(b);
+}
 function boot(){
   TABS.forEach(([id, label]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.onclick = () => show(id); $('#tabs').appendChild(b); });
-  DATA.sprites.forEach((sp, i) => {
-    const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-pressed', 'false');
-    b.innerHTML = `<img alt="" src="data:image/png;base64,${sp.thumb}"><span>${sp.title}</span>`;
-    b.onclick = () => pick(i); $('#sprites').appendChild(b);
-  });
+  DATA.sprites.forEach(addSprite);
   const at = (e) => { const r = canvas.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * SW, (e.clientY - r.top) / r.height * SH]; };
   canvas.addEventListener('pointermove', (e) => { S.pointer = at(e); S.pointerAt = performance.now(); $('#hint').hidden = true; });
   canvas.addEventListener('pointerdown', (e) => { S.pointer = at(e); S.pointerAt = performance.now(); canvas.setPointerCapture(e.pointerId); });
   const drop = () => { S.pointer = null; S.pointerAt = performance.now(); };
   canvas.addEventListener('pointerleave', drop); canvas.addEventListener('pointerup', (e) => { if(e.pointerType !== 'mouse') drop(); });
+  // any .spu file dropped on the stage joins the list
+  const stage = canvas.parentElement;
+  stage.addEventListener('dragover', (e) => e.preventDefault());
+  stage.addEventListener('drop', async (e) => {
+    e.preventDefault(); const file = e.dataTransfer.files[0]; if(!file) return;
+    const sp = { id: file.name, scene: S.place, bytes: new Uint8Array(await file.arrayBuffer()) };
+    try { await load(sp); } catch(err){ fail(file.name + ': ' + err.message); setTimeout(() => { $('#fail').hidden = true; }, 4000); return; }
+    DATA.sprites.push(sp); addSprite(sp, DATA.sprites.length - 1); pick(DATA.sprites.length - 1);
+  });
   new ResizeObserver(resize).observe(canvas); resize();
   if(matchMedia('(prefers-reduced-motion: reduce)').matches){ S.paused = true; S.calm = true; }
   pick(0).then(() => requestAnimationFrame((n) => { last = n; frame(n); }));

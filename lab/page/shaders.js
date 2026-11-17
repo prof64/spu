@@ -277,7 +277,7 @@ void main(){
   if(uMode == 1){ o0 = vec4(painted, opacity); o1 = vec4(0.0); return; }      // lighting off: the art itself, or its flat base colors
   float rough = 1.0 - max(0.0, finish), fuzz = max(0.0, -finish), metal = max(0.0, -body);
   float trans = max(0.0, 2.0*cl - 1.0)*0.85, ss = cl > 0.0 ? 1.0 - abs(2.0*cl - 1.0) : 0.0, coat = 0.0, ior = 1.4, depth = 0.5, rough0 = rough;
-  bool line = row == 0;
+  bool line = row == 0 || n < 0.5;          // outlines, and any material that lists no shades: tinted by light, never re-shaded
   // rain soaks whatever faces the sky
   float wet = uWet*smoothstep(-0.2, 0.5, N.y);
   float soak = mix(1.0, 0.80, uWet*smoothstep(0.5, 0.9, rough0));

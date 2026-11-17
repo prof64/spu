@@ -63,21 +63,10 @@ class Sprite:
         # a palette color that is fully see-through draws nothing, so treat it as empty
         clear = np.array([c[3] == 0 for c in next(iter(self.rgba.values()))])
         self.art = [np.where(clear[a], 0, a).astype(np.uint8) for a in self.art]
-        # Version 2 keeps opacity on the pixel, not in the palette. Where a version 1 palette has partly
-        # see-through colors, lift that opacity out to each pixel and merge the colors left identical.
+        # The current format keeps opacity on the pixel. Color numbers stay as they are, so that the
+        # shades this lab works out are the numbers the converted file uses.
         src = next(iter(self.rgba.values())); strength = np.array([c[3] for c in src], np.uint8)
         self.opacity = [np.where(a != 0, strength[a], 0).astype(np.uint8) for a in self.art]
-        if any(0 < c[3] < 255 for c in src):
-            pals = list(self.rgba.values()); seen = {}; remap = np.zeros(256, np.uint8); keep = [0]
-            for i in range(1, 256):
-                if src[i][3] == 0: continue
-                key = tuple(q[i][:3] for q in pals)
-                if key not in seen: seen[key] = len(keep); keep.append(i)
-                remap[i] = seen[key]
-            self.art = [remap[a] for a in self.art]
-            for k in self.rgba: self.rgba[k] = ([self.rgba[k][i][:3] + (255,) for i in keep] + [(0, 0, 0, 0)] * 256)[:256]
-            for q in self.rgba.values(): q[0] = (q[0][0], q[0][1], q[0][2], 0)
-            self.palettes = {k: [c[:3] for c in v] for k, v in self.rgba.items()}
         c = self.view["canvas"]
         self.canvas = (int(c["x"]), int(c["y"]), int(c["width"]), int(c["height"]))
 

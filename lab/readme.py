@@ -33,10 +33,10 @@ grid("looks", shots["looks"], 4, (46, 146, 18, 114))
 grid("parts", shots["parts"], 3, (21, 171, 2, 126))
 grid("views", shots["views"], 4, BODY)
 grid("soft", shots["soft"], 4, (44, 148, 20, 116))
-# the sheets exactly as stored, three screen pixels per sheet pixel
+# the sheets exactly as stored, side by side, three screen pixels per sheet pixel
 sh = [Image.open(io.BytesIO(base64.b64decode(u.split(",")[1]))).convert("RGBA") for u in shots["sheets"]]
-w, h = sh[0].size; out = Image.new("RGB", (w * 3, h * 3 * 3 + 12), BG)
+w, h = sh[0].size; out = Image.new("RGB", (w * 2 * 3 + 12, h * 2), BG)
 for i, im in enumerate(sh):
-    bg = Image.new("RGBA", im.size, (0, 0, 0, 255)); bg.alpha_composite(im); out.paste(bg.convert("RGB").resize((w * 3, h * 3), Image.NEAREST), (0, i * (h * 3 + 6)))
+    bg = Image.new("RGBA", im.size, (0, 0, 0, 255)); bg.alpha_composite(im); out.paste(bg.convert("RGB").resize((w * 2, h * 2), Image.NEAREST), (i * (w * 2 + 6), 0))
 out.save(os.path.join(dst, "sheets.png"), optimize=True); print("sheets", out.size)
 shutil.copy(os.path.join(here, "out/readme-map.png"), os.path.join(dst, "materials.png")); print("materials", Image.open(os.path.join(dst, "materials.png")).size)

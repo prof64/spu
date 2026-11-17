@@ -1,44 +1,52 @@
 # Format lab
 
 A tour of what the SPU format does, on real sprites: twelve Black 2 / White 2
-battle sprites (front and back) and four from Uranium, in six places (studio,
-cave, rain, field, snow, deep water). The page has one tab per thing the format does: light, materials,
-surface, glow, parts, motion, views, looks, and the stored sheets. It began as
-a test of the version 2 draft's lighting data.
+battle sprites and four from Uranium, lit in six places (studio, cave, rain,
+field, snow, deep water). The page has one tab per thing the format does:
+light, materials, surface, glow, parts, motion, views, looks, and the stored
+sheets.
+
+It does two jobs. It **makes lighting data** for sprites that have none, and it
+**shows `.spu` files**: the page reads them with its own reader (`page/spu.js`),
+which shares no code with the Rust library. Drop any `.spu` file on the stage.
 
 ```sh
+cargo build --release --bin spu      # in the repository root: the converter this uses
 cd lab
-uv run --no-project --with numpy --with scipy --with pillow python export.py   # bake -> out/data.json
-python3 build.py                                                              # -> out/spu-material-lab.html
-python3 standalone.py                                                         # -> out/html/*.html, complete files
-
-# out/html/spu-format-lab.html      the whole tour
-# out/html/material-spheres.html    only the material balls: two dials, six places, every preset; no sprite art inside
-# out/html/painted-or-flat.html     can light alone redraw the art?
+uv run --no-project --with numpy --with scipy --with pillow python export.py   # -> out/spu/*.spu, out/sprites.json
+python3 build.py                     # -> out/spu-material-lab.html, out/material-spheres.html
+python3 standalone.py                # -> out/html/*.html, complete files that open from disk
+open out/html/spu-format-lab.html
 ```
 
-Open `out/html/spu-format-lab.html` in a browser. (`out/spu-material-lab.html` is the same page without the outer HTML wrapper.) `out/` holds game art and is not
-committed. Sprites are read from a checkout of
-[pku-spu](https://github.com/prof64/pku-spu); set `SPU_LIBRARY` to its folder
-(default: `pk-mono/pku-spu` beside this repository).
+`out/` holds game art and is not committed. Sprites are read from a checkout
+of [pku-spu](https://github.com/prof64/pku-spu); set `SPU_LIBRARY` to its
+folder (default: `pk-mono/pku-spu` beside this repository).
+
+`export.py` works out each drawing's facing, material and glow, writes them as
+a lighting folder (`out/light/<sprite>/`: `materials.json` and one PNG per
+drawing), and runs `spu convert --light` on the library's file. The result is
+an ordinary `.spu` with a Light sheet.
 
 The pictures in the repository README are made from the built page:
 `node readme.cjs` captures them and `python readme.py` lays them out into
 `../docs/images/`. The capture scripts (`readme.cjs`, `shot.cjs`) drive a
 headless Chromium through playwright-core; set `PLAYWRIGHT_CORE` and
-`CHROME_PATH` if yours are elsewhere.
+`CHROME_PATH` to where yours are.
 
 | File | What it does |
 | --- | --- |
-| `spu.py` | Reads an SPU version 1 file and places its parts at a tick; matches `spu render` pixel for pixel. |
 | `recipes.py` | Per sprite: which palette colors are the shades of which material, and where a color means two things. |
-| `materials.py` | The material rows (the draft's nine values) plus how the baker shapes each surface. |
-| `bake.py` | Makes each drawing's surface direction, material number and glow. |
-| `export.py` | Packs sheets and the animation into one data blob. |
-| `page/` | The WebGL page. `shaders.js`: the six places and the lighting. `app.js`: drawing a frame (parts, blink, pull-apart, lights). `balls.js`: the two-dial material map and its test ball. `spheres.html` and `spheres.js`: the material spheres page, which reuses the same lighting. `ui.js`: the nine tabs; each entry in `PANELS` is one tab's text and controls. `index.html`: layout and styles. |
-| `fitcheck.py` | Lights each sprite's flat base colors from the upper left and counts how many pixels land on the shade the artist painted. `FIT=0` in the environment gives the old facing data (about 24%); the default refit gives 100%. |
-| `shading.py` | Builds `out/painted-or-flat.html`, comparing painted colors lit, light alone, and light alone with the old facing data. It needs two captures of the lab page: `out/shading-shots.json`, and `out/shading-shots-old.json` made from a build exported with `FIT=0`. |
-| `shot.cjs` | Headless captures of the page for checking. |
+| `materials.py` | The named materials as two dials, plus how the baker shapes each surface. |
+| `spu.py` | Reads the library's older ZIP files and places their parts at a tick, for the baker. |
+| `bake.py` | Makes each drawing's facing, material number and glow. |
+| `fitcheck.py` | Lights each sprite's flat base colors from the upper left and counts how many pixels land on the shade the artist painted. `FIT=0` in the environment gives the plain blown-up shape (about 24%); the default gives 100%. |
+| `export.py` | Writes the lighting folders and converts each sprite to `out/spu/<id>.spu`. |
+| `page/spu.js` | Reads `.spu` files in the browser and lays a sprite out for drawing. Checked against `spu render`: Charizard, Klinklang and Arceus match on every pixel; Jellicent differs on 8 of 2,603, at the edge of a turned part, where the GPU and the reference round differently. |
+| `page/` | The WebGL page. `shaders.js`: the six places and the lighting. `app.js`: drawing a frame. `balls.js`: the two-dial material map and its test ball. `spheres.html`, `spheres.js`: the material spheres page. `ui.js`: the nine tabs; each entry in `PANELS` is one tab. `index.html`: layout and styles. |
+| `build.py`, `standalone.py` | Assemble the pages into single files. |
+| `shading.py` | Builds `out/painted-or-flat.html` from captures of the page (`out/shading-shots.json`, and `out/shading-shots-old.json` made with `FIT=0`). |
+| `readme.cjs`, `readme.py`, `shot.cjs` | Headless captures of the page. |
 
 ## How the surface direction is made
 
@@ -101,8 +109,8 @@ every look: palette swaps, drawing swaps, or both.
 reference picture still paints the *original* drawing's overlays on top, so a
 female Jellicent gets the male's eye patch (`spu render --variant female`
 shows it). 47 library sprites have a replaced drawing whose overlays differ.
-The lab uses the replacement's overlays. Version 2 turns overlays into parts,
-so its looks must swap the eye drawing too; the converter has to add that.
+The converter fixes it: where a look replaces a drawing, it replaces the
+overlay too.
 
 ## Big palettes and soft pixels
 
@@ -115,11 +123,10 @@ see-through), Christmas Corsoreef (192 colors), Nuclear Gyarados and Metalynx.
   it is; every color the sprite uses joins the surface it most resembles, and
   each surface's shades are sorted dark to light. Lists of over a hundred
   shades work, and the light may move a pixel about half way along a long list.
-- **Opacity is per pixel**, as the version 2 draft has it. The version 1 files
-  keep it in the palette; `spu.py` lifts it out to each pixel and merges the
-  colors left identical (Titanice's front view goes from 160 colors to far
-  fewer). Solid pixels and soft ones are drawn as two layers; a soft pixel
-  blends over the solid one beneath. Soft over soft keeps only the front one.
+- **Opacity is per pixel.** The older files keep it in the palette; the
+  converter moves it to the pixels. Solid pixels and soft ones are drawn as two
+  layers; a soft pixel blends over the solid one beneath. Soft over soft keeps
+  only the front one.
 - **A material can have no surface** (mist): it stays flat and does not join the
   shape that is blown up.
 - The page holds at most 256 colors and 64 material rows per sprite. A ceiling
@@ -158,7 +165,6 @@ see-through, hair-like shine on fuzz, and rainbow sheen (never had it).
 Glitter is not stored: it appears where a polished body is between translucent
 and clear, which is ice, and not on glass or wax.
 
-## What makes ice read as ice
 ## What makes ice read as ice
 
 No extra fields: it follows from see-through, low roughness and light passing

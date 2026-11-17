@@ -1,146 +1,264 @@
 # SPU — Sprite Universal
 
-An editable file format for animated 2D sprites (`.spu`), its reference
-renderer, a conformance suite, and a WebGPU viewer that lights sprites with
-material maps. One file holds drawings, the parts they are joined into, the
-animation, alternate looks such as recolors, and optional surface maps.
+SPU (`.spu`) is a file format for animated 2D sprites. One file holds a
+character's drawings, the parts they are joined into, how the parts move, its
+alternate looks, and how every pixel takes light.
 
-- [Draft specification, version 1](docs/spec.md) — scope, rules and limits.
-- [Conformance suite](conformance/README.md) — files every implementation
-  must accept, the exact picture each must draw, and files it must refuse.
-- `spu` command — `cargo run --bin spu -- info|validate|convert|render …`
-  inspects, checks, upgrades older files, and draws a frame to PNG.
+![Charizard in a cave. A torch circles it; its tail flame lights the rock behind it.](docs/images/hero.gif)
 
-Older files open directly and save as version 1: Smeargle's `.spu` version 0
-and this repository's earlier `.sprite` prototype. The crate and the viewer
-still carry the working name Sprite Lab.
+This repository is the format's home:
 
-## Run
+- **[The specification](docs/spec.md)**: what a file holds and what every
+  rule is.
+- **The reference library** (`src/`, in Rust) and the `spu` command: read,
+  write, check, convert and draw `.spu` files. "Reference" means it is the
+  implementation the specification is checked against. If another program
+  disagrees with it about a file, one of the two has a bug.
+- **[The conformance suite](conformance/README.md)**: files every
+  implementation must accept, the exact picture each must draw, and files it
+  must refuse.
+- **[The demo](lab/README.md)**: a browser page that lights `.spu` files, with
+  its own independent reader. The pictures below come from it.
 
-```sh
-bash tools/build.sh
-python3 tools/serve.py --port 8767
+The sprites pictured are from Pokémon Black 2 and White 2 and from Pokémon
+Uranium, used as examples; see [Credits](#credits). No sprite files are kept
+in this repository.
+
+## What the format does
+
+### Parts that move
+
+A sprite is a set of parts. Each part shows one drawing at a time and can
+move, turn, stretch, fade and swap to another drawing. Time is counted in
+ticks, and every tick has one exact picture, so any two programs can be
+compared pixel for pixel.
+
+![Charizard assembled, with each part in its own color, and with the parts pulled apart.](docs/images/parts.png)
+
+*The sprite, each part in its own color, and the parts pulled apart.*
+
+![Klinklang's gears turning under a moving lamp.](docs/images/gears.gif)
+
+*Lighting data belongs to a drawing, so it turns with the part that shows it.*
+
+### Views
+
+One sprite holds several views of the same character: front and back, or
+eight walking directions. A game loads only the ones it uses.
+
+![Charizard and Arceus, each from the front and from the back.](docs/images/views.png)
+
+### Looks
+
+A look reuses the same animation. It can swap the palette, swap drawings, or
+both, and looks combine.
+
+![Arceus in eight of its palettes.](docs/images/palettes.png)
+
+*One Arceus file carries 34 palettes: seventeen types, each with a shiny.*
+
+![Jellicent: male, female, female with eyes closed, female shiny.](docs/images/looks.png)
+
+*Jellicent's female look swaps every drawing. Eyes closed swaps one. Shiny
+swaps the palette.*
+
+### Lit by wherever it stands
+
+The file says which way each pixel faces, what it is made of and how much it
+glows. The place supplies the light. Nothing is redrawn between places.
+
+![Six sprites in six places: a studio, a cave, rain, a field at dusk, snow under an aurora, and deep water.](docs/images/places.png)
+
+![Charizard lit from the left, from the right, from behind in a cave, and in rain during a lightning flash.](docs/images/light.png)
+
+*The same file lit from the left, from the right, from behind (light comes
+through the wings), and in rain.*
+
+Light never invents a color. Each material lists its own shades, dark to
+light, and a light only moves a pixel along that list. That is what keeps a
+lit sprite looking like pixel art.
+
+### What each pixel stores
+
+Six numbers, in two images per view:
+
+| Image | Per pixel |
+| --- | --- |
+| **Color** | color number (into the palette) · opacity |
+| **Light** | facing, left to right · facing, bottom to top · material number · glow |
+
+![Charizard four ways: its colors, which way each pixel faces, its materials, and its glow.](docs/images/pixel.png)
+
+*Color, facing, material and glow.*
+
+![The Color sheet, the Light sheet and the glow channel for Charizard's front view.](docs/images/sheets.png)
+
+*The sheets as stored. Every drawing sits at the same place on both, so one
+rectangle finds its color and its lighting.*
+
+### Materials are two dials
+
+Each sprite carries a short list of materials, and every pixel names one. A
+material is a name, its shades, and two dials:
+
+- **Finish**: what the surface is like. Fuzzy, matte or polished.
+- **Body**: what happens to light that gets past the surface. It bounces off
+  (metal), stops (solid), glows back out (translucent) or passes through
+  (clear).
+
+<img src="docs/images/materials.png" width="760" alt="A grid of clay-colored balls: four finishes down the side, six bodies across the top.">
+
+*Every ball is the same color under the same light. Only the dials differ.
+Ice, glass, steel, fur, skin and wax are all points on this map.*
+
+### Light alone redraws the art
+
+Existing sprites have highlights and shadows painted into their colors. The
+facing data is built to agree with them: start every surface from one flat
+color, put a light where the artist imagined it (the upper left), and the
+painted shading comes back. Move the light and the sprite stays consistent
+with how it was drawn.
+
+![Kyurem as drawn, then rebuilt from flat color and lit from the upper left, from the right and from below.](docs/images/light-alone.png)
+
+*The art as drawn, then the same sprite from flat color and facing data alone:
+lit from the upper left, from the right, and from below.*
+
+On sixteen test sprites, light from the upper left landed on the artist's
+shade for every shaded pixel.
+
+### Many colors, soft pixels
+
+Color is always a palette, with room for up to 65,536 colors. Opacity is
+stored per pixel, so soft mist does not use up colors.
+
+![Halloween Titanice and Christmas Corsoreef, each as drawn and lit.](docs/images/soft.png)
+
+*Halloween Titanice: soft see-through mist over a solid hull. Christmas
+Corsoreef: 172 colors and 37 parts.*
+
+## The shape of a file
+
+```
+SPRITE  (one .spu file)
+├─ BASICS      name · author · version · ticks per second
+├─ PALETTES    normal, shiny, ...            lists of colors
+├─ MATERIALS   name · shades · finish · body
+├─ PARTS       head, wing, hat, ...          one list for all views
+├─ DRAWINGS    head-open, head-shut, ...     one list for all views
+├─ VIEWS       front, back, ...
+│   ├─ Color sheet    per pixel: color number · opacity
+│   ├─ Light sheet    per pixel: facing x · facing y · material number · glow
+│   └─ where each drawing sits on the sheets
+├─ ANIMATIONS  idle, attack, ...
+│   └─ per view, per part: drawing shown · position · turn · stretch
+│                          draw order · opacity · glow strength
+├─ LOOKS       shiny, eyes closed, hat       palette · swapped drawings · shown and hidden parts
+└─ EXTRAS      history, original game data   games skip these
 ```
 
-Open **http://127.0.0.1:8767**. Requires Rust, the `wasm32-unknown-unknown` target,
-wasm-bindgen CLI **0.2.129**, Python 3 and WebGPU. Cargo dependencies are pinned.
-The viewer runs locally; it does not upload files or need an account.
+On disk that is a 16-byte header and a list of chunks, each with a checksum.
+The [specification](docs/spec.md#the-file) gives every byte.
 
-## Compare sprites
+## Where it stands
 
-Choose Charizard, Cryogonal or Glalie in the left-hand list. **Original** shows
-source colors; **With materials** shows the same animation time, view, placement
-and zoom with the authored material maps. The reference path bypasses lighting,
-material opacity, weather, bloom and tone mapping. It retains source animation
-opacity. Pause or scrub the shared timeline to inspect a matching pose.
+- **Done and tested:** the file layout, the reference library, the exact
+  unlit picture, the conformance suite (15 files to accept, 36 to refuse) and
+  the converter from older files.
+- **Proven on real sprites:** all 1,134 sprites in the
+  [pku-spu](https://github.com/prof64/pku-spu) library convert, and every
+  picture of every tick, view and look is unchanged: 2,115,922 pictures. The
+  converted files total 42 MiB against 75 MiB before.
+- **Described but not pinned down:** how a lit picture should look. The demo
+  is one renderer; the specification says what the data means.
+- **Not built yet:** a folder form for hand editing, bindings for the browser
+  and C, and palettes above 256 colors in practice.
 
-Use **View** for Front, Back, Battle or Stress test. Battle places the selected
-Pokémon near the camera and the opponent facing it. Choose Studio, Cave or Rain
-under **Environment**; drag in the effects pane to move the light. Material
-sliders are always visible, with map inspection and renderer budgets under
-**Advanced**. Disable **Enabled** for a direct source-color check in both panes.
+The specification ends with a fuller list of
+[what has been tried](docs/spec.md#what-has-been-tried).
 
-Drop an `.spu` (or older `.sprite`) file or use **Open file…** to add an asset. **Save copy** exports
-the selected asset with the material adjustments. Drawing and keyframe editing
-remain editor work. [UI decisions and design references](docs/ui-design.md).
+**Format versions.** This is format version 2. Before it, an `.spu` file was a
+ZIP of JSON and PNGs (versions 0 and 1). That form, its specification and its
+renderer are in this repository's history at the tag `v1`, and `spu convert`
+upgrades those files.
 
-## Local Pokémon fixtures
+## In this repository
 
-The default library loads `web/fixtures/charizard.sprite`, `cryogonal.sprite` and
-`glalie.sprite`, plus their PNG thumbnails. These local game-art studies are
-ignored by Git and are not distributed with this repository. A checkout without
-them shows an empty state with **Open file…**, rather than substituting artwork.
-
-| Pokémon | Demonstration |
+| | |
 | --- | --- |
-| Charizard | Front/Back Gen 5 animation, emissive tail flame and transmitting wing membrane |
-| Cryogonal | Faceted ice, reflection, transmission and cyan emission |
-| Glalie | Glossy ice, opaque facial details and emissive eyes |
+| [`docs/spec.md`](docs/spec.md) | The specification |
+| `src/sprite.rs` | What a sprite holds, and every rule a file must keep |
+| `src/binary.rs` | Reading and writing `.spu` files |
+| `src/picture.rs` | The exact unlit picture at a tick |
+| `src/convert.rs`, `src/legacy/` | Upgrading older files, and checking the result |
+| `src/bin/spu.rs` | The `spu` command |
+| [`conformance/`](conformance/README.md) | The conformance suite |
+| [`lab/`](lab/README.md) | The demo, and the tools that make lighting data for a sprite |
 
-With the original local SPUs under `artifacts/source/` and Python's Pillow/numpy
-available, rebuild the archives with `python3 tools/prepare_fixtures.py`.
-The importer expects native preview PNGs in the source directory; use
-`--skip-previews` to rebuild archives without copying thumbnails. Material maps
-are authored approximations added to the source sprites, not original game data.
+The reference library is deliberately bare. It exists so that anyone can check
+a file and see exactly what it should look like. Editing is done in
+[Smeargle](#related).
 
-## Retained examples
-
-The previous generated artwork remains in the repository for format examples and
-reproducible historical benchmarks. It is not loaded by the viewer by default.
-
-| Example | Demonstration |
-| --- | --- |
-| Cindermaw | Separate Front/Back battle drawings, animated magma and scene lighting |
-| Mirror knight | Polished convex shield, brass armor, rough cloth and Guard animation |
-| Prismcoil | Faceted glass, transmitting interiors, bevel normals and animated motes |
-| Dungeon scout | Eight directions, layered walking poses and a hand-held lantern |
-| Obsidian hall | A material-shaded environment plate with stone architecture and plinths |
-
-These original images were created with the built-in image-generation tool and
-converted to native pixels. Source images, exact prompts, palettes and editable
-maps are retained under `web/art-source/`; individual rebuild scripts are under
-`tools/`. Materials are authored approximations. See [examples and rebuild commands](docs/examples.md).
-
-## Measure
-
-**View → Stress test** renders a fixed-size mixed population from the loaded
-assets in both comparison panes. The selected count applies to each pane, so
-10,000 means 10,000 in the reference plus 10,000 in the effects pane. Its FPS
-readout measures browser display cadence across both renders, not GPU completion
-or maximum native throughput. Lights use
-64-pixel spatial tiles, at most eight contributors per tile and a configurable
-512-light maximum. World reflections use visible scene color/depth.
-[Rendering details](docs/world-rendering.md).
+### The `spu` command
 
 ```sh
-cargo test --all-targets
-cargo test --test renderer -- --ignored
-cargo build --locked --release --bin benchmark
-python3 tools/benchmark_world.py
-python3 tools/benchmark_world.py --size 1920x1080 --output web/measurements/world-1080.json
+cargo build --release --bin spu
+target/release/spu info     sprite.spu                 # what is in it
+target/release/spu validate sprite.spu ...             # is it a correct file
+target/release/spu render   sprite.spu out.png --view front --animation idle --tick 0
+target/release/spu animate  sprite.spu out.png --variant shiny
+target/release/spu convert  old.spu new.spu --verify   # upgrade an older file; check every picture
+target/release/spu convert  old.spu new.spu --light folder   # ...and add lighting made elsewhere
+cargo test                                             # includes the conformance suite
 ```
 
-The native comparison script uses the repository's retained example collection;
-changing the browser library does not change that benchmark dataset. It measures
-base materials, local lights, then lights plus reflections. Completed-frame
-timings include GPU completion; they are not the viewer's FPS readout.
-
-The recorded 2026-11-09 mixed-world results use Cindermaw, Mirror knight, Prismcoil,
-Dungeon scout, Lantern and Moss stone, with Obsidian hall also loaded. Those
-results do not describe the current Pokémon comparison viewer. Earlier Pokémon
-runs in the record use their own workloads and renderer revisions. Raw records
-retain settings, asset hashes, hardware and source fingerprints; consult those
-inputs before comparing runs.
-Gameplay, physics, audio, streaming and networking require additional budgets.
-See [method](docs/benchmarks.md) and [recorded results](benchmarks/README.md).
-
-## Corpus check
-
-`tools/corpus-check` upgrades real version 0 files and compares every tick of
-every animation, view and variant with Smeargle's own renderer, pixel for
-pixel. It needs a Smeargle checkout at `../pk-mono/smeargle` and is therefore
-a separate package:
+### The demo
 
 ```sh
-cd tools/corpus-check && cargo run --release -- <folder of .spu files>... [--write <output folder>]
+cd lab
+uv run --no-project --with numpy --with scipy --with pillow python export.py
+python3 build.py && python3 standalone.py
+open out/html/spu-format-lab.html
 ```
 
-## Code
+It needs the sprite library ([pku-spu](https://github.com/prof64/pku-spu))
+checked out; set `SPU_LIBRARY` to its folder. Any `.spu` file can be dropped
+on the page. See [`lab/README.md`](lab/README.md).
 
-| Location | Purpose |
+## Telling an SPU file apart
+
+| | |
 | --- | --- |
-| `src/format.rs` | Document model, archive validation and preservation of unknown fields |
-| `src/migrate.rs` | Upgrading version 0 and prototype files when opened |
-| `src/reference.rs` | Reference renderer: the exact lighting-free picture |
-| `src/bin/spu.rs` | Command-line tool |
-| `conformance/`, `src/bin/make_conformance.rs` | Conformance suite and its generator |
-| `src/runtime.rs` | Texture atlas, compiled animation, material batching and emitted lights |
-| `src/world.rs` | Composed scenes, population workload and spatial light lists |
-| `src/render.rs`, `src/*.wgsl` | Shared native/WASM renderer |
-| `src/browser.rs`, `web/` | Local viewer, examples and numerical measurements |
-| `src/bin/benchmark.rs` | Completed-frame native measurements |
+| Extension | `.spu` |
+| First 8 bytes | `89 53 50 55 0D 0A 1A 0A` |
+| Older files | a ZIP archive whose `sprite.json` has `"format": "spu"` |
+| Media type | none registered yet |
 
-[Prototype notes](docs/prototype.md) · [Depth and weather](docs/depth-and-weather.md)
-· [Name ideas](docs/name-ideas.md). Drawing and keyframe editing remain editor work;
-the viewer adjusts materials and playback. Hosting and formal standardization
-remain deferred.
+## Making an SPU from an existing sprite
+
+Most sprites will be made by taking apart art that already exists. The steps:
+
+1. **Split it into parts and animate them.**
+2. **Take the lighting out.** For each surface, find its shades and which one
+   is the base.
+3. **Work out which way each pixel faces,** so that light from the upper left
+   gives back the shading the artist painted.
+4. **Decide what each surface is made of:** its finish and body, and what
+   glows.
+5. **Do the same for the back view.** If the game has none, draw one.
+
+Steps 2 and 3 are automatic in [`lab/`](lab/README.md). Steps 1, 4 and 5 need
+a person or a model, and are what the editor is for.
+
+## Related
+
+- **[Smeargle](https://smeargle.prof64.net)**: the editor for SPU files.
+- **[pku-spu](https://github.com/prof64/pku-spu)**: the library of Pokémon
+  battle sprites as SPU files. Sprite files live there, not here.
+
+## Credits
+
+The sprites shown here are from Pokémon Black 2 and White 2 (Nintendo, Game
+Freak, Creatures) and from the fan game Pokémon Uranium. They are used as
+test subjects and belong to their owners; nothing in this repository grants a
+license to them. Their rigging and animation come from the pku-spu library.

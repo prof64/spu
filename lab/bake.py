@@ -1,6 +1,6 @@
 """Author the lighting data for a sprite and bake everything the viewer needs.
 
-For every drawing this makes the two things the version 2 draft stores per pixel
+For every drawing this makes the two things the format stores per pixel
 beyond color: a surface direction (normal) and a material number, plus glow.
 Normals come from three cues: the drawing's own outline (inflated like a balloon),
 the line art inside it (creases), and the shading the artist already painted
@@ -100,7 +100,7 @@ def blur_in(mask, a, sigma):
     return np.where(mask, ndimage.gaussian_filter(np.where(mask, a, 0.0), sigma) / np.maximum(w, 1e-6), a)
 
 class Baked:
-    def __init__(self, name, view="front"):
+    def __init__(self, name, view="front", base=None):
         rec = R[name]
         self.s = s = Sprite(os.path.join(os.path.dirname(LIB.rstrip("/")), rec.get("file", "black2-white2"), name + ".spu"), view)
         if "auto" in rec:
@@ -133,6 +133,7 @@ class Baked:
         self.base = [int(np.argmax(counts[i, :len(r[2])])) for i, r in enumerate(rows)]
         for i, r in enumerate(rows):
             if len(r) > 4: self.base[i] = r[4]
+        if base is not None: self.base = list(base)          # a sprite has one material table: later views use the first view's
         self.nrm = [None] * len(s.art); self.glow = [None] * len(s.art)
         for d, (px, py) in enumerate(self.surface()):
             self.nrm[d], self.glow[d] = self.finish(d, px, py)

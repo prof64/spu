@@ -3,7 +3,7 @@ out/material-spheres.html (the material balls on their own, with no sprite data)
 import os
 here = os.path.dirname(os.path.abspath(__file__))
 rd = lambda p: open(os.path.join(here, p)).read()
-PARTS = [("/*SHADERS*/", "page/shaders.js"), ("/*DATA*/", "out/data.json"), ("/*APP*/", "page/app.js"), ("/*BALLS*/", "page/balls.js"), ("/*UI*/", "page/ui.js"), ("/*SPHERES*/", "page/spheres.js")]
+PARTS = [("/*SHADERS*/", "page/shaders.js"), ("/*SPU*/", "page/spu.js"), ("/*DATA*/", "out/sprites.json"), ("/*APP*/", "page/app.js"), ("/*BALLS*/", "page/balls.js"), ("/*UI*/", "page/ui.js"), ("/*SPHERES*/", "page/spheres.js")]
 for template, out in [("page/index.html", "out/spu-material-lab.html"), ("page/spheres.html", "out/material-spheres.html")]:
     page = rd(template)
     for tag, path in PARTS:

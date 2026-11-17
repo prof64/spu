@@ -1,12 +1,8 @@
 /target/
-/web/pkg/
-/web/fixtures/
+/lab/out/
 /artifacts/
-/node_modules/
-/.DS_Store
+/web/
+.DS_Store
 *.log
 __pycache__/
 *.pyc
-/tools/corpus-check/target/
-/tools/corpus-check/target/
-/lab/out/

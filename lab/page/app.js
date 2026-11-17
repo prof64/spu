@@ -50,20 +50,17 @@ if(gl){
 const quad = () => gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
 // ---------------------------------------------------------------- data
-async function inflate(b64){
-  const bin = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
-  const stream = new Blob([bin]).stream().pipeThrough(new DecompressionStream('deflate'));
-  return new Uint8Array(await new Response(stream).arrayBuffer());
-}
 const hex = (c) => [c[0] / 255, c[1] / 255, c[2] / 255];
 const RAMP_W = 260, ROWS = 64;      // room for a material's shades (plus one darker, one lighter) and for the rows
+// Read a sprite's .spu file (see spu.js) and make its textures.
 async function load(sp){
   if(sp.ready) return sp;
+  const bytes = sp.bytes || Uint8Array.from(atob(sp.file), (c) => c.charCodeAt(0));
+  const model = SPU.model(await SPU.read(bytes)), wanted = sp.views;
+  Object.assign(sp, model, { title: sp.title || model.title });
+  if(wanted) sp.views = Object.fromEntries(Object.entries(model.views).filter(([id]) => wanted.includes(id)));
   for(const v of Object.values(sp.views)){
-    const [c, l] = await Promise.all([inflate(v.color), inflate(v.light)]);
-    v.texColor = texture(v.atlas[0], v.atlas[1], c, gl.NEAREST); v.texLight = texture(v.atlas[0], v.atlas[1], l, gl.NEAREST);
-    v.rawColor = c; v.rawLight = l; v.bytes = Math.round((v.color.length + v.light.length) * .75);
-    for(const an of v.anims){ const f = await inflate(an.frames); an.buf = new Float32Array(f.buffer, f.byteOffset, f.byteLength / 4); v.bytes += Math.round(an.frames.length * .75); }
+    v.texColor = texture(v.atlas[0], v.atlas[1], v.rawColor, gl.NEAREST); v.texLight = texture(v.atlas[0], v.atlas[1], v.rawLight, gl.NEAREST);
     v.texRamp = texture(RAMP_W, ROWS, null, gl.NEAREST); v.texPal = texture(256, 1, null, gl.NEAREST); v.texMat = texture(ROWS, 1, null, gl.NEAREST);
     Object.assign(v, { palettes: sp.palettes, title: sp.title, ground: sp.ground, glowZ: sp.glowZ, pal: null, ready: true });
     useAnim(v, 0);
@@ -81,7 +78,7 @@ function palId(v){
 function rampColors(sp, palette){
   const pal = sp.palettes[palette].map(hex);
   return sp.rows.map((r) => {
-    const c = r.ramp.map((i) => pal[i]);
+    const c = r.ramp.map((i) => pal[i]); if(!c.length) return [];          // a material with no shades is only ever tinted
     const under = c.length === 1 ? [c[0][0] * 0.62, c[0][1] * 0.60, c[0][2] * 0.72] : c[0].map((v, j) => Math.max(0, Math.min(1, v - (c[1][j] - v) * 0.8)) * 0.9);
     const top = c[c.length - 1], over = top.map((v) => v + (1 - v) * 0.35);
     return [under, ...c, over];
@@ -89,7 +86,7 @@ function rampColors(sp, palette){
 }
 function setPalette(sp, palette){
   if(sp.pal === palette) return; sp.pal = palette;
-  const pal = new Uint8Array(256 * 4); sp.palettes[palette].forEach((c, i) => pal.set([c[0], c[1], c[2], i === 0 ? 0 : c[3] ?? 255], i * 4));
+  const pal = new Uint8Array(256 * 4); sp.palettes[palette].slice(0, 256).forEach((c, i) => pal.set([c[0], c[1], c[2], 255], i * 4));
   gl.bindTexture(gl.TEXTURE_2D, sp.texPal); gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 256, 1, gl.RGBA, gl.UNSIGNED_BYTE, pal);
   const ramp = new Uint8Array(RAMP_W * ROWS * 4);
   rampColors(sp, palette).forEach((cols, r) => cols.forEach((c, j) => ramp.set([c[0] * 255, c[1] * 255, c[2] * 255, 255], (r * RAMP_W + j) * 4)));
@@ -145,7 +142,7 @@ const noise1 = (x) => { const i = Math.floor(x), f = x - i, h = (n) => { const s
 const S = { ball: null, sprite: 0, view: 'front', place: 'cave', tab: 'light', mode: 0, shiny: false, palBase: 'normal', looks: {}, animId: 'idle', blink: false, paused: false, speed: 1, behind: false, glowLights: true, explode: 0,
             t: 0, anim: 0, lamp: [40, 70], pointer: null, pointerAt: -1e9, fixed: null, calm: false };
 const Lp = new Float32Array(NL * 3), Lc = new Float32Array(NL * 3), Lr = new Float32Array(NL);
-const current = () => S.ball ? BALL : (DATA.sprites[S.sprite].views[S.view] || DATA.sprites[S.sprite].views.front);
+const current = () => S.ball ? BALL : (DATA.sprites[S.sprite].views[S.view] || Object.values(DATA.sprites[S.sprite].views)[0]);
 
 function lights(sp, place, t, off, ox, oy){
   Lp.fill(0); Lc.fill(0); Lr.fill(0);
