@@ -4,7 +4,12 @@ SPU (`.spu`) is a file format for animated 2D sprites. One file holds a
 character's drawings, the parts they are joined into, how the parts move, its
 alternate looks, and how every pixel takes light.
 
-![Charizard in a cave. A torch circles it; its tail flame lights the rock behind it.](docs/images/hero.gif)
+![Charizard in a field. The sun crosses the sky and the shading on its body follows.](docs/images/hero.gif)
+
+[![A one-minute tour: a sprite is taken apart and rebuilt, one layer at a time.](docs/images/tour-poster.png)](docs/spu-tour.mp4)
+
+*[Watch the one-minute tour](docs/spu-tour.mp4): a sprite is pulled into its
+parts, then rebuilt from flat color, facing, materials and glow.*
 
 This repository is the format's home:
 
@@ -78,6 +83,19 @@ Light never invents a color. Each material lists its own shades, dark to
 light, and a light only moves a pixel along that list. That is what keeps a
 lit sprite looking like pixel art.
 
+### Flat color + facing + light
+
+What goes into the file is flat color and, for each pixel, which way it
+faces. Shading is what a light makes of those two.
+
+![Flat color, plus which way each pixel faces, plus a light from the upper left, gives the art as the artist drew it. The same data is then shown lit from the right, from below, from behind and in rain.](docs/images/equation.png)
+
+Existing sprites have highlights and shadows painted into their colors. The
+facing data is built to agree with them: put the light where the artist
+imagined it, the upper left, and the painted shading comes back. On sixteen
+test sprites it landed on the artist's shade for every shaded pixel. Move the
+light anywhere else and the sprite stays consistent with how it was drawn.
+
 ### What each pixel stores
 
 Six numbers, in two images per view:
@@ -106,26 +124,15 @@ material is a name, its shades, and two dials:
   (metal), stops (solid), glows back out (translucent) or passes through
   (clear).
 
+![Six sprites, each showing one material: polished metal, ice, fur, a wing membrane lit from behind, glass and flame, and jelly.](docs/images/made-of.png)
+
+*Metal mirrors the grass and sky around it. Ice shows the scene through
+itself and glitters. A wing lets light through from behind.*
+
 <img src="docs/images/materials.png" width="760" alt="A grid of clay-colored balls: four finishes down the side, six bodies across the top.">
 
 *Every ball is the same color under the same light. Only the dials differ.
 Ice, glass, steel, fur, skin and wax are all points on this map.*
-
-### Light alone redraws the art
-
-Existing sprites have highlights and shadows painted into their colors. The
-facing data is built to agree with them: start every surface from one flat
-color, put a light where the artist imagined it (the upper left), and the
-painted shading comes back. Move the light and the sprite stays consistent
-with how it was drawn.
-
-![Kyurem as drawn, then rebuilt from flat color and lit from the upper left, from the right and from below.](docs/images/light-alone.png)
-
-*The art as drawn, then the same sprite from flat color and facing data alone:
-lit from the upper left, from the right, and from below.*
-
-On sixteen test sprites, light from the upper left landed on the artist's
-shade for every shaded pixel.
 
 ### Many colors, soft pixels
 

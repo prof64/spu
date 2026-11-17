@@ -46,7 +46,8 @@ headless Chromium through playwright-core; set `PLAYWRIGHT_CORE` and
 | `page/` | The WebGL page. `shaders.js`: the six places and the lighting. `app.js`: drawing a frame. `balls.js`: the two-dial material map and its test ball. `spheres.html`, `spheres.js`: the material spheres page. `ui.js`: the nine tabs; each entry in `PANELS` is one tab. `index.html`: layout and styles. |
 | `build.py`, `standalone.py` | Assemble the pages into single files. |
 | `shading.py` | Builds `out/painted-or-flat.html` from captures of the page (`out/shading-shots.json`, and `out/shading-shots-old.json` made with `FIT=0`). |
-| `readme.cjs`, `readme.py`, `shot.cjs` | Headless captures of the page. |
+| `readme.cjs`, `readme.py`, `shot.cjs` | Headless captures of the page, and the README's images. |
+| `video.cjs`, `video.py` | The tour video: `video.cjs` holds the storyboard and captures every frame, `video.py` adds captions and encodes `../docs/spu-tour.mp4` with ffmpeg. |
 
 ## How the surface direction is made
 

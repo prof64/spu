@@ -217,9 +217,10 @@ function boot(){
 // for checking the page from a script: freeze a moment and choose what to look at
 window.lab = { async set(o){
   if(o.sprite !== undefined) await pick(typeof o.sprite === 'number' ? o.sprite : DATA.sprites.findIndex((s) => s.id.includes(o.sprite)));
-  for(const k of ['view', 'shiny', 'palBase', 'looks', 'animId', 'blink', 'behind', 'flat', 'pure', 'byMat', 'glowOnly', 'glowLights', 'explode']) if(o[k] !== undefined) S[k] = o[k];
+  for(const k of ['view', 'shiny', 'palBase', 'looks', 'animId', 'blink', 'behind', 'flat', 'pure', 'byMat', 'glowOnly', 'glowLights', 'explode', 'explodeAlways', 'plain', 'noGlow']) if(o[k] !== undefined) S[k] = o[k];
   if(o.place){ S.place = o.place; S.placeChosen = true; }
   show(o.tab || S.tab);
+  if(o.mode !== undefined) S.mode = o.mode;          // 0 lit, 1 colors only, 2 facing, 3 materials, 4 glow, 5 parts
   if(o.ball !== undefined) pickBall(typeof o.ball === 'string' ? NAMED.find((m) => m.name.toLowerCase() === o.ball) : { name: 'Test', c: MONO, ...o.ball });
   if(o.t !== undefined){ S.fixed = true; S.t = o.t; S.anim = o.anim ?? o.t; }
   if(o.lamp) S.lamp = o.lamp;

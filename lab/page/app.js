@@ -95,7 +95,8 @@ function setPalette(sp, palette){
 // the material table as the lighting reads it: finish, body and how many shades, one texel per row
 function setMaterials(sp){
   const m = new Uint8Array(ROWS * 4);
-  sp.rows.forEach((r, i) => m.set([Math.round((r.f * .5 + .5) * 255), Math.round((r.b * .5 + .5) * 255), r.ramp.length, r.base], i * 4));
+  // S.plain: every material matte and solid, to show shading before materials
+  sp.rows.forEach((r, i) => m.set([Math.round(((S.plain ? 0 : r.f) * .5 + .5) * 255), Math.round(((S.plain ? 0 : r.b) * .5 + .5) * 255), r.ramp.length, r.base], i * 4));
   gl.bindTexture(gl.TEXTURE_2D, sp.texMat); gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, ROWS, 1, gl.RGBA, gl.UNSIGNED_BYTE, m);
 }
 
@@ -139,7 +140,7 @@ const noise1 = (x) => { const i = Math.floor(x), f = x - i, h = (n) => { const s
 
 // ---------------------------------------------------------------- state and drawing
 // t: the place's clock (rain, flicker).  anim: where the sprite is in its animation, in seconds.
-const S = { ball: null, sprite: 0, view: 'front', place: 'cave', tab: 'light', mode: 0, shiny: false, palBase: 'normal', looks: {}, animId: 'idle', blink: false, paused: false, speed: 1, behind: false, glowLights: true, explode: 0,
+const S = { ball: null, sprite: 0, view: 'front', place: 'cave', tab: 'light', mode: 0, shiny: false, palBase: 'normal', looks: {}, animId: 'idle', blink: false, paused: false, speed: 1, behind: false, glowLights: true, explode: 0, explodeAlways: false, plain: false, noGlow: false,
             t: 0, anim: 0, lamp: [40, 70], pointer: null, pointerAt: -1e9, fixed: null, calm: false };
 const Lp = new Float32Array(NL * 3), Lc = new Float32Array(NL * 3), Lr = new Float32Array(NL);
 const current = () => S.ball ? BALL : (DATA.sprites[S.sprite].views[S.view] || Object.values(DATA.sprites[S.sprite].views)[0]);
@@ -181,7 +182,7 @@ function draw(){
   let f = 0; for(let lo = 0, hi = sp.starts.length - 1; lo <= hi;){ const m = (lo + hi) >> 1; if(sp.starts[m] <= tick){ f = m; lo = m + 1; } else hi = m - 1; }
   const off = sp.offsets[f], count = sp.buf[off + 12];
   const ox = Math.round(SW / 2 - (sp.bbox[0] + sp.bbox[2]) / 2), oy = GROUND - sp.ground;
-  const cx = (sp.bbox[0] + sp.bbox[2]) / 2, cy = (sp.bbox[1] + sp.bbox[3]) / 2, apart = S.tab === 'parts' ? S.explode : 0;
+  const cx = (sp.bbox[0] + sp.bbox[2]) / 2, cy = (sp.bbox[1] + sp.bbox[3]) / 2, apart = S.tab === 'parts' || S.explodeAlways ? S.explode : 0;
   const swap = {}; for(const l of sp.looks || []) if(S.looks[l.id]) Object.assign(swap, l.swaps);      // looks that swap drawings
   const shut = S.blink || (S.tab !== 'looks' && sp.blink && (S.t % 3.7) < .13);          // the eyes-closed look, used as a blink
   gl.useProgram(P.part.p); bind(P.part, 'uColor', sp.texColor, 0); bind(P.part, 'uLight', sp.texLight, 1);
@@ -211,7 +212,7 @@ function draw(){
   bind(P.lit, 'uBg', T.bg.tex[0], 2); bind(P.lit, 'uRamp', sp.texRamp, 3); bind(P.lit, 'uPal', sp.texPal, 4); bind(P.lit, 'uMat', sp.texMat, 5);
   for(const k of ['ambSky', 'ambGnd', 'envTop', 'envHor', 'envGnd']) gl.uniform3fv(P.lit.u('u' + k[0].toUpperCase() + k.slice(1)), place[k]);
   gl.uniform1f(P.lit.u('uWet'), place.wet || 0); gl.uniform1f(P.lit.u('uSnow'), place.snow || 0); gl.uniform1f(P.lit.u('uCaustic'), place.caustic || 0);
-  gl.uniform1f(P.lit.u('uPure'), S.pure ? 1 : 0); gl.uniform1f(P.lit.u('uGain'), 1.0); gl.uniform1f(P.lit.u('uGlowGain'), place.glowGain); gl.uniform1i(P.lit.u('uMode'), S.mode);
+  gl.uniform1f(P.lit.u('uPure'), S.pure ? 1 : 0); gl.uniform1f(P.lit.u('uNoGlow'), S.noGlow ? 1 : 0); gl.uniform1f(P.lit.u('uGain'), 1.0); gl.uniform1f(P.lit.u('uGlowGain'), place.glowGain); gl.uniform1i(P.lit.u('uMode'), S.mode);
   for(const layer of sp.soft ? [0, 1] : [0]){
     const g = layer ? T.g2 : T.g; into(layer ? T.lit2 : T.lit); gl.useProgram(P.lit.p);
     bind(P.lit, 'uG0', g.tex[0], 0); bind(P.lit, 'uG1', g.tex[1], 1); gl.uniform1f(P.lit.u('uSoft'), layer); quad();

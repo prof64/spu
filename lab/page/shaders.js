@@ -242,7 +242,7 @@ const FS_LIT = COMMON + `
 uniform sampler2D uG0, uG1, uBg, uRamp, uPal, uMat;
 uniform float uSoft;
 uniform vec3 uAmbSky, uAmbGnd, uEnvTop, uEnvHor, uEnvGnd;
-uniform float uWet, uGain, uGlowGain, uSnow, uCaustic, uPure;
+uniform float uWet, uGain, uGlowGain, uSnow, uCaustic, uPure, uNoGlow;
 uniform int uMode;
 layout(location=0) out vec4 o0; layout(location=1) out vec4 o1;
 const vec3 L0 = vec3(-0.5099, 0.6119, 0.6323);       // the light the art was painted under
@@ -257,7 +257,7 @@ void main(){
   if(g0.a <= 0.0){ o0 = vec4(0.0); o1 = vec4(0.0); return; }
   vec4 g1 = texelFetch(uG1, ip, 0);
   int idx = int(g0.r*255.0 + 0.5); float k = floor(g0.g*255.0 + 0.5);
-  int row = int(g1.b*255.0 + 0.5); float glow = g1.a;
+  int row = int(g1.b*255.0 + 0.5); float glow = g1.a*(1.0 - uNoGlow);
   vec2 nxy = (g1.rg*255.0 - 128.0)/127.0; vec3 N = vec3(nxy, sqrt(max(0.0, 1.0 - dot(nxy, nxy))));
   vec4 pc = texelFetch(uPal, ivec2(idx, 0), 0); vec3 painted = pc.rgb;
   float opacity = uSoft > 0.0 ? g0.b : 1.0, rnd = uSoft > 0.0 ? hash2(floor(p)) : g0.b;   // a soft pixel carries its own opacity
