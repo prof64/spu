@@ -1,31 +1,18 @@
 [package]
-name = "sprite-lab"
-version = "0.1.0"
+name = "spu"
+version = "0.2.0"
 edition = "2024"
 publish = false
-description = "Experimental editable sprite format, reference renderer, and benchmarks"
-
-[lib]
-crate-type = ["rlib", "cdylib"]
+description = "SPU (Sprite Universal): a file format for animated 2D sprites. The reference library and the `spu` command."
 
 [dependencies]
 anyhow = "1"
-bytemuck = { version = "1.25", features = ["derive"] }
 png = "0.17"
+miniz_oxide = "0.8"
 image = { version = "0.24.9", default-features = false, features = ["png"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-wgpu = "27.0.1"
 zip = { version = "8.6", default-features = false, features = ["deflate-flate2-zlib-rs"] }
-
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-pollster = "0.4"
-
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-wasm-bindgen = "=0.2.129"
-wasm-bindgen-futures = "0.4.79"
-console_error_panic_hook = "0.1"
-web-sys = { version = "0.3.106", features = ["HtmlCanvasElement", "Window", "Performance"] }
 
 [[bin]]
 name = "spu"
@@ -34,18 +21,3 @@ path = "src/bin/spu.rs"
 [[bin]]
 name = "make-conformance"
 path = "src/bin/make_conformance.rs"
-
-[[bin]]
-name = "benchmark"
-path = "src/bin/benchmark.rs"
-
-[[bin]]
-name = "make-demo"
-path = "src/bin/make_demo.rs"
-
-[profile.release]
-lto = "thin"
-codegen-units = 1
-
-[profile.dev.package."*"]
-opt-level = 2

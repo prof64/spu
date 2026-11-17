@@ -2,9 +2,18 @@
 //! implementation must accept, the exact picture each must draw, and files
 //! every implementation must refuse. Run from the repository root:
 //! `cargo run --bin make-conformance`.
+//!
+//! Most cases are written the way older files were (a ZIP of JSON and PNGs)
+//! and converted, which also checks the converter: each must draw exactly
+//! what the older reference renderer drew.
 use anyhow::{Context, Result, ensure};
 use serde_json::{Value, json};
-use sprite_lab::{format::Package, reference::Reference};
+use spu::{
+    binary, convert,
+    legacy::{format::Package, reference::Reference},
+    picture::picture_named,
+    sprite::*,
+};
 use std::{
     io::{Cursor, Write},
     path::Path,
@@ -25,7 +34,7 @@ fn indices(rows: &[&str]) -> (u32, u32, Vec<u8>) {
     (rows[0].len() as u32, rows.len() as u32, pixels)
 }
 fn color(text: &str) -> [u8; 4] {
-    sprite_lab::format::parse_color(text).unwrap()
+    spu::legacy::format::parse_color(text).unwrap()
 }
 fn indexed_png(rows: &[&str], palette: &[&str]) -> Vec<u8> {
     let (w, h, pixels) = indices(rows);
@@ -293,60 +302,172 @@ fn valid() -> Vec<Valid> {
     cases
 }
 
+/// The simplest sprite, in the current format.
+fn base() -> Sprite {
+    convert::from_legacy(&Package::read(&zip(Some(&still()), &mark_files())).unwrap(), None, true).unwrap()
+}
+
+type Frames = Vec<(&'static str, &'static str, f64, Vec<&'static str>)>;
+
+/// Cases for what only the current format can say.
+fn native() -> Vec<(&'static str, &'static str, Sprite, Frames)> {
+    let mut cases = Vec::new();
+
+    // A hat: a part that stays hidden until a look shows it.
+    let source = valid().into_iter().find(|c| c.name == "palettes-and-variants").unwrap();
+    let mut s = convert::from_legacy(&Package::read(&zip(Some(&source.manifest), &source.files)).unwrap(), None, true).unwrap();
+    let hat = s.drawings.iter().position(|d| d.id == "hat").unwrap() as u16;
+    s.parts.push(Part { id: "hat".into(), name: "Hat".into(), extra: true, depth: 0.0 });
+    s.views[0].parts.push(ViewPart { part: 1, parent: Some(0) });
+    s.animations[0].views[0].as_mut().unwrap().tracks.push(Track { part: 1, image: vec![(0, Some(hat))], ..Track::default() });
+    s.variants = vec![
+        Variant { id: "with-hat".into(), name: "With hat".into(), show: vec![1], ..Variant::default() },
+        Variant { id: "no-body".into(), name: "No body".into(), hide: vec![0], ..Variant::default() },
+        Variant { id: "no-hat".into(), name: "No hat".into(), hide: vec![1], ..Variant::default() },
+    ];
+    cases.push((
+        "extra-parts",
+        "A part marked extra draws only when an active look shows it. A look can also hide a part. When two looks disagree about a part, the later one wins.",
+        s,
+        vec![("front", "main", 0.0, vec![]), ("front", "main", 0.0, vec!["with-hat"]), ("front", "main", 0.0, vec!["with-hat", "no-body"]), ("front", "main", 0.0, vec!["with-hat", "no-hat"]), ("front", "main", 0.0, vec!["no-hat", "with-hat"])],
+    ));
+
+    // Two views of one sprite, each with its own length for the same animation.
+    let mut s = base();
+    let mut back = s.views[0].clone();
+    back.id = "back".into();
+    back.name = "Back".into();
+    s.views.push(back);
+    let place = s.drawings[0].places[0];
+    s.drawings[0].places.push(place);
+    let step = |tick, value| Key { tick, value, ease: Ease::Step };
+    let mut slide = Track { part: 0, image: vec![(0, Some(0))], ..Track::default() };
+    slide.numbers[X] = vec![step(0, 0.0), step(1, 2.0), step(2, 4.0)];
+    s.animations[0].views.push(Some(Motion { length: 3, looping: true, tracks: vec![slide] }));
+    s.animations.push(Animation { id: "front-only".into(), name: "Front only".into(), views: vec![s.animations[0].views[0].clone(), None] });
+    cases.push((
+        "two-views",
+        "Parts, drawings and animations are shared by every view. Each view keeps its own length and motion for an animation: here 'main' is 1 tick long from the front and 3 from the back. A view an animation has nothing for draws nothing.",
+        s,
+        vec![("front", "main", 2.0, vec![]), ("back", "main", 0.0, vec![]), ("back", "main", 1.0, vec![]), ("back", "main", 2.0, vec![]), ("back", "main", 4.0, vec![]), ("back", "front-only", 0.0, vec![])],
+    ));
+
+    // A color one look has and another does not.
+    let mut m = still();
+    m["palettes"] = json!([
+        {"id": "normal", "name": "Normal", "colors": NORMAL},
+        {"id": "ghost", "name": "Ghost", "colors": ["#00000000", "#2080d0", "#d0a02000", "#a020c040", "#ffffff80"]},
+    ]);
+    m["variants"] = json!([{"id": "ghost", "name": "Ghost", "palette": "ghost"}]);
+    let files: Files = vec![("mark.png".into(), indexed_png(&MARK, &NORMAL))];
+    let s = convert::from_legacy(&Package::read(&zip(Some(&m), &files)).unwrap(), None, true).unwrap();
+    cases.push((
+        "palette-opacity",
+        "A palette color can carry an opacity of its own, which multiplies the pixel's. Under 'ghost', color 2 vanishes and color 3 is faint, while color 4 keeps the half opacity its pixels have.",
+        s,
+        vec![("front", "main", 0.0, vec![]), ("front", "main", 0.0, vec!["ghost"])],
+    ));
+    cases
+}
+
+fn motion(s: &mut Sprite) -> &mut Motion {
+    s.animations[0].views[0].as_mut().unwrap()
+}
+
 fn invalid() -> Vec<(&'static str, &'static str, Vec<u8>)> {
-    let with = |edit: &dyn Fn(&mut Value)| {
-        let mut m = still();
-        edit(&mut m);
-        zip(Some(&m), &mark_files())
+    let good = binary::write(&base()).unwrap();
+    // A file with something wrong in what it says: written without checking.
+    let with = |edit: &dyn Fn(&mut Sprite)| {
+        let mut s = base();
+        edit(&mut s);
+        binary::write_unchecked(&s).unwrap()
     };
-    let two_parts = |a: Value, b: Value| {
-        let mut m = still();
-        m["views"][0]["parts"] = json!([{"id": "body", "name": "Body", "parent": a}, {"id": "tail", "name": "Tail", "parent": b}]);
-        zip(Some(&m), &mark_files())
+    // A file with something wrong in its bytes.
+    let bytes = |edit: &dyn Fn(&mut Vec<u8>)| {
+        let mut b = good.clone();
+        edit(&mut b);
+        b
+    };
+    let relength = |b: &mut Vec<u8>| {
+        let n = b.len() as u32;
+        b[12..16].copy_from_slice(&n.to_le_bytes());
+    };
+    let key = |tick, value| Key { tick, value, ease: Ease::Step };
+    let lit = |s: &mut Sprite| {
+        let c = &s.views[0].color;
+        s.views[0].light = Some(LightSheet { width: c.width, height: c.height, data: c.opacity.iter().flat_map(|&o| if o == 0 { [0; 4] } else { [128, 128, 0, 0] }).collect() });
+        s.materials.push(Material { name: "plain".into(), ..Material::default() });
     };
     vec![
-        ("not-a-zip", "The file is not a ZIP archive.", b"{\"format\":\"spu\"}".to_vec()),
-        ("no-manifest", "The archive has no sprite.json.", zip(None, &mark_files())),
-        ("manifest-not-json", "sprite.json is not JSON.", zip(None, &vec![("sprite.json".into(), b"format: spu".to_vec())])),
-        ("other-format", "The format name is not 'spu'.", with(&|m| m["format"] = "sprite".into())),
-        ("future-version", "The version is newer than this specification.", with(&|m| m["version"] = 2.into())),
-        ("unknown-required-capability", "The file requires a capability the reader does not have.", with(&|m| m["required"] = json!(["volumetric-fog"]))),
-        ("no-views", "There are no views.", with(&|m| m["views"] = json!([]))),
-        ("no-animations", "A view has no animations.", with(&|m| m["views"][0]["animations"] = json!([]))),
-        ("zero-length-animation", "An animation is zero ticks long.", with(&|m| m["views"][0]["animations"][0]["length"] = 0.into())),
-        ("empty-canvas", "The canvas has no width.", with(&|m| m["views"][0]["canvas"]["width"] = 0.into())),
-        ("fractional-canvas", "The canvas is not on whole pixels.", with(&|m| m["views"][0]["canvas"]["x"] = 0.5.into())),
-        ("duplicate-part-id", "Two parts share an id.", with(&|m| m["views"][0]["parts"] = json!([{"id": "body", "name": "A"}, {"id": "body", "name": "B"}]))),
-        ("empty-id", "An id is empty.", with(&|m| m["views"][0]["id"] = "".into())),
-        ("unknown-parent", "A part names a parent that does not exist.", two_parts(Value::Null, "wing".into())),
-        ("parent-cycle", "Two parts are each other's parent.", two_parts("tail".into(), "body".into())),
-        ("unknown-track-part", "A track names a part that does not exist.", with(&|m| m["views"][0]["animations"][0]["tracks"][0]["part"] = "wing".into())),
-        ("two-tracks-one-part", "An animation has two tracks for the same part.", with(&|m| {
-            let t = m["views"][0]["animations"][0]["tracks"][0].clone();
-            m["views"][0]["animations"][0]["tracks"].as_array_mut().unwrap().push(t);
+        ("not-spu", "The file does not start with the eight bytes every SPU file starts with.", b"{\"format\":\"spu\"}".to_vec()),
+        ("text-mode-damage", "A line ending inside the first eight bytes was rewritten, as happens when a file is handled as text.", bytes(&|b| { b.remove(4); relength(b); })),
+        ("future-version", "The header names a version newer than this specification.", bytes(&|b| b[8] = 3)),
+        ("wrong-length", "The header says the file is longer than it is.", bytes(&|b| b[12] = b[12].wrapping_add(8))),
+        ("truncated", "The file stops partway through.", bytes(&|b| { b.truncate(b.len() / 2); relength(b); })),
+        ("damaged-chunk", "One byte of a chunk's data has changed, so its checksum no longer matches.", bytes(&|b| b[16 + 16 + 3] ^= 0x20)),
+        ("unknown-required-chunk", "A chunk whose type starts with a capital letter is one a reader must understand. This one is unknown.", bytes(&|b| {
+            let end = b.len() - 16;
+            let mut extra = Vec::new();
+            extra.extend(b"FOGS");
+            extra.extend(8u32.to_le_bytes());
+            extra.extend(binary::crc32(&[b"FOGS", &[1; 8]]).to_le_bytes());
+            extra.extend([0; 4]);
+            extra.extend([1; 8]);
+            b.splice(end..end, extra);
+            relength(b);
         })),
-        ("unknown-drawing-in-key", "A key shows a drawing that does not exist.", with(&|m| m["views"][0]["animations"][0]["tracks"][0]["image"] = json!([key(0, "ghost")]))),
-        ("keys-out-of-order", "Keys are not in increasing tick order.", with(&|m| m["views"][0]["animations"][0]["tracks"][0]["x"] = json!([key(5, 1.0), key(2, 0.0)]))),
-        ("two-keys-one-tick", "Two keys share a tick.", with(&|m| m["views"][0]["animations"][0]["tracks"][0]["x"] = json!([key(2, 1.0), key(2, 0.0)]))),
-        ("negative-tick", "A key is before tick 0.", with(&|m| m["views"][0]["animations"][0]["tracks"][0]["x"] = json!([{"tick": -1, "value": 0.0}]))),
-        ("unknown-ease", "A key uses an easing curve that does not exist.", with(&|m| m["views"][0]["animations"][0]["tracks"][0]["x"] = json!([eased(0, 0.0, "bounce")]))),
-        ("missing-image-file", "A drawing's image is not in the archive.", with(&|m| m["views"][0]["images"][0]["color"] = "gone.png".into())),
-        ("image-not-png", "A drawing's image is not a PNG.", zip(Some(&still()), &vec![("mark.png".into(), b"GIF89a".to_vec())])),
-        ("map-size-mismatch", "A material map is not the size of its drawing.", {
-            let mut m = still();
-            m["views"][0]["images"][0]["normal"] = "n.png".into();
-            let mut files = mark_files();
-            files.push(("n.png".into(), flat_png(4, 4, [128, 128, 255, 255])));
-            zip(Some(&m), &files)
+        ("missing-chunk", "The file has no list of drawings.", bytes(&|b| {
+            let at = b.windows(4).position(|w| w == b"DRAW").unwrap();
+            let length = u32::from_le_bytes(b[at + 4..at + 8].try_into().unwrap()) as usize;
+            b.drain(at..at + 16 + length.next_multiple_of(8));
+            relength(b);
+        })),
+        ("after-the-end", "Bytes follow the last chunk.", bytes(&|b| { b.extend([0; 8]); relength(b); })),
+        ("no-views", "There are no views.", with(&|s| { s.views.clear(); s.drawings[0].places.clear(); s.animations[0].views.clear(); })),
+        ("zero-length-animation", "An animation is zero ticks long.", with(&|s| motion(s).length = 0)),
+        ("empty-canvas", "The canvas has no width.", with(&|s| s.views[0].width = 0)),
+        ("duplicate-part-id", "Two parts share an id.", with(&|s| s.parts.push(s.parts[0].clone()))),
+        ("empty-id", "An id is empty.", with(&|s| s.views[0].id.clear())),
+        ("parent-not-shown", "A part is joined to a part its view does not show.", with(&|s| s.views[0].parts[0].parent = Some(5))),
+        ("parent-loop", "Two parts are each joined to the other.", with(&|s| {
+            s.parts.push(Part { id: "tail".into(), name: "Tail".into(), ..Part::default() });
+            s.views[0].parts[0].parent = Some(1);
+            s.views[0].parts.push(ViewPart { part: 1, parent: Some(0) });
+        })),
+        ("part-listed-twice", "A view lists the same part twice.", with(&|s| { let p = s.views[0].parts[0]; s.views[0].parts.push(p); })),
+        ("track-for-absent-part", "An animation moves a part its view does not show.", with(&|s| {
+            s.parts.push(Part { id: "tail".into(), name: "Tail".into(), ..Part::default() });
+            motion(s).tracks[0].part = 1;
+        })),
+        ("two-tracks-one-part", "An animation has two tracks for the same part.", with(&|s| { let t = motion(s).tracks[0].clone(); motion(s).tracks.push(t); })),
+        ("unknown-drawing-in-key", "A key shows a drawing that does not exist.", with(&|s| motion(s).tracks[0].image = vec![(0, Some(9))])),
+        ("keys-out-of-order", "Keys are not in increasing tick order.", with(&|s| motion(s).tracks[0].numbers[X] = vec![key(5, 1.0), key(2, 0.0)])),
+        ("two-keys-one-tick", "Two keys share a tick.", with(&|s| motion(s).tracks[0].numbers[X] = vec![key(2, 1.0), key(2, 0.0)])),
+        ("number-not-finite", "An animated number is not a finite number.", with(&|s| motion(s).tracks[0].numbers[X] = vec![key(0, f64::NAN)])),
+        ("unknown-ease", "A key uses an easing curve that does not exist.", {
+            // The only key in the file is the x key written here; its ease is the last byte of the animation's data.
+            let mut s = base();
+            motion(&mut s).tracks[0].numbers[EMISSION] = vec![key(0, 1.0)];
+            let mut b = binary::write_stored(&s).unwrap();
+            let at = b.windows(4).position(|w| w == b"ANIM").unwrap();
+            let length = u32::from_le_bytes(b[at + 4..at + 8].try_into().unwrap()) as usize;
+            b[at + 16 + length - 1] = 9;
+            let sum = binary::crc32(&[b"ANIM", &b[at + 16..at + 16 + length]]);
+            b[at + 8..at + 12].copy_from_slice(&sum.to_le_bytes());
+            b
         }),
-        ("unknown-material", "A drawing names a material that does not exist.", with(&|m| m["views"][0]["images"][0]["material"] = "chrome".into())),
-        ("material-factor-out-of-range", "A material's roughness is above 1.", with(&|m| m["materials"] = json!([{"id": "m", "name": "M", "roughness": 4.0}]))),
-        ("bad-palette-color", "A palette color is not #rrggbb or #rrggbbaa.", with(&|m| m["palettes"] = json!([{"id": "p", "name": "P", "colors": ["#000000", "red"]}]))),
-        ("empty-palette", "A palette has no colors.", with(&|m| m["palettes"] = json!([{"id": "p", "name": "P", "colors": []}]))),
-        ("unknown-variant-palette", "A variant names a palette that does not exist.", with(&|m| m["variants"] = json!([{"id": "v", "name": "V", "palette": "gold"}]))),
-        ("unknown-replacement-drawing", "A variant replaces a drawing with one that does not exist.", with(&|m| m["variants"] = json!([{"id": "v", "name": "V", "replacements": [{"view": "front", "image": "mark", "with": "ghost"}]}]))),
-        ("unknown-overlay", "A drawing lists an overlay that does not exist.", with(&|m| m["views"][0]["images"][0]["overlays"] = json!(["ghost"]))),
-        ("overlay-on-itself", "A drawing lists itself as an overlay.", with(&|m| m["views"][0]["images"][0]["overlays"] = json!(["mark"]))),
+        ("color-not-in-palette", "A pixel uses a color number the palette does not have.", with(&|s| { let i = s.views[0].color.opacity.iter().position(|&o| o > 0).unwrap(); s.views[0].color.number[i] = 400; })),
+        ("palettes-of-different-length", "Two palettes have different numbers of colors.", with(&|s| { let mut p = s.palettes[0].clone(); p.id = "short".into(); p.colors.pop(); s.palettes.push(p); })),
+        ("no-palette", "The sprite has no palette.", with(&|s| s.palettes.clear())),
+        ("unknown-variant-palette", "A look names a palette that does not exist.", with(&|s| s.variants.push(Variant { id: "v".into(), name: "V".into(), palette: Some(7), ..Variant::default() }))),
+        ("unknown-replacement-drawing", "A look replaces a drawing with one that does not exist.", with(&|s| s.variants.push(Variant { id: "v".into(), name: "V".into(), replace: vec![Replace { view: 0, from: 0, to: 9 }], ..Variant::default() }))),
+        ("look-shows-unknown-part", "A look shows a part that does not exist.", with(&|s| s.variants.push(Variant { id: "v".into(), name: "V".into(), show: vec![9], ..Variant::default() }))),
+        ("drawing-off-the-sheet", "A drawing's rectangle reaches past the edge of its sheet.", with(&|s| s.drawings[0].places[0].as_mut().unwrap().width = 4000)),
+        ("light-sheet-wrong-size", "A view's Light sheet is not the size of its Color sheet.", with(&|s| { lit(s); let l = s.views[0].light.as_mut().unwrap(); l.height -= 1; l.data.truncate((l.width * l.height * 4) as usize); })),
+        ("unknown-material", "A pixel names a material the sprite does not have.", with(&|s| { lit(s); let i = s.views[0].color.opacity.iter().position(|&o| o > 0).unwrap(); s.views[0].light.as_mut().unwrap().data[i * 4 + 2] = 3; })),
+        ("material-dial-out-of-range", "A material's finish is above 1.", with(&|s| { lit(s); s.materials[0].finish = 4.0; })),
+        ("shade-not-in-palette", "A material lists a shade the palette does not have.", with(&|s| { lit(s); s.materials[0].shades = vec![1, 400]; })),
+        ("base-not-a-shade", "A material's base is not one of its shades.", with(&|s| { lit(s); s.materials[0].shades = vec![1, 2]; s.materials[0].base = 2; })),
     ]
 }
 
@@ -357,34 +478,48 @@ fn main() -> Result<()> {
         let _ = std::fs::remove_dir_all(root.join(dir));
         std::fs::create_dir_all(root.join(dir))?;
     }
-    let mut valid_list = Vec::new();
+    let mut cases: Vec<(&str, &str, Sprite, Frames)> = Vec::new();
     for case in valid() {
-        let bytes = zip(Some(&case.manifest), &case.files);
-        let package = Package::read(&bytes).with_context(|| case.name)?;
-        let reference = Reference::new(&package).with_context(|| case.name)?;
-        std::fs::write(root.join(format!("valid/{}.spu", case.name)), &bytes)?;
-        std::fs::create_dir_all(root.join("expected").join(case.name))?;
-        let mut frames = Vec::new();
+        let package = Package::read(&zip(Some(&case.manifest), &case.files)).with_context(|| case.name)?;
+        // Converted exactly, each must draw what the older renderer drew.
+        let (old, exact) = (Reference::new(&package)?, convert::from_legacy(&package, None, false)?);
         for (animation, tick, variants) in &case.frames {
-            let frame = reference.render("front", animation, *tick, variants)?;
-            let mut file = format!("expected/{}/{animation}.{tick}", case.name);
+            ensure!(picture_named(&exact, "front", animation, *tick, variants)? == old.render("front", animation, *tick, variants)?, "{}: the converter changed a picture", case.name);
+        }
+        let mut sprite = convert::from_legacy(&package, None, true)?;
+        if case.name == "unknown-fields" {
+            sprite.unknown.push((*b"note", b"A chunk this reader does not know.".to_vec()));
+        }
+        cases.push((case.name, case.about, sprite, case.frames.into_iter().map(|(a, t, v)| ("front", a, t, v)).collect()));
+    }
+    cases.extend(native());
+
+    let mut valid_list = Vec::new();
+    for (name, about, sprite, frames) in cases {
+        let bytes = binary::write(&sprite).with_context(|| name)?;
+        let read = binary::read(&bytes).with_context(|| name)?;
+        ensure!(read == sprite && binary::write(&read)? == bytes, "{name} does not survive being written and read");
+        std::fs::write(root.join(format!("valid/{name}.spu")), &bytes)?;
+        std::fs::create_dir_all(root.join("expected").join(name))?;
+        let mut list = Vec::new();
+        for (view, animation, tick, variants) in &frames {
+            let mut file = format!("expected/{name}/{view}.{animation}.{tick}");
             for v in variants {
                 file += &format!(".{v}");
             }
             file += ".png";
-            std::fs::write(root.join(&file), frame.png()?)?;
-            frames.push(json!({"view": "front", "animation": animation, "tick": tick, "variants": variants, "expected": file}));
+            std::fs::write(root.join(&file), picture_named(&read, view, animation, *tick, variants)?.png()?)?;
+            list.push(json!({"view": view, "animation": animation, "tick": tick, "variants": variants, "expected": file}));
         }
-        valid_list.push(json!({"file": format!("valid/{}.spu", case.name), "about": case.about, "frames": frames}));
+        valid_list.push(json!({"file": format!("valid/{name}.spu"), "about": about, "frames": list}));
     }
     let mut invalid_list = Vec::new();
     for (name, about, bytes) in invalid() {
-        let outcome = Package::read(&bytes).and_then(|p| Reference::new(&p).map(|_| ()));
-        ensure!(outcome.is_err(), "{name} should be refused");
+        ensure!(binary::read(&bytes).is_err(), "{name} should be refused");
         std::fs::write(root.join(format!("invalid/{name}.spu")), &bytes)?;
         invalid_list.push(json!({"file": format!("invalid/{name}.spu"), "about": about}));
     }
-    let manifest = json!({"format": "spu", "version": 1, "valid": valid_list, "invalid": invalid_list});
+    let manifest = json!({"format": "spu", "version": binary::VERSION, "valid": valid_list, "invalid": invalid_list});
     std::fs::write(root.join("manifest.json"), serde_json::to_string_pretty(&manifest)? + "\n")?;
     println!("{} valid, {} invalid", manifest["valid"].as_array().unwrap().len(), manifest["invalid"].as_array().unwrap().len());
     Ok(())

@@ -1,17 +1,25 @@
 //! Command-line tool: inspect, check, upgrade and draw `.spu` files.
 use anyhow::{Context, Result, bail};
-use sprite_lab::{format::Package, reference::Reference};
+use spu::{
+    binary, convert,
+    legacy::format::Package,
+    picture::{Frame, picture},
+    sprite::Sprite,
+};
 
 const USAGE: &str = "\
 spu info <file>
 spu validate <file>...
-spu convert <in> <out.spu>          upgrade an older file to the current version
+spu convert <older file> <out.spu> [--light FOLDER] [--verify]
+        upgrade an older file. --light adds lighting made elsewhere (materials.json and <view>/<drawing>.png).
+        --verify draws every tick both ways and fails if any picture differs.
 spu render <file> <out.png> [--view ID] [--animation ID] [--tick N] [--variant ID]...
-spu animate <file> <out.png> [--view ID] [--animation ID] [--variant ID]... [--step N]   a looping animated PNG, drawn every N ticks";
+spu animate <file> <out.png> [--view ID] [--animation ID] [--variant ID]... [--step N]
+        a looping animated PNG, drawn every N ticks
+Older files (ZIP archives) open everywhere and are upgraded in memory.";
 
-fn open(path: &str) -> Result<Package> {
-    Package::read(&std::fs::read(path).with_context(|| format!("Cannot read {path}"))?)
-        .with_context(|| path.to_owned())
+fn open(path: &str) -> Result<(Sprite, Option<String>)> {
+    spu::open(&std::fs::read(path).with_context(|| format!("Cannot read {path}"))?).with_context(|| path.to_owned())
 }
 
 fn main() -> Result<()> {
@@ -19,25 +27,34 @@ fn main() -> Result<()> {
     let rest: Vec<&str> = args.iter().skip(1).map(String::as_str).collect();
     match (args.first().map(String::as_str), rest.as_slice()) {
         (Some("info"), [path]) => {
-            let p = open(path)?;
-            let d = &p.document;
-            println!("{} (SPU {}{})", d.name, d.version, p.migrated_from.as_ref().map_or(String::new(), |m| format!(", upgraded from {m}")));
-            println!("{} ticks per second, {} palettes, {} materials", d.ticks_per_second, d.palettes.len(), d.materials.len());
-            for v in &d.variants {
+            let (s, from) = open(path)?;
+            println!("{} (SPU {}{})", s.name, binary::VERSION, from.map_or(String::new(), |f| format!(", upgraded from {f}")));
+            if !s.author.is_empty() {
+                println!("by {}", s.author);
+            }
+            println!("version {}, {} ticks per second", s.version, s.ticks_per_second);
+            println!("{} parts, {} drawings, {} palettes of {} colors, {} materials", s.parts.len(), s.drawings.len(), s.palettes.len(), s.palettes[0].colors.len(), s.materials.len());
+            for v in &s.variants {
                 println!("variant {} ({})", v.id, v.name);
             }
-            for v in &d.views {
-                println!("view {} ({}): {} parts, {} drawings", v.id, v.name, v.parts.len(), v.images.len());
-                for a in &v.animations {
-                    println!("  animation {} ({}): {} ticks{}", a.id, a.name, a.length, if a.looping { ", loops" } else { "" });
+            for (i, v) in s.views.iter().enumerate() {
+                let drawings = s.drawings.iter().filter(|d| d.places[i].is_some()).count();
+                println!("view {} ({}): {} parts, {} drawings, sheet {}x{}{}", v.id, v.name, v.parts.len(), drawings, v.color.width, v.color.height, if v.light.is_some() { ", lit" } else { "" });
+                for a in &s.animations {
+                    if let Some(m) = &a.views[i] {
+                        println!("  animation {} ({}): {} ticks{}", a.id, a.name, m.length, if m.looping { ", loops" } else { "" });
+                    }
                 }
+            }
+            if !s.extras.is_empty() {
+                println!("{} extras, {} bytes", s.extras.len(), s.extras.iter().map(|e| e.bytes.len()).sum::<usize>());
             }
         }
         (Some("validate"), paths) if !paths.is_empty() => {
             let mut failed = 0;
             for path in paths {
-                match open(path).and_then(|p| Reference::new(&p).map(|_| ())) {
-                    Ok(()) => println!("ok       {path}"),
+                match open(path) {
+                    Ok(_) => println!("ok       {path}"),
                     Err(e) => {
                         failed += 1;
                         println!("INVALID  {path}: {e:#}");
@@ -48,55 +65,71 @@ fn main() -> Result<()> {
                 bail!("{failed} invalid");
             }
         }
-        (Some("convert"), [input, output]) => {
-            let p = open(input)?;
-            Reference::new(&p)?;
-            std::fs::write(output, p.write()?)?;
+        (Some("convert"), [input, output, options @ ..]) => {
+            let bytes = std::fs::read(input).with_context(|| format!("Cannot read {input}"))?;
+            if bytes.starts_with(&binary::MAGIC) {
+                bail!("{input} is already in the current format");
+            }
+            let package = Package::read(&bytes).with_context(|| (*input).to_owned())?;
+            let (mut light, mut verify, mut i) = (None, false, 0);
+            while i < options.len() {
+                match options[i] {
+                    "--verify" => verify = true,
+                    "--light" if i + 1 < options.len() => {
+                        i += 1;
+                        light = Some(convert::Lighting::load(std::path::Path::new(options[i]))?);
+                    }
+                    _ => bail!("{USAGE}"),
+                }
+                i += 1;
+            }
+            if verify {
+                let (frames, wrong) = convert::verify(&package)?;
+                if wrong > 0 {
+                    bail!("{input}: {wrong} of {frames} pictures differ after converting");
+                }
+                println!("{frames} pictures identical");
+            }
+            let sprite = convert::from_legacy(&package, light.as_ref(), true)?;
+            std::fs::write(output, binary::write(&sprite)?)?;
         }
         (Some(mode @ ("render" | "animate")), [path, output, options @ ..]) => {
-            let animate = mode == "animate";
-            let p = open(path)?;
-            let mut view = p.document.views[0].id.clone();
-            let (mut animation, mut tick, mut variants) = (None, 0.0, Vec::new());
+            let (s, _) = open(path)?;
+            let (mut view, mut animation, mut tick, mut variants) = (0, None, 0.0, Vec::new());
             let mut step = 1u16;
             for pair in options.chunks(2) {
                 match pair {
-                    ["--view", v] => view = (*v).to_owned(),
-                    ["--animation", v] => animation = Some((*v).to_owned()),
+                    ["--view", v] => view = s.view(v).with_context(|| format!("No view {v}"))?,
+                    ["--animation", v] => animation = Some(s.animation(v).with_context(|| format!("No animation {v}"))?),
                     ["--tick", v] => tick = v.parse()?,
                     ["--step", v] => step = v.parse::<u16>()?.max(1),
-                    ["--variant", v] => variants.push(*v),
+                    ["--variant", v] => variants.push(s.variant(v).with_context(|| format!("No variant {v}"))?),
                     _ => bail!("{USAGE}"),
                 }
             }
+            // By default, the first animation this view has.
             let animation = match animation {
                 Some(a) => a,
-                None => {
-                    let v = p.document.views.iter().find(|v| v.id == view).context("No such view")?;
-                    v.animations[0].id.clone()
-                }
+                None => s.animations.iter().position(|a| a.views[view].is_some()).context("This view has no animation")?,
             };
-            let reference = Reference::new(&p)?;
-            if !animate {
-                let frame = reference.render(&view, &animation, tick, &variants)?;
-                std::fs::write(output, frame.png()?)?;
+            if mode == "render" {
+                std::fs::write(output, picture(&s, view, animation, tick, &variants).png()?)?;
                 return Ok(());
             }
-            let v = p.document.views.iter().find(|v| v.id == view).context("No such view")?;
-            let length = v.animations.iter().find(|a| a.id == animation).context("No such animation")?.length;
+            let motion = s.animations[animation].views[view].as_ref().context("This view does not have that animation")?;
             // One frame per run of identical ticks.
-            let mut frames: Vec<(sprite_lab::reference::Frame, u16)> = Vec::new();
-            let length = (length.ceil() as u32).clamp(1, 6000);
+            let mut frames: Vec<(Frame, u16)> = Vec::new();
+            let length = motion.length.clamp(1, 6000);
             for tick in (0..length).step_by(step.into()) {
                 let shown = (length - tick).min(step.into()) as u16;
-                let frame = reference.render(&view, &animation, f64::from(tick), &variants)?;
+                let frame = picture(&s, view, animation, f64::from(tick), &variants);
                 match frames.last_mut() {
                     Some((last, ticks)) if *last == frame && *ticks < u16::MAX - shown => *ticks += shown,
                     _ => frames.push((frame, shown)),
                 }
             }
-            let rate = p.document.ticks_per_second.round().clamp(1.0, 1000.0) as u16;
-            std::fs::write(output, sprite_lab::reference::Frame::apng(&frames, rate)?)?;
+            let rate = s.ticks_per_second.round().clamp(1.0, 1000.0) as u16;
+            std::fs::write(output, Frame::apng(&frames, rate)?)?;
         }
         _ => bail!("{USAGE}"),
     }
