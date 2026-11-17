@@ -1,0 +1,105 @@
+<title>SPU Material Spheres</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Pixelify+Sans:wght@500;600&display=swap">
+<style>
+/* One ball on a stage, two dials beside it, and every preset below. Same dark viewing room as the format lab. */
+:root {
+  color-scheme: dark;
+  --room: #0f1117; --panel: #171a23; --raised: #1f2330; --line: #2c3140;
+  --text: #e8e4da; --dim: #9b9aa5; --lamp: #ffb357; --cold: #86d3e6;
+  --display: "Pixelify Sans", "Trebuchet MS", system-ui, sans-serif;
+  --body: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+[hidden] { display: none !important; }
+body { background: var(--room); color: var(--text); font: 15px/1.5 var(--body); }
+.wrap { max-width: 1100px; margin: 0 auto; padding-block: 28px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 20px; }
+header { display: grid; gap: 6px; }
+h1 { font: 600 30px/1.1 var(--display); margin: 0; text-wrap: balance; } h1 em { font-style: normal; color: var(--lamp); }
+h2 { font: 600 17px/1.25 var(--body); margin: 0; }
+p { margin: 0; color: var(--dim); max-width: 70ch; } b { color: var(--text); font-weight: 600; }
+button { font: 500 13px/1 var(--body); cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--cold); outline-offset: 2px; }
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
+.stagecol { display: grid; gap: 10px; min-width: 0; }
+.stage { position: relative; border: 1px solid var(--line); background: #000; line-height: 0; }
+#view { width: 100%; aspect-ratio: 3 / 2; display: block; touch-action: none; cursor: crosshair; max-width: 100%; }
+#hint { position: absolute; left: 12px; bottom: 12px; font: 500 13px/1 var(--body); color: var(--room); background: var(--lamp); padding: 7px 10px; pointer-events: none; }
+#fail { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; line-height: 1.5; background: var(--panel); }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.seg { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); border: 1px solid var(--line); flex: 1 1 320px; min-width: 0; }
+.seg button, .tog { color: var(--dim); background: var(--panel); border: 0; padding: 9px 6px; min-width: 0; }
+.seg button + button { border-left: 1px solid var(--line); }
+.tog { border: 1px solid var(--line); padding: 9px 12px; }
+.seg button:hover, .tog:hover { color: var(--text); }
+.seg button[aria-pressed="true"], .tog[aria-pressed="true"] { background: var(--lamp); color: var(--room); }
+#place-hint { color: var(--lamp); font-size: 13px; }
+#panel { background: var(--panel); border: 1px solid var(--line); padding: 18px; display: grid; gap: 14px; min-width: 0; }
+#words { font: 600 20px/1.2 var(--body); color: var(--text); text-transform: capitalize; }
+#like { font-size: 13px; }
+.dial { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; font-size: 14px; }
+.dial small { grid-column: 1 / -1; color: var(--dim); font-size: 12px; }
+.dial input, .ends { grid-column: 1 / -1; }
+input[type=range] { width: 100%; min-width: 0; margin: 0; accent-color: var(--lamp); }
+.ends { position: relative; height: 15px; color: var(--dim); font-size: 11px; }
+.ends i { font-style: normal; position: absolute; top: 0; white-space: nowrap; }
+.n { color: var(--dim); font-size: 12px; font-variant-numeric: tabular-nums; }
+#colors { display: flex; flex-wrap: wrap; gap: 6px; }
+#colors button { width: 30px; height: 30px; border: 1px solid var(--line); padding: 0; }
+#colors button[aria-pressed="true"] { outline: 2px solid var(--lamp); outline-offset: 1px; }
+section { display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 20px; }
+#map { display: grid; grid-template-columns: auto repeat(6, minmax(0, 1fr)); gap: 4px; margin-top: 6px; max-width: 760px; align-items: center; }
+#map .col, #map .row { font: 500 11px/1.2 var(--body); color: var(--dim); letter-spacing: .03em; display: block; }
+#map .col { text-align: center; overflow-wrap: anywhere; } #map .row { padding-right: 6px; }
+#map button { padding: 3px; background: var(--panel); border: 1px solid var(--line); line-height: 0; min-width: 0; }
+#map img { width: 100%; height: auto; image-rendering: pixelated; }
+#balls { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; margin-top: 6px; }
+#balls button { display: grid; justify-items: center; gap: 2px; padding: 4px 4px 7px; background: var(--panel); border: 1px solid var(--line); color: var(--dim); font-size: 12px; line-height: 1.15; }
+#balls img { width: 88px; height: 88px; image-rendering: pixelated; }
+#map button[aria-pressed="true"], #balls button[aria-pressed="true"] { border-color: var(--lamp); color: var(--text); background: var(--raised); }
+@media (max-width: 900px) { .main { grid-template-columns: minmax(0, 1fr); } h1 { font-size: 25px; } .seg { grid-template-columns: repeat(3, minmax(0, 1fr)); } .seg button { border: 0; box-shadow: 0 0 0 .5px var(--line); } }
+</style>
+<div class="wrap">
+  <header>
+    <h1>SPU <em>Material</em> Spheres</h1>
+    <p>In SPU a material is two dials. <b>Finish</b> is what the surface is like. <b>Body</b> is what happens to light that gets past the surface. Drag them, pick a preset below, and move the light across the stage.</p>
+  </header>
+  <div class="main">
+    <div class="stagecol">
+      <div class="stage">
+        <canvas id="view" aria-label="A ball of the chosen material on the stage"></canvas>
+        <div id="hint">Move the light</div>
+        <div id="fail" hidden></div>
+      </div>
+      <div class="row"><div class="seg" id="place"></div><button class="tog" id="behind" type="button" aria-pressed="false">Light from behind</button></div>
+      <p id="place-hint"></p>
+    </div>
+    <aside id="panel">
+      <div><div id="words"></div><p id="like"></p></div>
+      <div class="dial"><label for="df">Finish</label><span class="n" id="nf"></span><input id="df" type="range" min="-1" max="1" step="0.05">
+        <span class="ends"><i style="left:0">fuzzy</i><i style="left:50%;transform:translateX(-50%)">matte</i><i style="right:0">polished</i></span></div>
+      <div class="dial"><label for="db">Body</label><span class="n" id="nb"></span><input id="db" type="range" min="-1" max="1" step="0.05">
+        <span class="ends"><i style="left:0">metal</i><i style="left:50%;transform:translateX(-50%)">solid</i><i style="left:75%;transform:translateX(-50%)">translucent</i><i style="right:0">clear</i></span></div>
+      <div class="dial"><label for="dg">Glow</label><span class="n" id="ng"></span><input id="dg" type="range" min="0" max="1" step="0.05">
+        <small>Not part of the material: every pixel stores its own glow.</small></div>
+      <div class="dial"><span>Color</span><span></span><div id="colors" style="grid-column:1/-1"></div>
+        <small>Color comes from the pixels too. A material only lists which colors are its shades.</small></div>
+    </aside>
+  </div>
+  <section>
+    <h2>The whole map</h2>
+    <p>Finish down the side, body across the top. Every ball is the same clay color under the same light, so only the dials differ. Picking one keeps your color.</p>
+    <div id="map"></div>
+  </section>
+  <section>
+    <h2>Named materials</h2>
+    <p>Each is a point on the map plus a color. The first twelve are the settings the test sprites use.</p>
+    <div id="balls"></div>
+  </section>
+</div>
+<script>
+/*SHADERS*/
+const DATA = { sprites: [] };
+/*APP*/
+/*BALLS*/
+/*SPHERES*/
+</script>

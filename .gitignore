@@ -9,3 +9,4 @@ __pycache__/
 *.pyc
 /tools/corpus-check/target/
 /tools/corpus-check/target/
+/lab/out/
