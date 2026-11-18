@@ -6,7 +6,7 @@ from mmap import mmap
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
-from video_numbers import draw_numbers
+from video_numbers import draw_numbers, draw_surfaces, material_color, number_badge
 
 here = os.path.dirname(os.path.abspath(__file__)); src = os.path.join(here, "out", "video")
 data = json.load(open(os.path.join(src, "frames.json"))); fps = data["fps"]; frames = data["frames"]; scenes = data["scenes"]
@@ -48,40 +48,56 @@ def pill(im, x, y, text, f=None, fill=TEXT, centered=False):
     if centered: x -= w / 2
     panel(im, x, y, w, 32).text((u(x + 10), u(y + 16)), text, font=f, fill=fill, anchor="lm"); return w
 
+def note_card(im, x, y, note, heading=None, material=None):
+    lines = note.splitlines()
+    w = max(LABEL.getlength(line) for line in lines)
+    indent = 23 if material is not None else 0
+    if heading:
+        w = max(w, HEAD.getlength(heading) + u(indent))
+    line_height = 23
+    h = 12 + line_height * (len(lines) + bool(heading))
+    d = panel(im, x, y, w / U + 22, h)
+    ty = y + 6 + line_height / 2
+    if heading:
+        if material is not None:
+            number_badge(d, u, HEAD, x + 20, ty, 19, 19, material_color(material), material)
+        d.text((u(x + 11 + indent), u(ty)), heading, font=HEAD, fill=LAMP, anchor="lm")
+        ty += line_height
+    for line in lines:
+        d.text((u(x + 11), u(ty)), line, font=LABEL, fill=TEXT, anchor="lm")
+        ty += line_height
+
 def overlay(im, sc, seconds):
+    ov = sc.get("ov") or {}
     if sc.get("labels"):
         for k, label in enumerate(sc["labels"]):
-            pill(im, k * W * 5 // 2 + 12, 12, label)
-    ov = sc.get("ov") or {}
+            x = k * W * 5 // 2 + 12
+            if k == 1 and sc.get("note"):
+                note_card(im, x, 12, sc["note"], label, ov.get("material"))
+            else:
+                pill(im, x, 12, label)
     kind = ov.get("kind")
     if kind in ("palette", "materials"):
         draw_numbers(im, sc, seconds, font)
+    elif kind == "surface":
+        draw_surfaces(im, sc, font)
     elif kind == "file":
-        pill(im, 94, 284, "0006-charizard.spu", HEAD)
+        note_card(im, 82, 272, sc["note"], "0006-charizard.spu")
     elif kind == "sheet":
-        pill(im, 745, 590, "Piece sheet")
-    elif kind == "motion" and seconds >= 3.2:
-        pill(im, 134, 284, "Idle animation", HEAD)
+        pill(im, 702, 590, sc["note"], centered=True)
+    elif kind == "motion" and seconds >= 2.5:
+        note_card(im, 80, 278, sc["note"])
     elif kind == "facing":
-        x, y = 690, 559
-        panel(im, x, y, 256, 69)
+        w = HEAD.getlength(sc["note"]) / U + 87
+        x, y = W * 5 - w - 12, 560
+        panel(im, x, y, w, 69)
         im.alpha_composite(BALL, (u(x + 9), u(y + 8)))
         d = ImageDraw.Draw(im)
-        d.text((u(x + 74), u(y + 19)), "Surface facing", font=HEAD, fill=TEXT, anchor="lm")
-        words = [("Up", "#95e6a6"), ("Right", "#ffa0a5"), ("Front", "#a5bfff")]
+        d.text((u(x + 74), u(y + 19)), sc["note"], font=HEAD, fill=TEXT, anchor="lm")
         px = u(x + 74)
-        for word, color in words:
+        for word, color in [("Up", "#95e6a6"), ("Right", "#ffa0a5"), ("Front", "#a5bfff")]:
             d.text((px, u(y + 47)), word, font=BODY, fill=color, anchor="lm")
             px += BODY.getlength(word) + u(13)
-    elif kind == "dials":
-        row = next(r for r in sc["info"]["rows"] if r["name"] == ov["row"])
-        name = row["name"].capitalize()
-        settings = row["words"].capitalize().replace(", ", " · ")
-        w = max(HEAD.getlength(name), BODY.getlength(settings)) / U + 24
-        x, y = 278 - w, 293
-        d = panel(im, x, y, w, 59)
-        d.text((u(x + 12), u(y + 17)), name, font=HEAD, fill=TEXT, anchor="lm")
-        d.text((u(x + 12), u(y + 41)), settings, font=BODY, fill=LAMP, anchor="lm")
 
 def big(a, scale):
     image = Image.fromarray(a)
@@ -105,9 +121,9 @@ def picture(sc, c, seconds):
     elif kind == "sharedSheet":
         with Image.open(os.path.join(src, c["a"])) as sheet:
             im.paste(sheet.resize(im.size, Image.Resampling.NEAREST))
-        if seconds < 1.65:
-            pill(im, 154, 74, "Jellicent · shared piece sheet")
-        elif seconds >= 3.75:
+        note = sc["note"] if seconds < 3.75 else sc["ov"]["assembled"]
+        pill(im, W * 5 / 2, 70, note, centered=True)
+        if seconds >= 3.75:
             pill(im, 245, 132, "Male", centered=True)
             pill(im, 715, 132, "Female", centered=True)
     elif sc.get("sum"):
@@ -117,20 +133,25 @@ def picture(sc, c, seconds):
         im.paste(big(native(c["a"])[:, (W - (W * S - lw) // S) // 2:][:, :(W * S - lw) // S], S), (lw, 0))
         d = ImageDraw.Draw(im); d.line([0, H * half, lw, H * half], fill=BG, width=4); d.line([lw, 0, lw, H * S], fill=BG, width=4)
         sign(im, lw // 2, H * half, "+"); sign(im, lw, H * S // 2, "=")
-        pill(im, 6, 6, "Flat color", HEAD); pill(im, 6, H * half / U + 6, "Facing", HEAD); pill(im, lw / U + 10, 10, "Shading")
+        pill(im, 6, 6, "Flat color", HEAD); pill(im, 6, H * half / U + 6, "Facing", HEAD); pill(im, lw / U + 10, 10, sc["note"])
     elif sc.get("grid"):
         columns = len(sc["grid"]) // 2
-        width, height = W * S // columns, H * half
+        # Trim four native pixels of sky and floor per cell to make room for the explanation.
+        trim = 4
+        heading_height = 4 * trim * half
+        width, height = W * S // columns, (H - 2 * trim) * half
         crop = (W - width // half) // 2
         for k, name in enumerate(c["cells"]):
-            x, y = k % columns * width, k // columns * height
-            im.paste(big(native(name)[:, crop:crop + width // half], half), (x, y))
+            x, y = k % columns * width, heading_height + k // columns * height
+            im.paste(big(native(name)[trim:-trim, crop:crop + width // half], half), (x, y))
         d = ImageDraw.Draw(im)
+        d.text((W * S // 2, heading_height // 2), sc["note"], font=LABEL, fill=TEXT, anchor="mm")
         for col in range(1, columns):
-            d.line([col * width, 0, col * width, H * S], fill=BG, width=4)
-        d.line([0, height, W * S, height], fill=BG, width=4)
+            d.line([col * width, heading_height, col * width, H * S], fill=BG, width=4)
+        middle = heading_height + height
+        d.line([0, middle, W * S, middle], fill=BG, width=4)
         for k, label in enumerate(sc["grid"]):
-            x, y = k % columns * width / U + 8, k // columns * height / U + 8
+            x, y = k % columns * width / U + 8, (heading_height + k // columns * height) / U + 8
             label_width = pill(im, x, y, label, HEAD)
             if sc.get("swatches"):
                 colors = sc["swatches"][k]
