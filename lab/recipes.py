@@ -96,6 +96,7 @@ R = {
          ("horns", "leaf", [8, 7, 6], None),
          ("eye", "eye", [10, 9], None),
          ("mouth", "mouth", [14], None)],
+   bulge={"brown fur": 0.5},      # the face is a small patch boxed in by drawn lines: at full height its top edge caught the light as a bright bar across the eyes
    rules=[]),
  "0579-reuniclus": dict(title="Reuniclus", scene="studio", ground=0, glow_z=0,
    rows=[("outline", "outline", [1, 15], None),

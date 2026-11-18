@@ -6,12 +6,12 @@ alternate looks, and how every pixel takes light.
 
 ![Charizard in a field. The sun crosses the sky and the shading on its body follows.](docs/images/hero.gif)
 
-[![A short tour: a sprite is taken apart into the flat pieces the file stores, then put back together and lit.](docs/images/tour-poster.png)](docs/spu-tour.mp4)
+[![The tour video: one sprite is built up a layer at a time, from the flat pieces the file stores to the finished, lit sprite.](docs/images/tour-poster.png)](docs/spu-tour.mp4)
 
-*[Watch the tour](docs/spu-tour.mp4) (73 seconds): the flat color a sprite is
-stored as, the sheet its pieces live on, how an animation assembles them, and
-how a light turns flat color and facing into shading. Then materials, glow,
-places and looks. English captions are available in the player.*
+*[Watch the tour](docs/spu-tour.mp4) (82 seconds): one sprite built up a layer at a
+time. The flat color it is stored as, its pieces and the animation that moves
+them, then facing and light, materials and glow. Then places, variants and
+views. English captions are available in the player.*
 
 This repository is the format's home:
 
@@ -57,12 +57,12 @@ eight walking directions. A game loads only the ones it uses.
 
 ### Looks
 
-A look reuses the same animation. It can swap the palette, swap drawings, or
-both, and looks combine.
+A look, which the file itself calls a variant, reuses the same animation. It
+can swap the palette, swap drawings, or both, and looks combine.
 
 ![Arceus in eight of its palettes.](docs/images/palettes.png)
 
-*One Arceus file carries 34 palettes: seventeen types, each with a shiny.*
+*One Arceus file has 34 palettes: seventeen types, each with a shiny.*
 
 ![Jellicent: male, female, female with eyes closed, female shiny.](docs/images/looks.png)
 
@@ -118,7 +118,7 @@ rectangle finds its color and its lighting.*
 
 ### Materials are two dials
 
-Each sprite carries a short list of materials, and every pixel names one. A
+Each sprite has a short list of materials, and every pixel names one. A
 material is a name, its shades, and two dials:
 
 - **Finish**: what the surface is like. Fuzzy, matte or polished.

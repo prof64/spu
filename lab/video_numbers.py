@@ -7,6 +7,8 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 
+LIGHT, DARK, ACCENT = (240, 238, 231), (24, 26, 33), (255, 179, 87)   # text, the panels it sits on, and a heading that states the point
+
 # Preferred spot in the 192 × 128 pose, and where to set the number relative to it.
 # Tiny regions (line art, claws, flame) get a short pointer so the pixels remain visible.
 HIDE = (95, 76, 0, 0)
@@ -60,41 +62,90 @@ def number_badge(d, px, numeral, x, y, w, h, color, index, moving=False):
     d.text((px(x), px(y)), str(index), font=numeral, fill=ink, anchor="mm")
 
 
+@lru_cache(maxsize=24)
+def surface_sample(encoded, max_size):
+    """Keep the entire sphere in view at an integer enlargement."""
+    with Image.open(BytesIO(base64.b64decode(encoded))) as image:
+        size = image.width * (max_size // image.width) if max_size >= image.width else max_size
+        return image.convert("RGB").resize((size, size), Image.Resampling.NEAREST)
+
+
+@lru_cache(maxsize=24)
+def map_sample(encoded, max_size, color):
+    """The outline's black sphere, recolored: a flat sample in a material's map color, exactly where its lit sphere goes."""
+    sample = np.array(surface_sample(encoded, max_size))
+    sample[sample.max(-1) < 12] = color
+    return Image.fromarray(sample)
+
+
+def material_list(im, sc, font, lit):
+    """Every material down the left: a sample, its number and its name. Returns where each number sits.
+
+    The sample is the map color on the material map and a lit sphere after it. Nothing else differs,
+    so a wipe between the two changes the samples and the sprite and leaves the list where it is."""
+    info = sc["info"]
+    px = lambda n: round(n * (im.width // 192))
+    d = ImageDraw.Draw(im)
+    title, numeral, body = font(px(3.45), "Semibold"), font(px(3), "Semibold"), font(px(3.15))
+    d.rounded_rectangle(tuple(px(n) for n in (5, 2.5, 56, 122)), radius=px(1), fill=DARK)
+    for j, line in enumerate(sc["note"].splitlines()):
+        d.text((px(7.5), px(5 + j * 4.4)), line, font=title, fill=LIGHT, anchor="lt")
+    spots = {}
+    for index, row in enumerate(info["rows"]):
+        cy = 22.7 + index * 15
+        sample = surface_sample(info["samples"][index], px(14)) if lit else map_sample(info["samples"][0], px(14), material_color(index))
+        im.paste(sample, (px(7.5), px(cy) - sample.height // 2))
+        number_badge(d, px, numeral, 25.8, cy, 4.6, 4.6, material_color(index), index)
+        d.text((px(29.6), px(cy)), row["name"], font=body, fill=LIGHT, anchor="lm")
+        spots[index] = (25.8, cy)
+    return spots
+
+
 def draw_numbers(im, sc, seconds, font):
     kind, info = sc["ov"]["kind"], sc["info"]
     targets = anchors(kind, info["indices"])
     scale = im.width / 192
     px = lambda n: round(n * scale)
     d = ImageDraw.Draw(im)
-    text = (240, 238, 231)
-    heading, numeral, name = font(px(3.25), "Semibold"), font(px(3), "Semibold"), font(px(2.9))
+    numeral = font(px(3), "Semibold")
 
-    # Both keys sit at the same eye level as the pose, in the space beside it.
-    palette = kind == "palette"
-    left, width = 17, 35
-    height = 31 if palette else 54
-    top = 69 - height / 2
-    d.rounded_rectangle((px(left), px(top), px(left + width), px(top + height)),
-                        radius=px(1.1), fill=(24, 26, 33), outline=(65, 67, 76), width=px(.2))
-    for line, words in enumerate(sc["note"].splitlines()):
-        d.text((px(left + 2), px(top + 1.7 + line * 3.9)), words, font=heading, fill=text, anchor="lt")
-
-    origins, colors = {}, {}
-    if palette:
+    if kind == "palette":
+        # Two cards in the space beside the pose. The first says what the file stores, and is there from the start.
+        # The palette key fades in under it once that has been read.
+        ov, left, width = sc["ov"], 6, 49
+        card = lambda top, height: d.rounded_rectangle((px(left), px(top), px(left + width), px(top + height)),
+                                                       radius=px(1.1), fill=DARK, outline=(65, 67, 76), width=px(.2))
+        heading, body = font(px(3.45), "Semibold"), font(px(3.15))
+        top = 28
+        if ov.get("lead"):
+            lines = ov["lead"]["note"].splitlines()
+            card(top, 8.6 + 4.4 * len(lines))
+            d.text((px(left + 2.4), px(top + 4.3)), ov["lead"]["heading"], font=heading, fill=ACCENT, anchor="lm")
+            for line, words in enumerate(lines):
+                d.text((px(left + 2.4), px(top + 9.2 + line * 4.4)), words, font=body, fill=LIGHT, anchor="lm")
+            top += 8.6 + 4.4 * len(lines) + 3
+        origins, colors = {}, {}
         for i, rgb in enumerate(info["palette"], 1):
-            x = left + 4.5 + ((i - 1) % 5) * 6.5
-            y = top + 14.9 + ((i - 1) // 5) * 5.9
-            origins[i], colors[i] = (x, y), tuple(rgb)
-            number_badge(d, px, numeral, x, y, 5.5, 4.8, colors[i], i)
+            origins[i] = (left + 6.5 + ((i - 1) % 5) * 9, top + 14.9 + ((i - 1) // 5) * 5.9)
+            colors[i] = tuple(rgb)
+        shown = 1 if ov.get("key") is None else min(1, max(0, (seconds - ov["key"]) / .3))
+        if shown > 0:
+            before = im.copy() if shown < 1 else None
+            card(top, 31)
+            for line, words in enumerate(sc["note"].splitlines()):
+                d.text((px(left + 2.4), px(top + 1.7 + line * 3.9)), words, font=font(px(3.25), "Semibold"), fill=LIGHT, anchor="lt")
+            for i, (x, y) in origins.items():
+                number_badge(d, px, numeral, x, y, 7.4, 4.8, colors[i], i)
+            if before is not None:
+                im.paste(Image.blend(before, im, shown * shown * (3 - 2 * shown)))
     else:
-        for i, row in enumerate(info["rows"]):
-            x, y = left + 4.4, top + 14.7 + i * 5.9
-            origins[i], colors[i] = (x, y), material_color(i)
-            number_badge(d, px, numeral, x, y, 4.6, 4.6, colors[i], i)
-            d.text((px(x + 3.7), px(y)), row["name"], font=name, fill=text, anchor="lm")
+        origins = material_list(im, sc, font, lit=False)
+        colors = {i: material_color(i) for i in origins}
 
+    # The numbers wait for the key to be read, then leave one after another.
+    start = sc["ov"].get("from", .8)
     for order, (index, ax, ay, dx, dy) in enumerate(targets):
-        k = min(1, max(0, (seconds - .8 - order * .21) / .95))
+        k = min(1, max(0, (seconds - start - order * .16) / .95))
         if k == 0:
             continue
         k = k * k * (3 - 2 * k)
@@ -105,63 +156,21 @@ def draw_numbers(im, sc, seconds, font):
             # Draw the stem from the exact pixel center toward the landing badge.
             tip = (px(ax), px(ay))
             d.line([tip, (px(x), px(y))], fill=(20, 22, 27), width=px(.6))
-            d.line([tip, (px(x), px(y))], fill=text, width=px(.28))
-            d.ellipse((tip[0]-px(.38), tip[1]-px(.38), tip[0]+px(.38), tip[1]+px(.38)), fill=text, outline=(20, 22, 27))
+            d.line([tip, (px(x), px(y))], fill=LIGHT, width=px(.28))
+            d.ellipse((tip[0]-px(.38), tip[1]-px(.38), tip[0]+px(.38), tip[1]+px(.38)), fill=LIGHT, outline=(20, 22, 27))
         number_badge(d, px, numeral, x, y, 5.0 if index >= 10 else 4.2, 4.1, colors[index], index, moving=True)
 
 
-@lru_cache(maxsize=24)
-def surface_sample(encoded, max_size):
-    """Keep the entire sphere in view at an integer enlargement."""
-    with Image.open(BytesIO(base64.b64decode(encoded))) as image:
-        size = image.width * (max_size // image.width) if max_size >= image.width else max_size
-        return image.convert("RGB").resize((size, size), Image.Resampling.NEAREST)
-
-
 def draw_surfaces(im, sc, font):
-    """Show the numbered materials together or compare the wing with an opaque sample."""
-    info, ov = sc["info"], sc["ov"]
-    targets = anchors("materials", info["indices"])
-    scale = im.width // 192
-    px = lambda n: round(n * scale)
+    """The numbered materials as lit spheres, with each number on the sprite."""
+    info = sc["info"]
+    px = lambda n: round(n * (im.width // 192))
     d = ImageDraw.Draw(im)
-    light, dark = (240, 238, 231), (24, 26, 33)
-    title, numeral, body = font(px(3.45), "Semibold"), font(px(3), "Semibold"), font(px(3.15))
-    rows = info["rows"]
-    details = ov.get("samples")
-
-    if details is None:
-        panel = (5, 2.5, 56, 122)
-        d.rounded_rectangle(tuple(px(n) for n in panel), radius=px(1), fill=dark)
-        for j, line in enumerate(sc.get("note", "Charizard’s materials").splitlines()):
-            d.text((px(7.5), px(5 + j * 4.4)), line, font=title, fill=light, anchor="lt")
-        for index, row in enumerate(rows):
-            cy = 22.7 + index * 15
-            sphere = surface_sample(info["samples"][index], px(14))
-            im.paste(sphere, (px(7.5), px(cy) - sphere.height // 2))
-            number_badge(d, px, numeral, 25.8, cy, 4.6, 4.6, material_color(index), index)
-            d.text((px(29.6), px(cy)), row["name"], font=body, fill=light, anchor="lm")
-    else:
-        # One specimen on each side leaves the whole lit sprite visible between them.
-        for k, specimen in enumerate(details):
-            x = (5, 138)[k]
-            index = specimen["id"]
-            name = specimen.get("title", rows[index]["name"].capitalize())
-            panel = (x, 30, x + 49, 96)
-            d.rounded_rectangle(tuple(px(n) for n in panel), radius=px(1), fill=dark)
-            number_badge(d, px, numeral, x + 5.3, 36, 4.6, 4.6, material_color(index), index)
-            d.text((px(x + 9.3), px(36)), name, font=title, fill=light, anchor="lm")
-            sphere = surface_sample(info["samples"][k], px(42))
-            im.paste(sphere, (px(x + 24.5) - sphere.width // 2, px(61) - sphere.height // 2))
-            for j, line in enumerate(specimen["note"].splitlines()):
-                d.text((px(x + 3), px(85 + j * 5)), line, font=body, fill=light, anchor="lm")
-
-    selected = {s["id"] for s in details} if details else range(len(rows))
-    for index, ax, ay, dx, dy in targets:
-        if index not in selected:
-            continue
+    numeral = font(px(3), "Semibold")
+    material_list(im, sc, font, lit=True)
+    for index, ax, ay, dx, dy in anchors("materials", info["indices"]):
         x, y = ax + dx, ay + dy
         if dx or dy:
-            d.line([(px(ax), px(ay)), (px(x), px(y))], fill=dark, width=px(.6))
-            d.line([(px(ax), px(ay)), (px(x), px(y))], fill=light, width=px(.28))
+            d.line([(px(ax), px(ay)), (px(x), px(y))], fill=DARK, width=px(.6))
+            d.line([(px(ax), px(ay)), (px(x), px(y))], fill=LIGHT, width=px(.28))
         number_badge(d, px, numeral, x, y, 4.2, 4.1, material_color(index), index, moving=True)
