@@ -6,7 +6,8 @@ const { chromium } = require(process.env.PLAYWRIGHT_CORE || 'playwright-core');
 const fs = require('fs');
 const FPS = 30, WIPE = 0.7;
 const smooth = (x) => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); };
-const LAMP = {                                   // where the light is at time T, per place
+// The light stays put, so that only the thing a scene is about changes. A scene marked `move` is about the light.
+const LAMP = {                                   // where a moving light is at time T, per place
   studio: (T) => [96 + 60 * Math.cos(T * 0.9), 32 + 12 * Math.sin(T * 1.3)],
   cave: (T) => [96 - 64 * Math.cos(T * 0.8), 68 + 12 * Math.sin(T * 1.1)],
   field: (T) => [96 + 62 * Math.sin(T * 0.6), 30 + 6 * Math.cos(T * 0.6)],
@@ -14,6 +15,7 @@ const LAMP = {                                   // where the light is at time T
   snow: (T) => [96 + 60 * Math.sin(T * 0.6), 27],
   deep: (T) => [96 + 60 * Math.sin(T * 0.8), 62 + 8 * Math.cos(T)],
 };
+const STILL = { studio: [44, 28], cave: [44, 70], field: [150, 28], rain: [150, 58], snow: [150, 26], deep: [44, 58] };   // where it rests otherwise
 const BASE = { tab: 'light', view: 'front', mode: 0, shiny: false, palBase: 'normal', looks: {}, animId: 'idle', blink: false, behind: false, flat: false, pure: false,
                glowLights: true, explode: 0, explodeAlways: true, plain: false, noGlow: false };
 const K = { sprite: 'klinklang', place: 'studio' };
@@ -29,12 +31,12 @@ const SCENES = [
   { d: 4.0, s: () => ({ ...K, mode: 1, pure: true }), cap: 'The drawings are flat color. Each pixel is one of the colors in the palette.', ov: { kind: 'palette' } },
   { d: 4.0, s: () => ({ ...K, mode: 2 }), cap: 'Each pixel also stores which way its surface faces.', ov: { kind: 'facing' } },
   { d: 5.0, s: () => ({ ...K, mode: 1, pure: true }), s2: () => ({ ...K, pure: true, plain: true, noGlow: true, glowLights: false }), labels: ['Flat color', 'Flat color + facing + a light'],
-    cap: 'A light shades each pixel by how much it faces the light, using only that material’s shades.', ov: { kind: 'shades', row: 'steel gears' }, cut: true },
+    cap: 'A light shades each pixel by how much it faces the light, using only that material’s shades.', ov: { kind: 'shades', row: 'steel gears' }, cut: true, lamp: (T) => [96 + 34 * Math.cos(T * 1.1), 30 + 10 * Math.sin(T * 1.6)] },
   { d: 4.2, s: () => ({ ...K, mode: 3 }), cap: 'Each pixel names a material. A material is two settings: its finish and its body.', ov: { kind: 'materials' }, cut: true },
   { d: 5.0, s: () => ({ ...K, place: 'field', plain: true }), s2: () => ({ ...K, place: 'field' }), labels: ['Materials off', 'Materials on'], cap: 'With materials on, the metal gears reflect the sky and the grass.', cut: true },
   { d: 4.5, s: () => ({ ...K, place: 'cave', noGlow: true, glowLights: false }), s2: () => ({ ...K, place: 'cave' }), labels: ['Glow off', 'Glow on'], cap: 'Pixels can glow. Glowing pixels light the sprite and the room.', cut: true },
   ...[['cryogonal', 'rain', 'ice', 'Ice: the scene shows through it, and it glitters.'], ['arcanine', 'field', 'cream fur', 'Fur: fuzzy, so it shades in tufts.'],
-      ['charizard', 'cave', 'wing membrane', 'A wing membrane: translucent, so light from behind comes through.', { behind: true }],
+      ['charizard', 'cave', 'wing membrane', 'A wing membrane: translucent, so light from behind comes through.', { behind: true, lamp: [128, 44] }],
       ['chandelure', 'cave', 'glass', 'Glass around a flame.'], ['jellicent', 'deep', 'blue jelly', 'Jelly: light sinks in and glows back out.']]
     .map(([sprite, place, row, cap, more], i) => ({ d: 2.8, s: () => ({ sprite, place, ...more }), cap, ov: { kind: 'dials', row }, cut: i === 0 })),
   ...[['studio', 'in a studio'], ['field', 'in a field'], ['rain', 'in rain'], ['snow', 'in snow'], ['deep', 'under water']]
@@ -45,6 +47,10 @@ const SCENES = [
   { d: 2.6, s: () => ({ sprite: 'charizard', place: 'field' }), cap: 'SPU: Sprite Universal.' },
 ];
 
+// The chapter each scene belongs to, shown above its caption: how many scenes, then the name.
+const CHAPTERS = [[1, 'The sprite'], [3, 'Parts'], [1, 'Color'], [1, 'Facing'], [1, 'Light'], [2, 'Materials'], [1, 'Glow'], [5, 'Materials'], [5, 'Places'], [10, 'Looks'], [1, '']];
+const chapterOf = (i) => { for (const [n, name] of CHAPTERS) { if (i < n) return name; i -= n; } return ''; };
+
 (async () => {
   const dir = __dirname + '/out/video'; fs.rmSync(dir, { recursive: true, force: true }); fs.mkdirSync(dir, { recursive: true });
   const b = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined, args: ['--use-angle=metal', '--enable-unsafe-swiftshader'] });
@@ -52,8 +58,8 @@ const SCENES = [
   const errs = []; p.on('pageerror', (e) => errs.push(e.message));
   await p.goto('file://' + __dirname + '/out/html/spu-format-lab.html'); await p.waitForTimeout(1800);
   let n = 0, last = '';
-  const shot = async (state, T) => {
-    const o = { ...BASE, ...state, t: T, lamp: LAMP[state.place](T) };
+  const shot = async (state, T, lamp) => {
+    const o = { ...BASE, ...state, t: T, lamp: state.lamp || (lamp ? lamp(T) : STILL[state.place]) };
     if (o.sprite !== last) { await p.evaluate((o) => window.lab.set(o), o); await p.waitForTimeout(60); last = o.sprite; }
     const url = await p.evaluate((o) => window.lab.set(o), o), name = String(n++).padStart(5, '0') + '.png';
     fs.writeFileSync(dir + '/' + name, Buffer.from(url.split(',')[1], 'base64')); return name;
@@ -67,10 +73,10 @@ const SCENES = [
     const sc = SCENES[i], prev = SCENES[i - 1], count = Math.round(sc.d * FPS);
     for (let f = 0; f < count; f++, T += 1 / FPS) {
       const u = f / FPS, wipe = prev && !sc.cut && !prev.s2 && u < WIPE ? smooth(u / WIPE) : 1;
-      const frame = { scene: i, wipe, a: await shot(sc.s(u), T) };
-      if (f === 0) scenes.push({ cap: sc.cap, labels: sc.labels, ov: sc.ov, info: await info() });
-      if (sc.s2) frame.c = await shot(sc.s2(u), T);                        // the right-hand side of a comparison
-      if (wipe < 1) frame.b = await shot(prev.s(prev.d + u), T);          // what the wipe is leaving behind
+      const frame = { scene: i, wipe, a: await shot(sc.s(u), T, sc.lamp) };
+      if (f === 0) scenes.push({ cap: sc.cap, chapter: chapterOf(i), labels: sc.labels, ov: sc.ov, info: await info() });
+      if (sc.s2) frame.c = await shot(sc.s2(u), T, sc.lamp);                        // the right-hand side of a comparison
+      if (wipe < 1) frame.b = await shot(prev.s(prev.d + u), T, prev.lamp);          // what the wipe is leaving behind
       frames.push(frame);
     }
     start += sc.d;
