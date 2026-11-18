@@ -119,7 +119,7 @@ def surface_sample(encoded, max_size):
 
 
 def draw_surfaces(im, sc, font):
-    """Show the numbered regions in real light, followed by paired material samples."""
+    """Show the numbered materials together or compare the wing with an opaque sample."""
     info, ov = sc["info"], sc["ov"]
     targets = anchors("materials", info["indices"])
     scale = im.width // 192
@@ -131,9 +131,10 @@ def draw_surfaces(im, sc, font):
     details = ov.get("samples")
 
     if details is None:
-        panel = (5, 6, 56, 122)
+        panel = (5, 2.5, 56, 122)
         d.rounded_rectangle(tuple(px(n) for n in panel), radius=px(1), fill=dark)
-        d.text((px(7.5), px(8.5)), "Charizard’s materials", font=title, fill=light, anchor="lt")
+        for j, line in enumerate(sc.get("note", "Charizard’s materials").splitlines()):
+            d.text((px(7.5), px(5 + j * 4.4)), line, font=title, fill=light, anchor="lt")
         for index, row in enumerate(rows):
             cy = 22.7 + index * 15
             sphere = surface_sample(info["samples"][index], px(14))

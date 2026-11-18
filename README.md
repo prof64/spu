@@ -8,7 +8,7 @@ alternate looks, and how every pixel takes light.
 
 [![A short tour: a sprite is taken apart into the flat pieces the file stores, then put back together and lit.](docs/images/tour-poster.png)](docs/spu-tour.mp4)
 
-*[Watch the tour](docs/spu-tour.mp4) (81 seconds): the flat color a sprite is
+*[Watch the tour](docs/spu-tour.mp4) (73 seconds): the flat color a sprite is
 stored as, the sheet its pieces live on, how an animation assembles them, and
 how a light turns flat color and facing into shading. Then materials, glow,
 places and looks. English captions are available in the player.*

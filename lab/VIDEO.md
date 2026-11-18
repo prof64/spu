@@ -20,7 +20,7 @@ which `export.py` makes (see [README.md](README.md)).
 | --- | --- |
 | The order of scenes, how long each lasts, its visible explanation, optional caption and chapter | `SCENES` in `video.cjs`. One entry per scene. Use `note` for the on-screen explanation and `cap` for a longer selectable caption. |
 | What a scene shows | The scene's `s`: the state handed to the page (sprite, place, and the switches below). |
-| Where the light is | `STILL` in `video.cjs` (per place), a scene's own `lamp`, or `lamp: SWING` for the one scene where it moves. |
+| Where the light is | `STILL` in `video.cjs` sets each place’s default. The shading scene uses `SWING`. The wing and glow scenes share a cave pose and move its backlight offscreen. |
 | Short labels beside the sprites | `overlay` in `video.py`. A scene asks for one with `ov`. |
 | The numbers moving from a key to the sprite | `video_numbers.py` sets the paths and timing. `info` in `video.cjs` reads the displayed palette colors and the material IDs for the held pose. |
 | Charizard’s material samples | `materialSamples` in `video.cjs` renders a whole sphere for each material using its shades, finish, body, and the glow on its pixels. `SCENES` selects the enlarged samples. For the wing comparison, only the first sphere’s body setting changes. `draw_surfaces` in `video_numbers.py` places the spheres beside the lit pose. |
@@ -52,7 +52,7 @@ which `export.py` makes (see [README.md](README.md)).
   sheet), then how it becomes a picture, then materials, glow, places, looks.
 - Keep the picture full-frame. Put one short explanation beside the feature it describes. Use a shared heading for a grid and keep the longer explanation in the optional caption track.
 - Open with SPU as a file format for a complete 2D sprite, including its pieces, palettes, materials, animations, and alternate looks.
-- Follow the material map with the same lit pose. Show each material as a whole sphere and match its number to the sprite.
+- Follow the material map with the same lit pose and show the numbered spheres together. Compare the translucent wing membrane with an opaque sample under the same backlight. Hold Charizard’s pose as that light moves away so the wing darkens and the tail keeps glowing.
 - Say "pieces" and "flat color". Not "drawings".
 - The light stays still unless the scene is about light.
 - Every scene change wipes; nothing cuts abruptly.

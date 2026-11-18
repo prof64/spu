@@ -8,7 +8,7 @@ const fs = require('fs');
 const sharedSheetFrame = require('./video_looks.cjs');
 const FPS = 30, WIPE = 0.7;
 const smooth = (x) => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); };
-// The light stays put, so that only the thing a scene is about changes. A scene marked `move` is about the light.
+// The light stays put unless its movement is part of the demonstration.
 const LAMP = {                                   // where a moving light is at time T, per place
   studio: (T) => [96 + 60 * Math.cos(T * 0.9), 32 + 12 * Math.sin(T * 1.3)],
   cave: (T) => [96 - 64 * Math.cos(T * 0.8), 68 + 12 * Math.sin(T * 1.1)],
@@ -22,7 +22,10 @@ const BASE = { tab: 'light', view: 'front', mode: 0, shiny: false, palBase: 'nor
                glowLights: true, explode: 0, explodeAlways: true, plain: false, noGlow: false, sheet: 0 };
 const C = { sprite: 'charizard', place: 'studio' }, FLAT = { mode: 1, pure: true }, FACING = { mode: 2 };
 const PALS = [['normal', 'Normal'], ['fire', 'Fire'], ['water', 'Water'], ['grass', 'Grass'], ['electric', 'Electric'], ['ghost', 'Ghost'], ['ice', 'Ice'], ['dragon', 'Dragon']];
-const SWING = (T) => [96 + 50 * Math.cos(T * 1.0), 30 + 10 * Math.sin(T * 1.5)];       // the one light that moves
+const SWING = (T) => [96 + 50 * Math.cos(T * 1.0), 30 + 10 * Math.sin(T * 1.5)];
+const WING_LAMP_X = 128, OFFSTAGE_X = 280;
+const cavePose = (lampX, anim = 0.48) => ({ ...C, place: 'cave', tab: 'looks', anim, behind: true, lamp: [lampX, 44] });
+const glowComparison = (u) => cavePose(OFFSTAGE_X, 0.48 + Math.max(0, u - WIPE));
 // Each scene: its chapter, how long it lasts, what the page shows at local time u, a visible note and an optional longer caption.
 // A scene wipes in over the one before unless it cuts.
 //   s2:  a comparison. `s` on the left and `s2` on the right, under `labels`.
@@ -39,22 +42,18 @@ const SCENES = [
   { ch: 'Motion', d: 6.0, s: (u) => ({ ...C, mode: 5, sheet: 1 - smooth((u - 1.2) / 2.0) }), note: 'The animation moves\nand turns the pieces.', cap: 'An animation puts the pieces in place and moves them. Each can slide, turn, stretch or switch pictures.', ov: { kind: 'motion' } },
   { ch: 'Light', d: 6.0, sum: true, s: () => ({ ...C, pure: true }), note: 'Shading follows the light.', cap: 'The light uses flat color and facing to shade the sprite. Move the light and the shading follows.', lamp: SWING },
   { ch: 'Materials', d: 4.8, s: () => ({ ...C, mode: 3, tab: 'looks', anim: 0.48 }), note: 'Each pixel also has\na material number.', cap: 'Each pixel also has a material number. Its material controls how it responds to light.', ov: { kind: 'materials' } },
-  { ch: 'Materials', d: 4.6, s: () => ({ ...C, tab: 'looks', anim: 0.48 }), ov: { kind: 'surface' },
-    cap: 'Each sphere shows one of Charizard’s materials. Its number matches the same surface on the lit sprite.' },
-  { ch: 'Materials', d: 4.8, s: () => ({ ...C, tab: 'looks', anim: 0.48 }), ov: { kind: 'surface', samples: [
-    { id: 1, note: 'Light catches the\norange scales.' }, { id: 2, note: 'Light scatters inside\nthe waxy skin.' }] },
-    cap: 'The scales have a satin finish. Light scatters beneath the waxy skin of the underbelly.' },
-  { ch: 'Materials', d: 4.8, s: () => ({ ...C, tab: 'looks', anim: 0.48 }), ov: { kind: 'surface', samples: [
-    { id: 4, note: 'The hard surface\ncatches a highlight.' }, { id: 6, note: 'The polished surface\nhas a sharper shine.' }] },
-    cap: 'The claws and teeth catch pale highlights. The mouth has a more polished finish.' },
-  { ch: 'Materials', d: 5.0, s: () => ({ ...C, place: 'cave', tab: 'looks', anim: 0.48, behind: true, lamp: [128, 44] }),
+  { ch: 'Materials', d: 3.4, s: () => ({ ...C, tab: 'looks', anim: 0.48 }), ov: { kind: 'surface' },
+    note: 'Materials vary in shine\nand translucency.', cap: 'These materials differ in how they reflect light and how much light passes through them.' },
+  { ch: 'Materials', d: 5.0, s: () => cavePose(WING_LAMP_X),
     ov: { kind: 'surface', samples: [
-      { id: 3, body: 0, title: 'If opaque', note: 'An opaque sample\nblocks the backlight.' },
-      { id: 3, note: 'Backlight passes through\nthe wing material.' }] },
-    cap: 'Both samples use the same backlight. Charizard’s translucent wing material lets light through.' },
-  // the torch is far off to the side here, so that the glow is what lights the sprite
-  { ch: 'Glow', d: 4.8, s: () => ({ sprite: 'charizard', place: 'cave', noGlow: true, glowLights: false, lamp: [-36, 62] }), s2: () => ({ sprite: 'charizard', place: 'cave', lamp: [-36, 62] }),
-    labels: ['Glow off', 'Glow on'], ov: { kind: 'glow', material: 5 }, note: 'The tail flame lights the cave.', cap: 'Pixels can also glow. Glow lights the sprite and whatever is near it.' },
+      { id: 3, body: 0, title: 'If opaque', note: 'The surface blocks\nthe backlight.' },
+      { id: 3, note: 'Light passes through\nthe thin membrane.' }] },
+    cap: 'Both samples have the same color, finish and backlight. The translucent wing membrane lets the light through.' },
+  { ch: 'Glow', d: 3.4, s: (u) => cavePose(WING_LAMP_X + (OFFSTAGE_X - WING_LAMP_X) * smooth((u - WIPE) / 1.5)),
+    ov: { kind: 'glow', material: 5, title: 'Tail flame' }, note: 'The wing dims. The flame\nmakes its own light.',
+    cap: 'As the backlight moves away, the wing darkens. The tail flame keeps glowing.' },
+  { ch: 'Glow', d: 4.2, s: (u) => ({ ...glowComparison(u), noGlow: true, glowLights: false }), s2: glowComparison,
+    labels: ['Glow off', 'Glow on'], ov: { kind: 'glow', material: 5 }, note: 'The flame lights the nearby rock.', cap: 'The glowing pixels cast light on Charizard and the rock around its tail.' },
   { ch: 'Places', d: 6.0, grid: [['studio', 'Studio'], ['cave', 'Cave'], ['rain', 'Rain'], ['field', 'Field'], ['snow', 'Snow'], ['deep', 'Underwater']], s: (u, place) => ({ sprite: 'charizard', place: place || 'studio' }),
     note: 'The same sprite takes on the light of each place.' },
   { ch: 'Looks', d: 4.8, grid: PALS, s: (u, palBase) => ({ sprite: 'arceus', place: 'studio', tab: 'looks', palBase }),

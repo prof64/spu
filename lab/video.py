@@ -81,6 +81,8 @@ def overlay(im, sc, seconds):
         draw_numbers(im, sc, seconds, font)
     elif kind == "surface":
         draw_surfaces(im, sc, font)
+    elif kind == "glow" and ov.get("title"):
+        note_card(im, 685, 106, sc["note"], ov["title"], ov["material"])
     elif kind == "sheet":
         pill(im, 702, 590, sc["note"], centered=True)
     elif kind == "motion" and seconds >= 2.5:
