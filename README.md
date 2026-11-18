@@ -11,7 +11,7 @@ alternate looks, and how every pixel takes light.
 *[Watch the tour](docs/spu-tour.mp4) (78 seconds): the flat color a sprite is
 stored as, the sheet its pieces live on, how an animation assembles them, and
 how a light turns flat color and facing into shading. Then materials, glow,
-places and looks.*
+places and looks. English captions are available in the player.*
 
 This repository is the format's home:
 
