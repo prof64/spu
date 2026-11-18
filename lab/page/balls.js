@@ -36,37 +36,42 @@ const MAP = FINISH.flatMap(([f, fn]) => BODY.map(([b, bn]) => ({ name: fn + ' ' 
 const BR = 23, BW = 48;
 const BALL = { id: 'ball', title: '', atlas: [64, 64], drawings: [[1, 1, BW, BW, -BW / 2, -BW]], bbox: [-BW / 2, -BW, BW / 2, 0], ground: 0, glowZ: 8,
                starts: [0], offsets: [0], length: 1, tps: 60, buf: new Float32Array(24), parts: ['ball'], names: ['ball'], blink: null, looks: [], palettes: { normal: [] }, glowCols: [{ normal: [1, 1, 1] }], rows: [], pal: null, ready: false };
-const ballLevel = new Uint8Array(BW * BW), ballLight = new Uint8Array(64 * 64 * 4);
+const ballLevel = new Uint8Array(BW * BW), ballColor = new Uint8Array(64 * 64 * 4), ballLight = new Uint8Array(64 * 64 * 4);
 function buildBall(){
   // a ball painted the way a pixel artist would, four shades, lit from the upper left
-  const color = new Uint8Array(64 * 64 * 4), L = [-0.5099, 0.6119, 0.6323];
+  const L = [-0.5099, 0.6119, 0.6323];
   for(let v = 0; v < BW; v++) for(let u = 0; u < BW; u++){
     const dx = u + .5 - BW / 2, dy = v + .5 - BW / 2, d = Math.hypot(dx, dy); if(d > BR + .2) continue;
     const o = ((v + 1) * 64 + u + 1) * 4, line = d > BR - .9;
     const nx = Math.min(1, dx / BR), ny = Math.max(-1, Math.min(1, -dy / BR)), nz = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny));
     const lit = nx * L[0] + ny * L[1] + nz * L[2], k = line ? 0 : lit > .93 ? 3 : lit > .45 ? 2 : lit > .08 ? 1 : 0;
     ballLevel[v * BW + u] = line ? 255 : k;
-    color.set([line ? 1 : 2 + k, k, 0, 255], o);
+    ballColor[o + 3] = 255;
     ballLight.set([Math.round(nx * 127 + 128), Math.round(ny * 127 + 128), line ? 0 : 1, 0], o);
   }
-  BALL.texColor = texture(64, 64, color, gl.NEAREST); BALL.texLight = texture(64, 64, ballLight, gl.NEAREST);
+  BALL.texColor = texture(64, 64, ballColor, gl.NEAREST); BALL.texLight = texture(64, 64, ballLight, gl.NEAREST);
   BALL.texRamp = texture(RAMP_W, ROWS, null, gl.NEAREST); BALL.texPal = texture(256, 1, null, gl.NEAREST); BALL.texMat = texture(ROWS, 1, null, gl.NEAREST);
   BALL.buf.set([0, 1, 0, 0, 1, 0, 0, 0], 13); BALL.buf[12] = 1; BALL.ready = true;
 }
 const rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 function setBall(m){
   if(!BALL.ready) buildBall();
-  const shades = m.c.map(rgb), pal = Array.from({ length: 16 }, () => [0, 0, 0]);
+  const shades = m.c.map(rgb), pal = Array.from({ length: Math.max(16, 2 + shades.length) }, () => [0, 0, 0]);
   pal[1] = shades[0].map((v) => Math.round(v * .3)); shades.forEach((c, k) => { pal[2 + k] = c; });
   BALL.palettes.normal = pal; BALL.pal = null; BALL.title = m.name;
   BALL.rows = [{ name: 'outline', lib: 'outline', ramp: [1], base: 0, glow: false, f: .1, b: 0 },
-               { name: m.name, lib: m.name, ramp: [2, 3, 4, 5], base: 2, glow: !!m.glow, f: m.f, b: m.b }];
+               { name: m.name, lib: m.name, ramp: m.line ? [] : shades.map((_, i) => 2 + i), base: m.base ?? Math.min(2, shades.length - 1), glow: !!m.glow, f: m.f, b: m.b }];
   let e = 0; const sum = [0, 0, 0];
   for(let v = 0; v < BW; v++) for(let u = 0; u < BW; u++){
-    const k = ballLevel[v * BW + u], g = m.glow && k < 4 ? m.glow[k] : 0;
-    ballLight[((v + 1) * 64 + u + 1) * 4 + 3] = Math.round(g * 255);
+    // Map the four painted bands to the material's own ordered list of shades.
+    const band = ballLevel[v * BW + u], line = band === 255;
+    const k = line ? 0 : Math.round(band * (shades.length - 1) / 3), o = ((v + 1) * 64 + u + 1) * 4;
+    ballColor[o] = line ? 1 : 2 + k; ballColor[o + 1] = k;
+    const g = m.glow && !line ? m.glow[k] : 0;
+    ballLight[o + 3] = Math.round(g * 255);
     if(g > 0){ e += g; shades[k].forEach((c, j) => { sum[j] += c / 255 * g; }); }
   }
+  gl.bindTexture(gl.TEXTURE_2D, BALL.texColor); gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 64, 64, gl.RGBA, gl.UNSIGNED_BYTE, ballColor);
   gl.bindTexture(gl.TEXTURE_2D, BALL.texLight); gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 64, 64, gl.RGBA, gl.UNSIGNED_BYTE, ballLight);
   BALL.buf.set([0, -BW / 2, e * .25, 0], 0); BALL.glowCols = [{ normal: e ? sum.map((v) => v / e) : [1, 1, 1] }];
 }

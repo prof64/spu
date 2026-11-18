@@ -30,7 +30,9 @@ const SWING = (T) => [96 + 50 * Math.cos(T * 1.0), 30 + 10 * Math.sin(T * 1.5)];
 //   grid: the same sprite in several places at once, each with a label.
 //   ov:  what to draw on top (the palette, a legend), filled in from the sprite itself.
 const SCENES = [
-  { ch: 'The sprite', d: 2.8, s: () => C, note: 'One file holds this\nwhole animation.', cap: 'This Charizard is one .spu file.', ov: { kind: 'file' } },
+  { ch: 'The sprite', d: 5.8, s: () => ({ ...C, lamp: [34, 28] }), ov: { kind: 'intro', heading: 'A file format for 2D sprites' },
+    note: 'One file holds a sprite’s pieces,\npalettes, materials, animations,\nand alternate looks.',
+    cap: 'An SPU file stores a sprite’s pieces and palettes, how it moves and changes looks, and how its surfaces respond to light.' },
   { ch: 'Color', d: 4.6, s: () => ({ ...C, ...FLAT, tab: 'looks', anim: 0.48 }), note: 'Each pixel’s number\npicks a palette color.', cap: 'Each color on the flat sprite has a number in the palette.', ov: { kind: 'palette' } },
   { ch: 'Pieces', d: 5.0, s: (u) => ({ ...C, ...FLAT, sheet: smooth(u / 2.0) }), note: 'The pieces share one sheet.', ov: { kind: 'sheet' } },
   { ch: 'Facing', d: 4.4, s: () => ({ ...C, ...FACING, sheet: 1 }), note: 'A second sheet records which way each pixel faces.', ov: { kind: 'facing' } },
@@ -38,15 +40,18 @@ const SCENES = [
   { ch: 'Light', d: 6.0, sum: true, s: () => ({ ...C, pure: true }), note: 'Shading follows the light.', cap: 'The light uses flat color and facing to shade the sprite. Move the light and the shading follows.', lamp: SWING },
   { ch: 'Materials', d: 4.8, s: () => ({ ...C, mode: 3, tab: 'looks', anim: 0.48 }), note: 'Each pixel also has\na material number.', cap: 'Each pixel also has a material number. Its material controls how it responds to light.', ov: { kind: 'materials' } },
   { ch: 'Materials', d: 4.6, s: () => ({ ...C, tab: 'looks', anim: 0.48 }), ov: { kind: 'surface' },
-    cap: 'The numbers stay on the same pixels when Charizard is lit. Each close-up shows one of its seven materials.' },
-  { ch: 'Materials', d: 4.8, s: () => ({ ...C, tab: 'looks', anim: 0.48 }), ov: { kind: 'surface', samples: [1, 2],
-    notes: [['Light catches the', 'orange scales.'], ['Light scatters inside', 'the waxy skin.']] },
+    cap: 'Each sphere shows one of Charizard’s materials. Its number matches the same surface on the lit sprite.' },
+  { ch: 'Materials', d: 4.8, s: () => ({ ...C, tab: 'looks', anim: 0.48 }), ov: { kind: 'surface', samples: [
+    { id: 1, note: 'Light catches the\norange scales.' }, { id: 2, note: 'Light scatters inside\nthe waxy skin.' }] },
     cap: 'The scales have a satin finish. Light scatters beneath the waxy skin of the underbelly.' },
-  { ch: 'Materials', d: 4.8, s: () => ({ ...C, tab: 'looks', anim: 0.48 }), ov: { kind: 'surface', samples: [4, 6],
-    notes: [['Hard points catch', 'a pale highlight.'], ['The polished surface', 'has a sharper shine.']] },
+  { ch: 'Materials', d: 4.8, s: () => ({ ...C, tab: 'looks', anim: 0.48 }), ov: { kind: 'surface', samples: [
+    { id: 4, note: 'The hard surface\ncatches a highlight.' }, { id: 6, note: 'The polished surface\nhas a sharper shine.' }] },
     cap: 'The claws and teeth catch pale highlights. The mouth has a more polished finish.' },
   { ch: 'Materials', d: 5.0, s: () => ({ ...C, place: 'cave', tab: 'looks', anim: 0.48, behind: true, lamp: [128, 44] }),
-    ov: { kind: 'surface', wing: true }, cap: 'A lamp behind the wing lights the translucent membrane. An opaque wing blocks that light.' },
+    ov: { kind: 'surface', samples: [
+      { id: 3, body: 0, title: 'If opaque', note: 'An opaque sample\nblocks the backlight.' },
+      { id: 3, note: 'Backlight passes through\nthe wing material.' }] },
+    cap: 'Both samples use the same backlight. Charizard’s translucent wing material lets light through.' },
   // the torch is far off to the side here, so that the glow is what lights the sprite
   { ch: 'Glow', d: 4.8, s: () => ({ sprite: 'charizard', place: 'cave', noGlow: true, glowLights: false, lamp: [-36, 62] }), s2: () => ({ sprite: 'charizard', place: 'cave', lamp: [-36, 62] }),
     labels: ['Glow off', 'Glow on'], ov: { kind: 'glow', material: 5 }, note: 'The tail flame lights the cave.', cap: 'Pixels can also glow. Glow lights the sprite and whatever is near it.' },
@@ -58,6 +63,51 @@ const SCENES = [
     cap: 'Male and female Jellicent use different pieces from one sheet. Both play the same animation.' },
   { ch: '', d: 2.8, s: () => ({ sprite: 'charizard', place: 'field' }), cap: 'Universal Sprite Format (SPU)', ov: { kind: 'end' } },
 ];
+
+// Run inside the page, after reading the ID map from the posed sprite.
+function materialSamples(ov) {
+  const view = current(), palette = view.palettes[palId(view)];
+  const samples = ov.samples || view.rows.map((_, id) => ({ id }));
+  const size = BW + 8, x = (SW - size) / 2, y = GROUND - BW - 4;
+  const tile = document.createElement('canvas');
+  tile.width = tile.height = size;
+  const ctx = tile.getContext('2d'), scale = canvas.width / SW;
+  ctx.imageSmoothingEnabled = false;
+
+  function renderSample({id, body}) {
+    const row = view.rows[id];
+    // Glow belongs to the pixels. Use their mean emission at each palette shade.
+    const coverage = new Float64Array(256), emission = new Float64Array(256);
+    if (row.glow || !row.ramp.length) {
+      for (let i = 0; i < view.rawColor.length; i += 4) {
+        const alpha = view.rawColor[i + 3];
+        if (!alpha || view.rawLight[i + 2] !== id) continue;
+        const shade = view.rawColor[i];
+        coverage[shade] += alpha;
+        emission[shade] += alpha * view.rawLight[i + 3] / 255;
+      }
+    }
+    // A row without a shade list uses the color painted on its pixels.
+    const shades = row.ramp.length ? row.ramp : [coverage.indexOf(Math.max(...coverage))];
+    S.ball = {
+      name: row.name, f: row.f, b: body ?? row.b, base: row.base, line: id === 0 || !row.ramp.length,
+      c: shades.map(slot => '#' + palette[slot].slice(0, 3).map(c => c.toString(16).padStart(2, '0')).join('')),
+      glow: row.glow ? shades.map(slot => coverage[slot] ? emission[slot] / coverage[slot] : 0) : null,
+    };
+    setBall(S.ball);
+    draw();
+    // The whole sphere and a little space for its shadow and glow.
+    ctx.drawImage(canvas, x * scale, y * scale, size * scale, size * scale, 0, 0, size, size);
+    return tile.toDataURL('image/png').split(',')[1];
+  }
+
+  try {
+    return samples.map(renderSample);
+  } finally {
+    S.ball = null;
+    draw();
+  }
+}
 
 (async () => {
   const dir = __dirname + '/out/video'; fs.rmSync(dir, { recursive: true, force: true }); fs.mkdirSync(dir, { recursive: true });
@@ -107,39 +157,7 @@ const SCENES = [
       }
       indices = btoa(String.fromCharCode(...ids));
     }
-    // Show each finish and body on the lab's test sphere, using the colors of the same SPU row.
-    // The backlit comparison instead uses two close-ups of the actual wing.
-    const swatch = (x, y, w, h) => {
-      const shot = document.createElement('canvas'), k = canvas.width / SW;
-      shot.width = w; shot.height = h;
-      const ctx = shot.getContext('2d'); ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(canvas, x * k, y * k, w * k, h * k, 0, 0, w, h);
-      return shot.toDataURL('image/png').split(',')[1];
-    };
-    let samples;
-    if (ov.samples) {
-      samples = ov.samples.map(id => {
-        const row = v.rows[id];
-        const colors = Array.from({length: 4}, (_, k) => {
-          const rgb = pal[row.ramp[Math.round(k * (row.ramp.length - 1) / 3)]];
-          return '#' + rgb.slice(0, 3).map(c => c.toString(16).padStart(2, '0')).join('');
-        });
-        S.ball = { name: row.name, c: colors, f: row.f, b: row.b };
-        setBall(S.ball); draw();
-        return swatch(SW / 2 - 25, GROUND - 49, 50, 50);
-      });
-      S.ball = null; draw();
-    } else if (ov.wing) {
-      const wing = () => swatch(98, 37, 33, 32);
-      draw();
-      const backlit = wing();
-      // Change only the membrane's body so both close-ups keep the same finish, pose and lamp.
-      const membrane = v.rows[3], body = membrane.b;
-      membrane.b = 0; draw();
-      samples = [wing(), backlit];
-      membrane.b = body; draw();
-    }
-    return { indices, samples, palette: pal.slice(1, 16).map((c) => c.slice(0, 3)),
+    return { indices, palette: pal.slice(1, 16).map((c) => c.slice(0, 3)),
              rows: v.rows.map((r) => ({ name: r.name, f: r.f, b: r.b, words: r.name === 'outline' || !r.ramp.length ? 'line art' : finishWord(r.f) + ', ' + bodyWord(r.b), ramp: r.ramp.map((c) => pal[c].slice(0, 3)) })) }; }, ov);
   const frames = [], scenes = []; let T = 0, total = 0;
   for (let i = 0; i < SCENES.length; i++) {
@@ -151,7 +169,9 @@ const SCENES = [
         const swatches = sc.ov?.kind === 'typePalettes'
           ? await p.evaluate((keys) => keys.map(key => [11, 9, 8].map(i => current().palettes[key][i].slice(0, 3))), sc.grid.map(g => g[0]))
           : undefined;
-        scenes.push({ cap: sc.cap || sc.note, note: sc.note, chapter: sc.ch, labels: sc.labels, sum: !!sc.sum, grid: sc.grid?.map(g => g[1]), swatches, ov: sc.ov, info: await info(sc.ov) });
+        const spriteInfo = await info(sc.ov);
+        if (sc.ov?.kind === 'surface') spriteInfo.samples = await p.evaluate(materialSamples, sc.ov);
+        scenes.push({ cap: sc.cap || sc.note, note: sc.note, chapter: sc.ch, labels: sc.labels, sum: !!sc.sum, grid: sc.grid?.map(g => g[1]), swatches, ov: sc.ov, info: spriteInfo });
       }
       if (wipe < 1) { frame.prevSeconds = prev.d + u; frame.prev = await captures(prev, prev.d + u, T); }       // the scene the wipe is leaving behind
       frames.push(frame);

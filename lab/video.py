@@ -81,8 +81,6 @@ def overlay(im, sc, seconds):
         draw_numbers(im, sc, seconds, font)
     elif kind == "surface":
         draw_surfaces(im, sc, font)
-    elif kind == "file":
-        note_card(im, 82, 272, sc["note"], "0006-charizard.spu")
     elif kind == "sheet":
         pill(im, 702, 590, sc["note"], centered=True)
     elif kind == "motion" and seconds >= 2.5:
@@ -111,13 +109,18 @@ def picture(sc, c, seconds):
     """One scene's picture, with whatever is drawn on top of it."""
     im = Image.new("RGBA", (W * S, H * S), BG + (255,)); half = S // 2
     kind = (sc.get("ov") or {}).get("kind")
-    if kind == "end":
-        # Center the field portrait in its own panel so the title never covers the sprite.
-        split = 72
+    if kind in ("intro", "end"):
+        # Bookend the tour with the live sprite beside the type.
+        opening = kind == "intro"
+        split = 84 if opening else 72
         im.paste(big(native(c["a"])[:, split // 2:W - split // 2], S), (split * S, 0))
         d = ImageDraw.Draw(im)
-        d.text((u(45), u(306)), "SPU", font=font(u(100), "Semibold"), fill=TEXT, anchor="ls")
-        d.text((u(48), u(356)), "Universal Sprite Format", font=font(u(23), "Medium"), fill=LAMP, anchor="ls")
+        baseline = 251 if opening else 306
+        d.text((u(45), u(baseline)), "SPU", font=font(u(100), "Semibold"), fill=TEXT, anchor="ls")
+        heading = sc["ov"]["heading"] if opening else "Universal Sprite Format"
+        d.text((u(48), u(baseline + 50)), heading, font=font(u(23), "Medium"), fill=LAMP, anchor="ls")
+        if opening:
+            d.multiline_text((u(48), u(337)), sc["note"], font=font(u(21)), spacing=u(7), fill=TEXT)
     elif kind == "sharedSheet":
         with Image.open(os.path.join(src, c["a"])) as sheet:
             im.paste(sheet.resize(im.size, Image.Resampling.NEAREST))

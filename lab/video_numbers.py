@@ -110,10 +110,12 @@ def draw_numbers(im, sc, seconds, font):
         number_badge(d, px, numeral, x, y, 5.0 if index >= 10 else 4.2, 4.1, colors[index], index, moving=True)
 
 
-@lru_cache(maxsize=8)
-def surface_sample(encoded):
+@lru_cache(maxsize=24)
+def surface_sample(encoded, max_size):
+    """Keep the entire sphere in view at an integer enlargement."""
     with Image.open(BytesIO(base64.b64decode(encoded))) as image:
-        return image.convert("RGB")
+        size = image.width * (max_size // image.width) if max_size >= image.width else max_size
+        return image.convert("RGB").resize((size, size), Image.Resampling.NEAREST)
 
 
 def draw_surfaces(im, sc, font):
@@ -126,46 +128,36 @@ def draw_surfaces(im, sc, font):
     light, dark = (240, 238, 231), (24, 26, 33)
     title, numeral, body = font(px(3.45), "Semibold"), font(px(3), "Semibold"), font(px(3.15))
     rows = info["rows"]
-    selected = ov.get("samples") or ([3] if ov.get("wing") else None)
+    details = ov.get("samples")
 
-    if selected is None:
-        # Each thumbnail is a 9 × 6 cutout of the lit pose at the ID's exact pixel.
-        # Capture before drawing the on-sprite numbers so no label can appear in a thumbnail.
-        samples = {}
-        for index, ax, ay, _, _ in targets:
-            x, y = int(ax) - 4, int(ay) - 3
-            crop = im.crop((px(x), px(y), px(x + 9), px(y + 6)))
-            samples[index] = crop.resize((px(13.5), px(9)), Image.Resampling.NEAREST)
-        panel = (6, 19, 56, 110)
+    if details is None:
+        panel = (5, 6, 56, 122)
         d.rounded_rectangle(tuple(px(n) for n in panel), radius=px(1), fill=dark)
-        d.text((px(8.5), px(22)), "Charizard in the light", font=title, fill=light, anchor="lt")
+        d.text((px(7.5), px(8.5)), "Charizard’s materials", font=title, fill=light, anchor="lt")
         for index, row in enumerate(rows):
-            y = 29 + index * 11.4
-            im.paste(samples[index], (px(8.5), px(y)))
-            number_badge(d, px, numeral, 26.5, y + 4.5, 4.6, 4.6, material_color(index), index)
-            d.text((px(30.3), px(y + 4.5)), row["name"], font=body, fill=light, anchor="lm")
+            cy = 22.7 + index * 15
+            sphere = surface_sample(info["samples"][index], px(14))
+            im.paste(sphere, (px(7.5), px(cy) - sphere.height // 2))
+            number_badge(d, px, numeral, 25.8, cy, 4.6, 4.6, material_color(index), index)
+            d.text((px(29.6), px(cy)), row["name"], font=body, fill=light, anchor="lm")
     else:
         # One specimen on each side leaves the whole lit sprite visible between them.
-        for k, raw in enumerate(info["samples"]):
+        for k, specimen in enumerate(details):
             x = (5, 138)[k]
-            wing = bool(ov.get("wing"))
-            index = 3 if wing else selected[k]
-            name = ("If opaque", "Wing membrane")[k] if wing else rows[index]["name"].capitalize()
-            note = (["An opaque wing", "blocks the backlight."], ["Light passes through", "Charizard’s membrane."])[k] if wing else ov["notes"][k]
+            index = specimen["id"]
+            name = specimen.get("title", rows[index]["name"].capitalize())
             panel = (x, 30, x + 49, 96)
             d.rounded_rectangle(tuple(px(n) for n in panel), radius=px(1), fill=dark)
             number_badge(d, px, numeral, x + 5.3, 36, 4.6, 4.6, material_color(index), index)
             d.text((px(x + 9.3), px(36)), name, font=title, fill=light, anchor="lm")
-            sample = surface_sample(raw)
-            # Integer enlargement preserves the page's native pixels in the specimen.
-            zoom = px(42) // sample.width
-            enlarged = sample.resize((sample.width * zoom, sample.height * zoom), Image.Resampling.NEAREST)
-            im.paste(enlarged, (px(x + 24.5) - enlarged.width // 2, px(61) - enlarged.height // 2))
-            for j, line in enumerate(note):
-                d.text((px(x + 3), px(83 + j * 5)), line, font=body, fill=light, anchor="lm")
+            sphere = surface_sample(info["samples"][k], px(42))
+            im.paste(sphere, (px(x + 24.5) - sphere.width // 2, px(61) - sphere.height // 2))
+            for j, line in enumerate(specimen["note"].splitlines()):
+                d.text((px(x + 3), px(85 + j * 5)), line, font=body, fill=light, anchor="lm")
 
+    selected = {s["id"] for s in details} if details else range(len(rows))
     for index, ax, ay, dx, dy in targets:
-        if selected is not None and index not in selected:
+        if index not in selected:
             continue
         x, y = ax + dx, ay + dy
         if dx or dy:

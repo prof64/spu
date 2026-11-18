@@ -23,7 +23,7 @@ which `export.py` makes (see [README.md](README.md)).
 | Where the light is | `STILL` in `video.cjs` (per place), a scene's own `lamp`, or `lamp: SWING` for the one scene where it moves. |
 | Short labels beside the sprites | `overlay` in `video.py`. A scene asks for one with `ov`. |
 | The numbers moving from a key to the sprite | `video_numbers.py` sets the paths and timing. `info` in `video.cjs` reads the displayed palette colors and the material IDs for the held pose. |
-| Charizard’s lit material close-ups | Select material IDs in `SCENES`. The capture uses the sprite’s shades and material settings for the sample spheres. The two wing crops use the same backlight. `draw_surfaces` in `video_numbers.py` places them beside the lit pose. |
+| Charizard’s material samples | `materialSamples` in `video.cjs` renders a whole sphere for each material using its shades, finish, body, and the glow on its pixels. `SCENES` selects the enlarged samples. For the wing comparison, only the first sphere’s body setting changes. `draw_surfaces` in `video_numbers.py` places the spheres beside the lit pose. |
 | Jellicent's shared sheet assembling into two forms | `video_looks.cjs` reads the actual front-view sheet, piece swaps and idle animation. `picture` in `video.py` places the labels. |
 | The side-by-side, the "flat color + facing = shading" layout, the place and palette grids | `picture` in `video.py`. A scene asks with `s2`, `sum` or `grid`. |
 | Selectable English captions | The track uses each scene’s `cap` or falls back to its `note`. `write_subtitles` in `video.py` times it to the captured frames, then ffmpeg adds it as an optional track. |
@@ -51,7 +51,8 @@ which `export.py` makes (see [README.md](README.md)).
 - Show what the file stores first (flat color, the sheet of pieces, the facing
   sheet), then how it becomes a picture, then materials, glow, places, looks.
 - Keep the picture full-frame. Put one short explanation beside the feature it describes. Use a shared heading for a grid and keep the longer explanation in the optional caption track.
-- Follow the material map with the same lit pose. Keep each material’s number as the tour shows its surface.
+- Open with SPU as a file format for a complete 2D sprite, including its pieces, palettes, materials, animations, and alternate looks.
+- Follow the material map with the same lit pose. Show each material as a whole sphere and match its number to the sprite.
 - Say "pieces" and "flat color". Not "drawings".
 - The light stays still unless the scene is about light.
 - Every scene change wipes; nothing cuts abruptly.
