@@ -47,7 +47,7 @@ headless Chromium through playwright-core; set `PLAYWRIGHT_CORE` and
 | `build.py`, `standalone.py` | Assemble the pages into single files. |
 | `shading.py` | Builds `out/painted-or-flat.html` from captures of the page (`out/shading-shots.json`, and `out/shading-shots-old.json` made with `FIT=0`). |
 | `readme.cjs`, `readme.py`, `shot.cjs` | Headless captures of the page, and the README's images. |
-| `video.cjs`, `video.py` | The tour video: `video.cjs` holds the storyboard and captures every frame, `video.py` adds captions and encodes `../docs/spu-tour.mp4` with ffmpeg. |
+| `video.cjs`, `video.py` | The tour video. `video.cjs` holds the storyboard (each scene: chapter, length, what the page shows, one caption) and captures every frame. `video.py` lays them out with overlays and captions at eight times size and encodes `../docs/spu-tour.mp4` with ffmpeg. The page can lay a sprite's pieces out as a sheet and move them between sheet and pose (`S.sheet`, 0 to 1), which the video uses. |
 
 ## How the surface direction is made
 

@@ -25,7 +25,7 @@ def font(size, weight="Regular"):
             except OSError: f = ImageFont.load_default()
         fonts[size, weight] = f
     return fonts[size, weight]
-HEAD, BODY, TINY, LABEL = font(u(16), "Semibold"), font(u(15)), font(u(12.5)), font(u(19), "Medium")
+HEAD, BODY, TINY, LABEL = font(u(14), "Semibold"), font(u(13.5)), font(u(11)), font(u(15), "Medium")
 def native(name):
     im = np.asarray(Image.open(os.path.join(src, name)).convert("RGB")); k = im.shape[1] // W
     return im[k // 2::k, k // 2::k][:H, :W]
@@ -35,7 +35,7 @@ def sphere(size):
     y, x = np.mgrid[0:size, 0:size]; nx = (x + .5) / size * 2 - 1; ny = 1 - (y + .5) / size * 2; r2 = nx * nx + ny * ny
     nz = np.sqrt(np.clip(1 - r2, 0, 1)); rgb = np.stack([nx * .5 + .5, ny * .5 + .5, nz * .5 + .5], -1) * 255
     return Image.fromarray(np.dstack([rgb, np.where(r2 <= 1, 255, 0)]).astype(np.uint8), "RGBA")
-BALL = sphere(u(96))
+BALL = sphere(u(52))
 def chip(i):
     """The color the material view gives row i."""
     if i == 0: return (20, 20, 20)
@@ -43,46 +43,49 @@ def chip(i):
     return tuple(int((0.25 * 0.25 + c * 0.75) * 255) for c in hue)
 def panel(im, x, y, w, h):
     layer = Image.new("RGBA", im.size, (0, 0, 0, 0)); ImageDraw.Draw(layer).rectangle([u(x), u(y), u(x + w), u(y + h)], fill=PANEL); im.alpha_composite(layer); return ImageDraw.Draw(im)
-def dial(d, x, y, w, name, stops, value):
-    """One setting as a line with its stops named and a marker where this material sits. value runs from -1 to 1."""
-    d.text((u(x), u(y)), name, font=HEAD, fill=TEXT); y += 30
-    d.line([u(x), u(y), u(x + w), u(y)], fill=DIM, width=u(2))
-    for label, at in stops:
-        px = x + w * (at + 1) / 2; d.line([u(px), u(y - 4), u(px), u(y + 4)], fill=DIM, width=u(2))
-        d.text((u(px), u(y + 9)), label, font=TINY, fill=DIM, anchor="ma" if 0 < (at + 1) / 2 < 1 else ("la" if at < 0 else "ra"))
-    px = x + w * (value + 1) / 2; d.ellipse([u(px - 7), u(y - 7), u(px + 7), u(y + 7)], fill=LAMP)
+def bar(d, x, y, w, stops, value):
+    """One setting as a short line with a tick at each stop and a marker where this material sits. value runs from -1 to 1."""
+    d.line([u(x), u(y), u(x + w), u(y)], fill=(96, 98, 112), width=max(2, u(1.2)))
+    for at in stops: d.line([u(x + w * (at + 1) / 2), u(y - 3), u(x + w * (at + 1) / 2), u(y + 3)], fill=(96, 98, 112), width=max(2, u(1.2)))
+    px = x + w * (value + 1) / 2; d.ellipse([u(px - 4.5), u(y - 4.5), u(px + 4.5), u(y + 4.5)], fill=LAMP)
+FINISH, BODYSTOPS = [("fuzzy", -1), ("matte", 0), ("polished", 1)], [("metal", -1), ("solid", 0), ("translucent", 0.5), ("clear", 1)]
+def stops(d, x, y, w, named):
+    for label, at in named: d.text((u(x + w * (at + 1) / 2), u(y)), label, font=TINY, fill=DIM, anchor="ma" if -1 < at < 1 else ("la" if at < 0 else "ra"))
+def pill(im, x, y, text, f=None, fill=TEXT):
+    """A short label on a dark strip, sized to its text."""
+    f = f or LABEL; w = f.getlength(text) / U + 16
+    panel(im, x, y, w, 26).text((u(x + 8), u(y + 13)), text, font=f, fill=fill, anchor="lm"); return w
 
 def overlay(im, sc):
     ov, info = sc.get("ov"), sc["info"]
     if sc.get("labels"):
-        for k, label in enumerate(sc["labels"]):
-            w = LABEL.getlength(label) / U + 26; x = k * W * 5 // 2 + 14
-            panel(im, x, 14, w, 38).text((u(x + 13), u(14 + 19)), label, font=LABEL, fill=TEXT, anchor="lm")
+        for k, label in enumerate(sc["labels"]): pill(im, k * W * 5 // 2 + 10, 10, label)
     if not ov: return
-    if ov["kind"] == "palette":
-        cols = info["palette"]; sw = 30
-        d = panel(im, 16, 16, len(cols) * (sw + 4) + 20, 100); d.text((u(28), u(26)), "Palette" + (": " + ov["name"] if ov.get("name") else ""), font=HEAD, fill=TEXT)
+    if ov["kind"] == "palette":                                          # one strip: the name, then every color with its number
+        cols = info["palette"]; sw = 22; title = "Palette" + (": " + ov["name"] if ov.get("name") else ""); tw = HEAD.getlength(title) / U + 12
+        d = panel(im, 10, 10, 8 + tw + len(cols) * (sw + 2) + 6, sw + 12); d.text((u(18), u(16 + sw / 2)), title, font=HEAD, fill=TEXT, anchor="lm")
         for i, c in enumerate(cols):
-            x = 28 + i * (sw + 4); d.rectangle([u(x), u(54), u(x + sw) - 1, u(54 + sw) - 1], fill=tuple(c)); d.text((u(x + sw / 2), u(89)), str(i + 1), font=TINY, fill=DIM, anchor="ma")
+            x = 18 + tw + i * (sw + 2); d.rectangle([u(x), u(16), u(x + sw) - 1, u(16 + sw) - 1], fill=tuple(c))
+            d.text((u(x + sw / 2), u(16 + sw / 2)), str(i + 1), font=TINY, fill=(15, 17, 23) if sum(c) > 380 else (236, 233, 226), anchor="mm")
     elif ov["kind"] == "facing":
-        d = panel(im, 16, 16, 262, 150); im.alpha_composite(BALL, (u(34), u(52))); d = ImageDraw.Draw(im)
-        d.text((u(28), u(24)), "Facing", font=HEAD, fill=TEXT)
-        for k, line in enumerate(["green: faces up", "red: faces right", "blue: faces you"]): d.text((u(148), u(66 + k * 26)), line, font=BODY, fill=DIM)
-    elif ov["kind"] == "shades":
-        row = next(r for r in info["rows"] if r["name"] == ov["row"]); sw = 44; x0 = W * 5 // 2 + 14; y0 = H * 5 - 14 - 108; n = len(row["ramp"])
-        d = panel(im, x0, y0, n * (sw + 4) + 20, 108); d.text((u(x0 + 12), u(y0 + 10)), "The shades of “" + row["name"] + "”", font=HEAD, fill=TEXT)
-        for i, c in enumerate(row["ramp"]): d.rectangle([u(x0 + 12 + i * (sw + 4)), u(y0 + 40), u(x0 + 12 + i * (sw + 4) + sw) - 1, u(y0 + 70) - 1], fill=tuple(c))
-        d.text((u(x0 + 12), u(y0 + 79)), "dark", font=TINY, fill=DIM); d.text((u(x0 + 12 + n * (sw + 4) - 4), u(y0 + 79)), "light", font=TINY, fill=DIM, anchor="ra")
-    elif ov["kind"] == "materials":
-        rows = info["rows"]; d = panel(im, 16, 16, 336, 46 + len(rows) * 30); d.text((u(28), u(26)), "Materials", font=HEAD, fill=TEXT)
+        x, y = (W * 5 - 10 - 190, H * 5 - 10 - 68) if ov.get("at") == "corner" else (10, 10)      # out of the way of the sheet
+        d = panel(im, x, y, 190, 68); im.alpha_composite(BALL, (u(x + 8), u(y + 8))); d = ImageDraw.Draw(im)
+        for k, line in enumerate(["green: faces up", "red: faces right", "blue: faces you"]): d.text((u(x + 70), u(y + 7 + k * 19)), line, font=BODY, fill=TEXT)
+    elif ov["kind"] == "materials":                                      # a table: each material and where its two settings sit
+        rows = info["rows"]; nw = max(BODY.getlength(r["name"]) for r in rows) / U; x1 = 18 + 14 + 6; x2 = x1 + nw + 14; bw = 84; x3 = x2 + bw + 14
+        d = panel(im, 10, 10, x3 + bw + 8 - 10, 30 + len(rows) * 20 + 22)
+        d.text((u(x1), u(16)), "Material", font=HEAD, fill=TEXT); d.text((u(x2), u(16)), "Finish", font=HEAD, fill=TEXT); d.text((u(x3), u(16)), "Body", font=HEAD, fill=TEXT)
         for i, r in enumerate(rows):
-            y = 58 + i * 30; d.rectangle([u(28), u(y), u(48), u(y + 20)], fill=chip(i), outline=DIM)
-            d.text((u(58), u(y + 10)), r["name"], font=BODY, fill=TEXT, anchor="lm"); d.text((u(340), u(y + 10)), r["words"], font=BODY, fill=DIM, anchor="rm")
-    elif ov["kind"] == "dials":
-        row = next(r for r in info["rows"] if r["name"] == ov["row"])
-        d = panel(im, 16, 16, 320, 184); d.text((u(28), u(24)), "“" + row["name"] + "”", font=HEAD, fill=LAMP)
-        dial(d, 28, 54, 296, "Finish", [("fuzzy", -1), ("matte", 0), ("polished", 1)], row["f"])
-        dial(d, 28, 118, 296, "Body", [("metal", -1), ("solid", 0), ("translucent", 0.5), ("clear", 1)], row["b"])
+            y = 37 + i * 20; d.rectangle([u(18), u(y), u(32), u(y + 14)], fill=chip(i), outline=(96, 98, 112))
+            d.text((u(x1), u(y + 7)), r["name"], font=BODY, fill=TEXT, anchor="lm")
+            if r["words"] == "line art": d.text((u(x2), u(y + 7)), "line art: takes light flat", font=TINY, fill=DIM, anchor="lm")
+            else: bar(d, x2, y + 7, bw, [-1, 0, 1], r["f"]); bar(d, x3, y + 7, bw, [-1, 0, 0.5, 1], r["b"])
+        y = 37 + len(rows) * 20 + 2; stops(d, x2, y, bw, [("fuzzy", -1), ("polished", 1)]); stops(d, x3, y, bw, [("metal", -1), ("clear", 1)])
+    elif ov["kind"] == "dials":                                          # one material: its name and its two settings
+        row = next(r for r in info["rows"] if r["name"] == ov["row"]); bw = 250
+        d = panel(im, 10, 10, 8 + 56 + bw + 12, 100); d.text((u(18), u(16)), "“" + row["name"] + "”", font=HEAD, fill=LAMP)
+        for k, (name, named, value) in enumerate([("Finish", FINISH, row["f"]), ("Body", BODYSTOPS, row["b"])]):
+            y = 46 + k * 33; d.text((u(18), u(y)), name, font=BODY, fill=TEXT, anchor="lm"); bar(d, 74, y, bw, [at for _, at in named], value); stops(d, 74, y + 6, bw, named)
 
 def spaced(d, xy, text, f, fill, gap):
     """Text with a little space between letters, for the chapter name."""
@@ -107,19 +110,32 @@ for i, f in enumerate(frames):
     if scenes[f["scene"]]["cap"] != last: start = i
     f["since"] = i - start; last = scenes[f["scene"]]["cap"]
 
+def big(a, scale): return Image.fromarray(np.kron(a, np.ones((scale, scale, 1), np.uint8)))
+def sign(im, x, y, text):
+    """A plus or equals sign on a dark disc, where two pictures meet."""
+    d = ImageDraw.Draw(im); r = u(17); d.ellipse([x - r, y - r, x + r, y + r], fill=BG, outline=LINE, width=2)
+    d.text((x, y - u(1.5)), text, font=font(u(24), "Medium"), fill=LAMP, anchor="mm")
 def compose(f):
-    sc = scenes[f["scene"]]; a = native(f["a"])
-    if f.get("c"):                                           # a comparison: the middle of each, side by side
-        a = np.concatenate([a[:, W // 4:W * 3 // 4], native(f["c"])[:, W // 4:W * 3 // 4]], 1).copy(); a[:, W // 2] = BG
-    if f.get("b"):                                           # the new scene sweeps in from the left behind a line
-        x = round(W * f["wipe"]); out = native(f["b"]).copy(); out[:, :x] = a[:, :x]
-        if 0 < x < W: out[:, x] = LAMP
-        a = out
-    im = Image.new("RGBA", (W * S, H * S), BG + (255,)); im.paste(Image.fromarray(np.kron(a, np.ones((S, S, 1), np.uint8))), (0, 0))
-    if not f.get("b"): overlay(im, sc)
+    sc = scenes[f["scene"]]; a = native(f["a"]); im = Image.new("RGBA", (W * S, H * S), BG + (255,))
+    if sc.get("sum"):
+        # what is stored, small on the left, and what a light makes of it, large on the right
+        half = S // 2; lw = W // 2 * half                                 # the left column shows the middle half of the stage at half size
+        im.paste(big(native(f["flat"])[:, W // 4:W * 3 // 4], half), (0, 0)); im.paste(big(native(f["facing"])[:, W // 4:W * 3 // 4], half), (0, H * half))
+        im.paste(big(a[:, (W - (W * S - lw) // S) // 2:][:, :(W * S - lw) // S], S), (lw, 0))
+        d = ImageDraw.Draw(im); d.line([0, H * half, lw, H * half], fill=BG, width=4); d.line([lw, 0, lw, H * S], fill=BG, width=4)
+        sign(im, lw // 2, H * half, "+"); sign(im, lw, H * S // 2, "=")
+        pill(im, 6, 6, "Stored: flat color", HEAD); pill(im, 6, H * half / U + 6, "Stored: facing", HEAD); pill(im, lw / U + 10, 10, "Worked out by a light: shading")
+    else:
+        if f.get("c"):                                           # a comparison: the middle of each, side by side
+            a = np.concatenate([a[:, W // 4:W * 3 // 4], native(f["c"])[:, W // 4:W * 3 // 4]], 1).copy(); a[:, W // 2] = BG
+        if f.get("b"):                                           # the new scene sweeps in from the left behind a line
+            x = round(W * f["wipe"]); out = native(f["b"]).copy(); out[:, :x] = a[:, :x]
+            if 0 < x < W: out[:, x] = LAMP
+            a = out
+        im.paste(big(a, S), (0, 0))
+        if not f.get("b"): overlay(im, sc)
     k = min(1.0, (f["since"] + 1) / 8)                       # a new caption fades in over a quarter of a second
-    bar = (EMPTY * (1 - k) + caption(sc) * k).astype(np.uint8)
-    return np.concatenate([np.asarray(im.convert("RGB")), bar], 0)
+    return np.concatenate([np.asarray(im.convert("RGB")), (EMPTY * (1 - k) + caption(sc) * k).astype(np.uint8)], 0)
 
 out = os.path.join(here, "..", "docs", "spu-tour.mp4"); size = f"{W * S}x{H * S + BAR}"
 if "--poster-only" not in sys.argv:
@@ -129,8 +145,8 @@ if "--poster-only" not in sys.argv:
         frame = compose(f); enc.stdin.write(frame.tobytes())
         if str(i) in sys.argv[1:]: Image.fromarray(frame).save(os.path.join(src, f"still-{i}.png"))
     enc.stdin.close(); enc.wait()
-# the poster: the sprite pulled into its parts, with a play mark in the corner
-shown = [f for f in frames if scenes[f["scene"]]["cap"].startswith("The sprite is made of parts")][-1]
+# the poster: the sprite's pieces on their sheet, with a play mark in the corner
+shown = [f for f in frames if scenes[f["scene"]]["cap"].startswith("Pieces this pose")][-1]
 poster = Image.fromarray(compose(shown)).convert("RGBA")
 mark = Image.new("RGBA", poster.size, (0, 0, 0, 0)); d = ImageDraw.Draw(mark); r = u(46); cx, cy = W * S - r - u(28), H * S - r - u(28)
 d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(15, 17, 23, 215)); d.polygon([(cx - u(13), cy - u(22)), (cx - u(13), cy + u(22)), (cx + u(24), cy)], fill=LAMP + (255,))

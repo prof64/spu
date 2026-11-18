@@ -6,10 +6,12 @@ alternate looks, and how every pixel takes light.
 
 ![Charizard in a field. The sun crosses the sky and the shading on its body follows.](docs/images/hero.gif)
 
-[![A one-minute tour: a sprite is taken apart and rebuilt, one layer at a time.](docs/images/tour-poster.png)](docs/spu-tour.mp4)
+[![A short tour: a sprite is taken apart into the flat pieces the file stores, then put back together and lit.](docs/images/tour-poster.png)](docs/spu-tour.mp4)
 
-*[Watch the one-minute tour](docs/spu-tour.mp4): a sprite is pulled into its
-parts, then rebuilt from flat color, facing, materials and glow.*
+*[Watch the tour](docs/spu-tour.mp4) (80 seconds): the flat color a sprite is
+stored as, the sheet its pieces live on, how an animation assembles them, and
+how a light turns flat color and facing into shading. Then materials, glow,
+places and looks.*
 
 This repository is the format's home:
 

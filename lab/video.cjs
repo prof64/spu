@@ -1,7 +1,8 @@
 // Capture the frames of the tour video from the built lab page: out/video/*.png and out/video/frames.json.
 // Then `python video.py` adds captions and encodes ../docs/spu-tour.mp4.
-// The video builds one sprite up a layer at a time (parts, flat color, facing, shading, materials, glow), with the
-// palette, legends and side-by-side comparisons on screen, then shows other materials, places and looks.
+// The video takes one sprite apart and puts it back: the flat color it is stored as, the sheet its pieces live on,
+// the facing sheet, the animation that assembles it, and the shading a light makes of them. Then materials, glow,
+// places and looks.
 const { chromium } = require(process.env.PLAYWRIGHT_CORE || 'playwright-core');
 const fs = require('fs');
 const FPS = 30, WIPE = 0.7;
@@ -17,39 +18,40 @@ const LAMP = {                                   // where a moving light is at t
 };
 const STILL = { studio: [44, 28], cave: [44, 70], field: [150, 28], rain: [150, 58], snow: [150, 26], deep: [44, 58] };   // where it rests otherwise
 const BASE = { tab: 'light', view: 'front', mode: 0, shiny: false, palBase: 'normal', looks: {}, animId: 'idle', blink: false, behind: false, flat: false, pure: false,
-               glowLights: true, explode: 0, explodeAlways: true, plain: false, noGlow: false };
-const K = { sprite: 'klinklang', place: 'studio' };
+               glowLights: true, explode: 0, explodeAlways: true, plain: false, noGlow: false, sheet: 0 };
+const C = { sprite: 'charizard', place: 'studio' }, FLAT = { mode: 1, pure: true }, FACING = { mode: 2 };
 const PALS = [['normal', 'Normal'], ['fire', 'Fire'], ['water', 'Water'], ['grass', 'Grass'], ['electric', 'Electric'], ['ghost', 'Ghost'], ['ice', 'Ice'], ['dragon', 'Dragon']];
-// Each scene: how long, what the page shows at local time u, and one caption. A scene wipes in over the one before unless
-// it cuts. `s2` makes it a comparison: `s` on the left, `s2` on the right, under `labels`. `ov` is what to draw on top
-// (the palette, a legend), filled in from the sprite itself.
+const SWING = (T) => [96 + 50 * Math.cos(T * 1.0), 30 + 10 * Math.sin(T * 1.5)];       // the one light that moves
+// Each scene: its chapter, how long it lasts, what the page shows at local time u, and one caption.
+// A scene wipes in over the one before unless it cuts.
+//   s2:  a comparison. `s` on the left and `s2` on the right, under `labels`.
+//   sum: flat color and facing on the left, and what a light makes of them (`s`) on the right.
+//   ov:  what to draw on top (the palette, a legend), filled in from the sprite itself.
 const SCENES = [
-  { d: 2.6, s: () => K, cap: 'This is Klinklang, stored as one .spu file.', cut: true },
-  { d: 2.6, s: (u) => ({ ...K, explode: 0.9 * smooth(u / 1.1) }), cap: 'The sprite is made of parts. This one has 18.', cut: true },
-  { d: 2.6, s: () => ({ ...K, explode: 0.9, mode: 5 }), cap: 'Here each part has its own color. Parts move, turn and switch drawings independently.' },
-  { d: 1.6, s: (u) => ({ ...K, explode: 0.9 * (1 - smooth(u / 1.1)), mode: 5 }), cap: 'Here each part has its own color. Parts move, turn and switch drawings independently.', cut: true },
-  { d: 4.0, s: () => ({ ...K, mode: 1, pure: true }), cap: 'The drawings are flat color. Each pixel is one of the colors in the palette.', ov: { kind: 'palette' } },
-  { d: 4.0, s: () => ({ ...K, mode: 2 }), cap: 'Each pixel also stores which way its surface faces.', ov: { kind: 'facing' } },
-  { d: 5.0, s: () => ({ ...K, mode: 1, pure: true }), s2: () => ({ ...K, pure: true, plain: true, noGlow: true, glowLights: false }), labels: ['Flat color', 'Flat color + facing + a light'],
-    cap: 'A light shades each pixel by how much it faces the light, using only that material’s shades.', ov: { kind: 'shades', row: 'steel gears' }, cut: true, lamp: (T) => [96 + 34 * Math.cos(T * 1.1), 30 + 10 * Math.sin(T * 1.6)] },
-  { d: 4.2, s: () => ({ ...K, mode: 3 }), cap: 'Each pixel names a material. A material is two settings: its finish and its body.', ov: { kind: 'materials' }, cut: true },
-  { d: 5.0, s: () => ({ ...K, place: 'field', plain: true }), s2: () => ({ ...K, place: 'field' }), labels: ['Materials off', 'Materials on'], cap: 'With materials on, the metal gears reflect the sky and the grass.', cut: true },
-  { d: 4.5, s: () => ({ ...K, place: 'cave', noGlow: true, glowLights: false }), s2: () => ({ ...K, place: 'cave' }), labels: ['Glow off', 'Glow on'], cap: 'Pixels can glow. Glowing pixels light the sprite and the room.', cut: true },
-  ...[['cryogonal', 'rain', 'ice', 'Ice: the scene shows through it, and it glitters.'], ['arcanine', 'field', 'cream fur', 'Fur: fuzzy, so it shades in tufts.'],
-      ['charizard', 'cave', 'wing membrane', 'A wing membrane: translucent, so light from behind comes through.', { behind: true, lamp: [128, 44] }],
-      ['chandelure', 'cave', 'glass', 'Glass around a flame.'], ['jellicent', 'deep', 'blue jelly', 'Jelly: light sinks in and glows back out.']]
-    .map(([sprite, place, row, cap, more], i) => ({ d: 2.8, s: () => ({ sprite, place, ...more }), cap, ov: { kind: 'dials', row }, cut: i === 0 })),
+  { ch: 'The sprite', d: 2.8, s: () => C, cap: 'This Charizard is one .spu file.', cut: true },
+  { ch: 'Color', d: 4.6, s: () => ({ ...C, ...FLAT }), cap: 'The file does not store shading. It stores flat color: each pixel is a number into the palette.', ov: { kind: 'palette' } },
+  { ch: 'Pieces', d: 2.6, s: (u) => ({ ...C, ...FLAT, sheet: smooth(u / 2.0) }), cap: 'The sprite is stored as separate pieces, laid out on a sheet.', cut: true },
+  { ch: 'Pieces', d: 3.2, s: () => ({ ...C, ...FLAT, sheet: 1 }), cap: 'Pieces this pose is not using stay on the sheet: two more flames, and closed eyes.', cut: true },
+  { ch: 'Facing', d: 4.4, s: () => ({ ...C, ...FACING, sheet: 1 }), cap: 'A second sheet stores which way each pixel’s surface faces.', ov: { kind: 'facing', at: 'corner' } },
+  { ch: 'Motion', d: 6.0, s: (u) => ({ ...C, mode: 5, sheet: 1 - smooth((u - 1.2) / 2.0) }), cap: 'An animation puts the pieces in place and moves them. Each can slide, turn, stretch or switch pictures.' },
+  { ch: 'Light', d: 4.4, sum: true, s: () => ({ ...C, pure: true }), cap: 'Shading is not stored. A light works it out from the flat color and the facing.', cut: true, lamp: SWING },
+  { ch: 'Light', d: 4.4, sum: true, s: () => ({ ...C, pure: true }), cap: 'Move the light and the shading follows. Every color it uses is already in the palette.', cut: true, lamp: SWING },
+  { ch: 'Materials', d: 4.8, s: () => ({ ...C, mode: 3 }), cap: 'Each pixel also names a material, which says how its surface takes light.', ov: { kind: 'materials' }, cut: true },
+  { ch: 'Materials', d: 5.0, s: () => ({ sprite: 'klinklang', place: 'field', plain: true }), s2: () => ({ sprite: 'klinklang', place: 'field' }), labels: ['Materials off', 'Materials on'],
+    cap: 'Metal, for example, reflects what is around it: here, sky and grass.', cut: true },
+  ...[['cryogonal', 'rain', 'ice', 'Ice lets the scene show through, and glitters.'], ['arcanine', 'field', 'cream fur', 'Fur is fuzzy, so it shades in tufts.'],
+      ['charizard', 'cave', 'wing membrane', 'A wing membrane is translucent: light from behind comes through.', { behind: true, lamp: [128, 44] }],
+      ['chandelure', 'cave', 'glass', 'Glass, around a flame.'], ['jellicent', 'deep', 'blue jelly', 'Jelly: light sinks in and glows back out.']]
+    .map(([sprite, place, row, cap, more], i) => ({ ch: 'Materials', d: 2.8, s: () => ({ sprite, place, ...more }), cap, ov: { kind: 'dials', row }, cut: i === 0 })),
+  { ch: 'Glow', d: 4.6, s: () => ({ sprite: 'charizard', place: 'cave', noGlow: true, glowLights: false }), s2: () => ({ sprite: 'charizard', place: 'cave' }), labels: ['Glow off', 'Glow on'],
+    cap: 'Pixels can also glow. Glow lights the sprite and whatever is near it.', cut: true },
   ...[['studio', 'in a studio'], ['field', 'in a field'], ['rain', 'in rain'], ['snow', 'in snow'], ['deep', 'under water']]
-    .map(([place, where]) => ({ d: 1.9, s: () => ({ sprite: 'charizard', place }), cap: 'The file does not change between places. This is the same Charizard ' + where + '.' })),
-  ...PALS.map(([palBase, name], i) => ({ d: 0.55, s: () => ({ sprite: 'arceus', place: 'studio', tab: 'looks', palBase }), cap: 'A file can carry several palettes. Arceus has 34, one per type and a shiny of each.', ov: { kind: 'palette', name }, cut: i > 0 })),
-  { d: 1.5, s: () => ({ sprite: 'jellicent', place: 'deep', tab: 'looks' }), cap: 'A look can also swap drawings. This is Jellicent’s male form...' },
-  { d: 2.2, s: () => ({ sprite: 'jellicent', place: 'deep', tab: 'looks', looks: { female: true } }), cap: '...and its female form, in the same file with the same animation.' },
-  { d: 2.6, s: () => ({ sprite: 'charizard', place: 'field' }), cap: 'SPU: Sprite Universal.' },
+    .map(([place, where], i) => ({ ch: 'Places', d: 1.9, s: () => ({ sprite: 'charizard', place }), cap: 'Nothing in the file changes between places. The same Charizard ' + where + '.', cut: i === 0 })),
+  ...PALS.map(([palBase, name], i) => ({ ch: 'Looks', d: 0.55, s: () => ({ sprite: 'arceus', place: 'studio', tab: 'looks', palBase }), cap: 'A file can carry several palettes. Arceus has 34: one per type, and a shiny of each.', ov: { kind: 'palette', name }, cut: i > 0 })),
+  { ch: 'Looks', d: 1.6, s: () => ({ sprite: 'jellicent', place: 'deep', tab: 'looks' }), cap: 'A look can also swap pieces. Jellicent’s male form...' },
+  { ch: 'Looks', d: 2.4, s: () => ({ sprite: 'jellicent', place: 'deep', tab: 'looks', looks: { female: true } }), cap: '...and its female form, from the same file, with the same animation.' },
+  { ch: '', d: 2.6, s: () => ({ sprite: 'charizard', place: 'field' }), cap: 'SPU: Sprite Universal' },
 ];
-
-// The chapter each scene belongs to, shown above its caption: how many scenes, then the name.
-const CHAPTERS = [[1, 'The sprite'], [3, 'Parts'], [1, 'Color'], [1, 'Facing'], [1, 'Light'], [2, 'Materials'], [1, 'Glow'], [5, 'Materials'], [5, 'Places'], [10, 'Looks'], [1, '']];
-const chapterOf = (i) => { for (const [n, name] of CHAPTERS) { if (i < n) return name; i -= n; } return ''; };
 
 (async () => {
   const dir = __dirname + '/out/video'; fs.rmSync(dir, { recursive: true, force: true }); fs.mkdirSync(dir, { recursive: true });
@@ -72,10 +74,11 @@ const chapterOf = (i) => { for (const [n, name] of CHAPTERS) { if (i < n) return
   for (let i = 0; i < SCENES.length; i++) {
     const sc = SCENES[i], prev = SCENES[i - 1], count = Math.round(sc.d * FPS);
     for (let f = 0; f < count; f++, T += 1 / FPS) {
-      const u = f / FPS, wipe = prev && !sc.cut && !prev.s2 && u < WIPE ? smooth(u / WIPE) : 1;
+      const u = f / FPS, wipe = prev && !sc.cut && !prev.s2 && !prev.sum && u < WIPE ? smooth(u / WIPE) : 1;
       const frame = { scene: i, wipe, a: await shot(sc.s(u), T, sc.lamp) };
-      if (f === 0) scenes.push({ cap: sc.cap, chapter: chapterOf(i), labels: sc.labels, ov: sc.ov, info: await info() });
-      if (sc.s2) frame.c = await shot(sc.s2(u), T, sc.lamp);                        // the right-hand side of a comparison
+      if (f === 0) scenes.push({ cap: sc.cap, chapter: sc.ch, labels: sc.labels, sum: !!sc.sum, ov: sc.ov, info: await info() });
+      if (sc.s2) frame.c = await shot(sc.s2(u), T, sc.lamp);
+      if (sc.sum) { frame.flat = await shot({ ...sc.s(u), ...FLAT }, T, sc.lamp); frame.facing = await shot({ ...sc.s(u), ...FACING }, T, sc.lamp); }                        // the right-hand side of a comparison
       if (wipe < 1) frame.b = await shot(prev.s(prev.d + u), T, prev.lamp);          // what the wipe is leaving behind
       frames.push(frame);
     }

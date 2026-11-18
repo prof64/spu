@@ -62,7 +62,7 @@ void main(){
 const FS_BG = COMMON + `
 uniform sampler2D uG0, uG1, uMat;
 uniform vec3 uAmbSky, uAmbGnd;
-uniform float uFlash, uGrid, uDay;
+uniform float uFlash, uGrid, uDay, uBackdrop;
 uniform vec2 uSun;
 out vec4 o;
 vec2 occl(vec2 q){                  // x: how much of the light is blocked here, y: how much of that is see-through material
@@ -234,6 +234,8 @@ void main(){
     }
     col = dith(col, p, 56.0);
   }
+  // a plain backdrop for when the pieces are laid out as a sheet
+  if(uBackdrop > 0.0) col = mix(col, vec3(0.070, 0.080, 0.110) + 0.012*mod(floor(p.x/8.0) + floor(p.y/8.0), 2.0), uBackdrop);
   o = vec4(col, emis);
 }`;
 

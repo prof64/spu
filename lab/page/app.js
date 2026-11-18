@@ -140,7 +140,7 @@ const noise1 = (x) => { const i = Math.floor(x), f = x - i, h = (n) => { const s
 
 // ---------------------------------------------------------------- state and drawing
 // t: the place's clock (rain, flicker).  anim: where the sprite is in its animation, in seconds.
-const S = { ball: null, sprite: 0, view: 'front', place: 'cave', tab: 'light', mode: 0, shiny: false, palBase: 'normal', looks: {}, animId: 'idle', blink: false, paused: false, speed: 1, behind: false, glowLights: true, explode: 0, explodeAlways: false, plain: false, noGlow: false,
+const S = { ball: null, sprite: 0, view: 'front', place: 'cave', tab: 'light', mode: 0, shiny: false, palBase: 'normal', looks: {}, animId: 'idle', blink: false, paused: false, speed: 1, behind: false, glowLights: true, explode: 0, explodeAlways: false, plain: false, noGlow: false, sheet: 0,
             t: 0, anim: 0, lamp: [40, 70], pointer: null, pointerAt: -1e9, fixed: null, calm: false };
 const Lp = new Float32Array(NL * 3), Lc = new Float32Array(NL * 3), Lr = new Float32Array(NL);
 const current = () => S.ball ? BALL : (DATA.sprites[S.sprite].views[S.view] || Object.values(DATA.sprites[S.sprite].views)[0]);
@@ -171,6 +171,20 @@ function common(prog, place, t){
   gl.uniform1f(prog.u('uTime'), t); gl.uniform1i(prog.u('uScene'), place.id);
   gl.uniform3fv(prog.u('uLp'), Lp); gl.uniform3fv(prog.u('uLc'), Lc); gl.uniform1fv(prog.u('uLr'), Lr);
 }
+// Where each of a view's pictures sits when they are laid out as a sheet on the stage: rows, tallest first.
+// (The file's own sheet is packed the same way but need not fit the stage.)
+function sheetLayout(v){
+  if(v.sheetPos) return v.sheetPos;
+  const ids = v.drawings.map((d, i) => i).filter((i) => v.drawings[i][2] > 0).sort((p, q) => v.drawings[q][3] - v.drawings[p][3] || p - q);
+  let best = null;                                      // the widest rows that fit the stage, as few rows as that allows
+  for(const width of [168, 178, 188]) for(const gap of [3, 2, 1]){
+    const pos = {}; let x = 0, y = 0, row = 0, used = 0;
+    for(const i of ids){ const [, , w, h] = v.drawings[i]; if(x && x + w > width){ x = 0; y += row + gap; row = 0; } pos[i] = [x, y]; x += w + gap; used = Math.max(used, x - gap); row = Math.max(row, h); }
+    const height = y + row; if(!best || (best.height > SH - 6 && height < best.height)) best = { pos, used, height };
+  }
+  const ox = Math.round((SW - best.used) / 2), oy = Math.round((SH - best.height) / 2);
+  return v.sheetPos = Object.fromEntries(Object.entries(best.pos).map(([i, [x, y]]) => [i, [x + ox, y + oy]]));
+}
 function tickNow(sp){ return Math.floor(S.anim * sp.tps) % sp.length; }
 function draw(){
   const sp = current(); if(!sp.ready) return;
@@ -183,29 +197,42 @@ function draw(){
   const off = sp.offsets[f], count = sp.buf[off + 12];
   const ox = Math.round(SW / 2 - (sp.bbox[0] + sp.bbox[2]) / 2), oy = GROUND - sp.ground;
   const cx = (sp.bbox[0] + sp.bbox[2]) / 2, cy = (sp.bbox[1] + sp.bbox[3]) / 2, apart = S.tab === 'parts' || S.explodeAlways ? S.explode : 0;
+  const sheet = S.sheet > 0 && sp.drawings ? sheetLayout(sp) : null, ease = (x) => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); };
   const swap = {}; for(const l of sp.looks || []) if(S.looks[l.id]) Object.assign(swap, l.swaps);      // looks that swap drawings
   const shut = S.blink || (S.tab !== 'looks' && sp.blink && (S.t % 3.7) < .13);          // the eyes-closed look, used as a blink
   gl.useProgram(P.part.p); bind(P.part, 'uColor', sp.texColor, 0); bind(P.part, 'uLight', sp.texLight, 1);
   gl.uniform2f(P.part.u('uOrigin'), ox, oy);
   for(const layer of sp.soft ? [0, 1] : [0]){                      // solid pixels, then soft see-through ones if the sprite has any
     into(layer ? T.g2 : T.g); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); gl.uniform1i(P.part.u('uLayer'), layer);
+    const shown = new Set();
     for(let i = 0; i < count; i++){
       const o = off + 13 + i * 8; let di = sp.buf[o]; if(swap[di] !== undefined) di = swap[di]; if(shut && sp.blink && sp.blink[di] !== undefined) di = sp.blink[di];
-      const d = sp.drawings[di], a = sp.buf[o + 1], b = sp.buf[o + 2], c = sp.buf[o + 3], e = sp.buf[o + 4], s = Math.sqrt(Math.abs(a * e - b * c)) || 1;
-      let tx = sp.buf[o + 5], ty = sp.buf[o + 6];
+      const d = sp.drawings[di]; let a = sp.buf[o + 1], b = sp.buf[o + 2], c = sp.buf[o + 3], e = sp.buf[o + 4], tx = sp.buf[o + 5], ty = sp.buf[o + 6], whole = !!apart;
       if(apart){ const lx = d[4] + d[2] / 2, ly = d[5] + d[3] / 2; tx += (a * lx + c * ly + tx - cx) * apart * .75; ty += (b * lx + e * ly + ty - cy) * apart * .75; }
+      if(sheet){                                           // on its way to, or from, its place on the sheet; pieces leave one after another
+        const k = ease(S.sheet * 1.5 - .5 * i / count), at = sheet[di]; shown.add(di); whole = true;
+        a += (1 - a) * k; b -= b * k; c -= c * k; e += (1 - e) * k; tx += (at[0] - d[4] - ox - tx) * k; ty += (at[1] - d[5] - oy - ty) * k;
+      }
+      const s = Math.sqrt(Math.abs(a * e - b * c)) || 1;
       gl.uniform4f(P.part.u('uRect'), d[0], d[1], d[2], d[3]); gl.uniform2f(P.part.u('uOff'), d[4], d[5]);
-      gl.uniform4f(P.part.u('uM'), a, b, c, e); gl.uniform2f(P.part.u('uT'), apart ? Math.round(tx) : tx, apart ? Math.round(ty) : ty);
+      gl.uniform4f(P.part.u('uM'), a, b, c, e); gl.uniform2f(P.part.u('uT'), whole ? Math.round(tx) : tx, whole ? Math.round(ty) : ty);
       gl.uniform1f(P.part.u('uPart'), sp.buf[o + 7]);
       gl.uniformMatrix2fv(P.part.u('uRot'), false, [a / s, b / s, c / s, e / s]);
       quad();
+    }
+    // the pictures this pose is not using are on the sheet too
+    if(sheet && S.sheet > .35) for(const [di, at] of Object.entries(sheet)){
+      if(shown.has(+di)) continue; const d = sp.drawings[di];
+      gl.uniform4f(P.part.u('uRect'), d[0], d[1], d[2], d[3]); gl.uniform2f(P.part.u('uOff'), d[4], d[5]);
+      gl.uniform4f(P.part.u('uM'), 1, 0, 0, 1); gl.uniform2f(P.part.u('uT'), at[0] - d[4] - ox, at[1] - d[5] - oy);
+      gl.uniform1f(P.part.u('uPart'), 40 + +di); gl.uniformMatrix2fv(P.part.u('uRot'), false, [1, 0, 0, 1]); quad();
     }
   }
   const flash = lights(sp, place, t, off, ox, oy);
   setMaterials(sp);
   // the room
   into(T.bg); gl.useProgram(P.bg.p); common(P.bg, place, t); bind(P.bg, 'uG0', T.g.tex[0], 0); bind(P.bg, 'uG1', T.g.tex[1], 1); bind(P.bg, 'uMat', sp.texMat, 2);
-  gl.uniform3fv(P.bg.u('uAmbSky'), place.ambSky); gl.uniform3fv(P.bg.u('uAmbGnd'), place.ambGnd); gl.uniform1f(P.bg.u('uFlash'), flash); gl.uniform1f(P.bg.u('uGrid'), S.ball ? 1 : 0);
+  gl.uniform3fv(P.bg.u('uAmbSky'), place.ambSky); gl.uniform3fv(P.bg.u('uAmbGnd'), place.ambGnd); gl.uniform1f(P.bg.u('uFlash'), flash); gl.uniform1f(P.bg.u('uGrid'), S.ball ? 1 : 0); gl.uniform1f(P.bg.u('uBackdrop'), sheet ? ease(S.sheet) : 0);
   gl.uniform1f(P.bg.u('uDay'), place.day ?? 1); gl.uniform2f(P.bg.u('uSun'), S.lamp[0], S.lamp[1]); quad();
   // the sprite: its solid pixels, then its soft ones
   gl.useProgram(P.lit.p); common(P.lit, place, t);
@@ -221,7 +248,7 @@ function draw(){
   into(T.comp); gl.useProgram(P.comp.p); common(P.comp, place, t);
   bind(P.comp, 'uBg', T.bg.tex[0], 0); bind(P.comp, 'uLit', T.lit.tex[0], 1); bind(P.comp, 'uEmis', T.lit.tex[1], 2);
   bind(P.comp, 'uLit2', T.lit2.tex[0], 3); bind(P.comp, 'uEmis2', T.lit2.tex[1], 4); gl.uniform1f(P.comp.u('uSoft'), sp.soft ? 1 : 0);
-  gl.uniform1f(P.comp.u('uReflect'), place.reflect); gl.uniform1f(P.comp.u('uFlash'), flash); gl.uniform1f(P.comp.u('uWet'), place.wet || 0); gl.uniform1f(P.comp.u('uShowLamp'), S.mode === 0 && place.lamp ? 1 : 0); quad();
+  gl.uniform1f(P.comp.u('uReflect'), place.reflect * (sheet ? 1 - ease(S.sheet) : 1)); gl.uniform1f(P.comp.u('uFlash'), flash); gl.uniform1f(P.comp.u('uWet'), place.wet || 0); gl.uniform1f(P.comp.u('uShowLamp'), S.mode === 0 && place.lamp && !(S.sheet > .3) ? 1 : 0); quad();
   // glow spreading into the air
   const blur = (src, dst, dx, dy) => { into(dst); gl.useProgram(P.blur.p); bind(P.blur, 'uTex', src, 0); gl.uniform2f(P.blur.u('uInv'), 1 / dst.w, 1 / dst.h); gl.uniform2f(P.blur.u('uStep'), dx, dy); quad(); };
   blur(T.comp.tex[1], T.b1a, 1 / SW, 0); blur(T.b1a.tex[0], T.b1b, 0, 1 / SH);
