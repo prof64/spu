@@ -1,4 +1,4 @@
-# SPU — Sprite Universal
+# SPU
 
 SPU (`.spu`) is a file format for animated 2D sprites. One file holds a
 character's drawings, the parts they are joined into, how the parts move, its
@@ -8,7 +8,7 @@ alternate looks, and how every pixel takes light.
 
 [![A short tour: a sprite is taken apart into the flat pieces the file stores, then put back together and lit.](docs/images/tour-poster.png)](docs/spu-tour.mp4)
 
-*[Watch the tour](docs/spu-tour.mp4) (80 seconds): the flat color a sprite is
+*[Watch the tour](docs/spu-tour.mp4) (78 seconds): the flat color a sprite is
 stored as, the sheet its pieces live on, how an animation assembles them, and
 how a light turns flat color and facing into shading. Then materials, glow,
 places and looks.*

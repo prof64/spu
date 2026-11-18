@@ -1,6 +1,6 @@
 # SPU specification
 
-SPU ("Sprite Universal", `.spu`) is a file for one animated 2D character,
+SPU (`.spu`) is a file for one animated 2D character,
 object or effect: its drawings, the parts they are joined into, how the parts
 move, its alternate looks, and how every pixel takes light.
 

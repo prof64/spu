@@ -101,7 +101,7 @@ def caption(sc):
         while font(size).getlength(sc["cap"]) > W * S - 96: size -= 1
         if sc["chapter"]:
             spaced(d, (48, 26), sc["chapter"].upper(), font(19, "Semibold"), LAMP, 2.5); d.text((48, 86), sc["cap"], font=font(size), fill=TEXT, anchor="ls")
-        else: d.text((W * S // 2, BAR // 2), sc["cap"], font=font(44, "Semibold"), fill=TEXT, anchor="mm")
+        else: d.text((W * S // 2, BAR // 2), sc["cap"], font=font(52, "Semibold"), fill=TEXT, anchor="mm")
         captions[key] = np.asarray(im).astype(np.float32)
     return captions[key]
 EMPTY = np.asarray(Image.new("RGB", (W * S, BAR), BARBG)).astype(np.float32); EMPTY[:2] = LINE
@@ -115,27 +115,38 @@ def sign(im, x, y, text):
     """A plus or equals sign on a dark disc, where two pictures meet."""
     d = ImageDraw.Draw(im); r = u(17); d.ellipse([x - r, y - r, x + r, y + r], fill=BG, outline=LINE, width=2)
     d.text((x, y - u(1.5)), text, font=font(u(24), "Medium"), fill=LAMP, anchor="mm")
-def compose(f):
-    sc = scenes[f["scene"]]; a = native(f["a"]); im = Image.new("RGBA", (W * S, H * S), BG + (255,))
+def picture(sc, c):
+    """One scene's picture, with whatever is drawn on top of it."""
+    im = Image.new("RGBA", (W * S, H * S), BG + (255,)); half = S // 2
     if sc.get("sum"):
         # what is stored, small on the left, and what a light makes of it, large on the right
-        half = S // 2; lw = W // 2 * half                                 # the left column shows the middle half of the stage at half size
-        im.paste(big(native(f["flat"])[:, W // 4:W * 3 // 4], half), (0, 0)); im.paste(big(native(f["facing"])[:, W // 4:W * 3 // 4], half), (0, H * half))
-        im.paste(big(a[:, (W - (W * S - lw) // S) // 2:][:, :(W * S - lw) // S], S), (lw, 0))
+        lw = W // 2 * half                                                # the left column shows the middle half of the stage at half size
+        im.paste(big(native(c["flat"])[:, W // 4:W * 3 // 4], half), (0, 0)); im.paste(big(native(c["facing"])[:, W // 4:W * 3 // 4], half), (0, H * half))
+        im.paste(big(native(c["a"])[:, (W - (W * S - lw) // S) // 2:][:, :(W * S - lw) // S], S), (lw, 0))
         d = ImageDraw.Draw(im); d.line([0, H * half, lw, H * half], fill=BG, width=4); d.line([lw, 0, lw, H * S], fill=BG, width=4)
         sign(im, lw // 2, H * half, "+"); sign(im, lw, H * S // 2, "=")
         pill(im, 6, 6, "Stored: flat color", HEAD); pill(im, 6, H * half / U + 6, "Stored: facing", HEAD); pill(im, lw / U + 10, 10, "Worked out by a light: shading")
+    elif sc.get("grid"):
+        # the same sprite in six places: three across, two down, each the middle of the stage at half size
+        side = H * half; d = ImageDraw.Draw(im)
+        for k, name in enumerate(c["cells"]): im.paste(big(native(name)[:, (W - H) // 2:(W + H) // 2], half), (k % 3 * side, k // 3 * side))
+        for k in (1, 2): d.line([k * side, 0, k * side, H * S], fill=BG, width=4)
+        d.line([0, side, W * S, side], fill=BG, width=4)
+        for k, label in enumerate(sc["grid"]): pill(im, k % 3 * side / U + 8, k // 3 * side / U + 8, label, HEAD)
     else:
-        if f.get("c"):                                           # a comparison: the middle of each, side by side
-            a = np.concatenate([a[:, W // 4:W * 3 // 4], native(f["c"])[:, W // 4:W * 3 // 4]], 1).copy(); a[:, W // 2] = BG
-        if f.get("b"):                                           # the new scene sweeps in from the left behind a line
-            x = round(W * f["wipe"]); out = native(f["b"]).copy(); out[:, :x] = a[:, :x]
-            if 0 < x < W: out[:, x] = LAMP
-            a = out
-        im.paste(big(a, S), (0, 0))
-        if not f.get("b"): overlay(im, sc)
+        a = native(c["a"])
+        if c.get("c"):                                           # a comparison: the middle of each, side by side
+            a = np.concatenate([a[:, W // 4:W * 3 // 4], native(c["c"])[:, W // 4:W * 3 // 4]], 1).copy(); a[:, W // 2] = BG
+        im.paste(big(a, S), (0, 0)); overlay(im, sc)
+    return np.asarray(im.convert("RGB"))
+def compose(f):
+    sc = scenes[f["scene"]]; pic = picture(sc, f["caps"])
+    if f.get("prev"):                                            # the new scene sweeps in from the left behind a line
+        x = round(W * f["wipe"]) * S; old = picture(scenes[f["scene"] - 1], f["prev"]).copy(); old[:, :x] = pic[:, :x]
+        if 0 < x < W * S: old[:, x:x + S // 2] = LAMP
+        pic = old
     k = min(1.0, (f["since"] + 1) / 8)                       # a new caption fades in over a quarter of a second
-    return np.concatenate([np.asarray(im.convert("RGB")), (EMPTY * (1 - k) + caption(sc) * k).astype(np.uint8)], 0)
+    return np.concatenate([pic, (EMPTY * (1 - k) + caption(sc) * k).astype(np.uint8)], 0)
 
 out = os.path.join(here, "..", "docs", "spu-tour.mp4"); size = f"{W * S}x{H * S + BAR}"
 if "--poster-only" not in sys.argv:
@@ -146,7 +157,7 @@ if "--poster-only" not in sys.argv:
         if str(i) in sys.argv[1:]: Image.fromarray(frame).save(os.path.join(src, f"still-{i}.png"))
     enc.stdin.close(); enc.wait()
 # the poster: the sprite's pieces on their sheet, with a play mark in the corner
-shown = [f for f in frames if scenes[f["scene"]]["cap"].startswith("Pieces this pose")][-1]
+shown = [f for f in frames if scenes[f["scene"]]["chapter"] == "Pieces"][-1]
 poster = Image.fromarray(compose(shown)).convert("RGBA")
 mark = Image.new("RGBA", poster.size, (0, 0, 0, 0)); d = ImageDraw.Draw(mark); r = u(46); cx, cy = W * S - r - u(28), H * S - r - u(28)
 d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(15, 17, 23, 215)); d.polygon([(cx - u(13), cy - u(22)), (cx - u(13), cy + u(22)), (cx + u(24), cy)], fill=LAMP + (255,))

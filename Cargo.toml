@@ -3,7 +3,7 @@ name = "spu"
 version = "0.2.0"
 edition = "2024"
 publish = false
-description = "SPU (Sprite Universal): a file format for animated 2D sprites. The reference library and the `spu` command."
+description = "SPU: a file format for animated 2D sprites. The reference library and the `spu` command."
 
 [dependencies]
 anyhow = "1"

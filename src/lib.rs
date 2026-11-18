@@ -1,4 +1,4 @@
-//! SPU (Sprite Universal): a file format for animated 2D sprites.
+//! SPU: a file format for animated 2D sprites.
 //!
 //! This crate is the format's reference implementation. Where the
 //! specification (`docs/spec.md`) and this code disagree, one of them has a
