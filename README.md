@@ -13,8 +13,15 @@ https://github.com/user-attachments/assets/8d6daa1c-b2e2-4372-9551-996d32052126
 - **[Conformance suite](conformance/README.md)**
 - **[Demo](lab/README.md)**: a browser page that lights `.spu` files
 
-Sprites live in [pku-spu](https://github.com/prof64/pku-spu) and are edited in
-[Smeargle](https://smeargle.prof64.net).
+## Related
+
+- **[pku-spu](https://github.com/prof64/pku-spu)**: a library of over 1,100
+  ready-made `.spu` files, the animated battle sprites of Pokémon Black 2 and
+  White 2, Uranium and Insurgence, each with its parts, animations and
+  palettes.
+- **[Smeargle](https://smeargle.prof64.net)**: an editor for `.spu` files.
+  Open a sprite from pku-spu, or start your own, and change its drawings,
+  parts, animations and colors.
 
 ## Quick start
 
