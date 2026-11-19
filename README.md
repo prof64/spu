@@ -6,26 +6,14 @@ alternate looks, and how every pixel takes light.
 
 https://github.com/user-attachments/assets/8d6daa1c-b2e2-4372-9551-996d32052126
 
-*An 82-second tour: one sprite built up a layer at a time, from the flat
-color it is stored as to its pieces, animation, facing, light, materials and
-glow; then places, variants and views. [Download it with English
-captions](docs/spu-tour.mp4).*
-
 ## What's here
 
-- **[The specification](docs/spec.md)**: what a file holds and every rule it
-  must keep.
-- **The reference library** (`src/`, Rust) and the `spu` command: read, write,
-  check, convert and draw `.spu` files. If another program disagrees with it
-  about a file, one of the two has a bug.
-- **[The conformance suite](conformance/README.md)**: files every
-  implementation must accept, the exact picture each must draw, and files it
-  must refuse.
-- **[The demo](lab/README.md)**: a browser page that lights `.spu` files, with
-  its own independent reader. The video is made from it.
+- **[Specification](docs/spec.md)**
+- **Reference library and `spu` command** (`src/`, Rust)
+- **[Conformance suite](conformance/README.md)**
+- **[Demo](lab/README.md)**: a browser page that lights `.spu` files
 
-No sprite files live here. They are in
-[pku-spu](https://github.com/prof64/pku-spu), and they are edited in
+Sprites live in [pku-spu](https://github.com/prof64/pku-spu) and are edited in
 [Smeargle](https://smeargle.prof64.net).
 
 ## Quick start
@@ -39,8 +27,6 @@ target/release/spu animate  sprite.spu out.png --variant shiny
 target/release/spu convert  old.spu new.spu --verify   # upgrade an older file; check every picture
 cargo test                                             # includes the conformance suite
 ```
-
-To run the demo, see [`lab/README.md`](lab/README.md).
 
 ## What a file holds
 
@@ -62,22 +48,11 @@ SPRITE  (one .spu file)
 └─ EXTRAS      history, original game data   games skip these
 ```
 
-On disk that is a 16-byte header and a list of chunks, each with a checksum.
-The [specification](docs/spec.md#the-file) gives every byte.
-
-| | |
-| --- | --- |
-| Extension | `.spu` |
-| First 8 bytes | `89 53 50 55 0D 0A 1A 0A` |
-| Older files | a ZIP archive whose `sprite.json` has `"format": "spu"` |
-| Media type | none registered yet |
-
-This is format version 2. Older files (a ZIP of JSON and PNGs, kept at the tag
-`v1`) are upgraded by `spu convert`.
+On disk: a 16-byte header, then checksummed chunks. Files start with
+`89 53 50 55 0D 0A 1A 0A`. The [specification](docs/spec.md#the-file) gives
+every byte.
 
 ## Credits
 
-The sprites shown are from Pokémon Black 2 and White 2 (Nintendo, Game Freak,
-Creatures) and from the fan game Pokémon Uranium. They are used as test
-subjects and belong to their owners; nothing in this repository grants a
-license to them. Their rigging and animation come from the pku-spu library.
+Sprites shown are from Pokémon Black 2 and White 2 (Nintendo, Game Freak,
+Creatures) and Pokémon Uranium, and belong to their owners.
