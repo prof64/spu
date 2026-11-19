@@ -23,16 +23,34 @@ open out/html/spu-format-lab.html
 of [pku-spu](https://github.com/prof64/pku-spu); set `SPU_LIBRARY` to its
 folder (default: `pk-mono/pku-spu` beside this repository).
 
+## Making an SPU from an existing sprite
+
+Most sprites will be made by taking apart art that already exists:
+
+1. **Split it into parts and animate them.**
+2. **Take the lighting out.** For each surface, find its shades and which one
+   is the base.
+3. **Work out which way each pixel faces,** so that light from the upper left
+   gives back the shading the artist painted.
+4. **Decide what each surface is made of:** its finish and body, and what
+   glows.
+5. **Do the same for the back view.** If the game has none, draw one.
+
+Steps 2 and 3 are automatic here. Steps 1, 4 and 5 need a person or a model,
+and are what the editor ([Smeargle](https://smeargle.prof64.net)) is for.
+
 `export.py` works out each drawing's facing, material and glow, writes them as
 a lighting folder (`out/light/<sprite>/`: `materials.json` and one PNG per
 drawing), and runs `spu convert --light` on the library's file. The result is
 an ordinary `.spu` with a Light sheet.
 
-The pictures in the repository README are made from the built page:
-`node readme.cjs` captures them and `python readme.py` lays them out into
-`../docs/images/`. The capture scripts (`readme.cjs`, `shot.cjs`) drive a
-headless Chromium through playwright-core; set `PLAYWRIGHT_CORE` and
-`CHROME_PATH` to where yours are.
+## Files
+
+Still pictures can be made from the built page: `node readme.cjs` captures
+them and `python readme.py` lays them out into `../docs/images/` (the
+repository README shows the tour video instead). The capture scripts
+(`readme.cjs`, `shot.cjs`) drive a headless Chromium through playwright-core;
+set `PLAYWRIGHT_CORE` and `CHROME_PATH` to where yours are.
 
 | File | What it does |
 | --- | --- |
@@ -46,7 +64,7 @@ headless Chromium through playwright-core; set `PLAYWRIGHT_CORE` and
 | `page/` | The WebGL page. `shaders.js`: the six places and the lighting. `app.js`: drawing a frame. `balls.js`: the two-dial material map and its test ball. `spheres.html`, `spheres.js`: the material spheres page. `ui.js`: the nine tabs; each entry in `PANELS` is one tab. `index.html`: layout and styles. |
 | `build.py`, `standalone.py` | Assemble the pages into single files. |
 | `shading.py` | Builds `out/painted-or-flat.html` from captures of the page (`out/shading-shots.json`, and `out/shading-shots-old.json` made with `FIT=0`). |
-| `readme.cjs`, `readme.py`, `shot.cjs` | Headless captures of the page, and the README's images. |
+| `readme.cjs`, `readme.py`, `shot.cjs` | Headless captures of the page, and still pictures made from them. |
 | `video.cjs`, `video.py`, `video_numbers.py`, `video_looks.cjs` | The tour video; [VIDEO.md](VIDEO.md) says how it is made and changed. `video.cjs` holds the storyboard (each scene: chapter, length, what the page shows, its note and caption) and captures every frame. `video.py` lays them out with labels at integer pixel scales, adds selectable English captions and encodes `../docs/spu-tour.mp4` with ffmpeg. `video_numbers.py` draws the palette and material numbers and the material lists; `video_looks.cjs` assembles Jellicent's two variants from one sheet. The page can lay a sprite's pieces out as a sheet and move them between sheet and pose (`S.sheet`, 0 to 1), which the video uses. |
 
 ## How the surface direction is made
