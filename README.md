@@ -72,22 +72,8 @@ The [specification](docs/spec.md#the-file) gives every byte.
 | Older files | a ZIP archive whose `sprite.json` has `"format": "spu"` |
 | Media type | none registered yet |
 
-## Where it stands
-
-- **Done and tested:** the file layout, the reference library, the exact
-  unlit picture, the conformance suite (15 files to accept, 36 to refuse) and
-  the converter from older files.
-- **Proven on real sprites:** all 1,134 sprites in pku-spu convert, and every
-  picture of every tick, view and look is unchanged: 2,115,922 pictures. The
-  converted files total 42 MiB against 75 MiB before.
-- **Described but not pinned down:** how a lit picture should look. The demo
-  is one renderer; the specification says what the data means.
-- **Not built yet:** a folder form for hand editing, bindings for the browser
-  and C, and palettes above 256 colors in practice.
-
-This is format version 2. Versions 0 and 1 were a ZIP of JSON and PNGs; that
-form is at the tag `v1`, and `spu convert` upgrades those files. The
-specification ends with [what has been tried](docs/spec.md#what-has-been-tried).
+This is format version 2. Older files (a ZIP of JSON and PNGs, kept at the tag
+`v1`) are upgraded by `spu convert`.
 
 ## Credits
 
