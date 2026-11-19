@@ -1,7 +1,7 @@
 //! Writes the conformance suite under `conformance/`: small files every
 //! implementation must accept, the exact picture each must draw, and files
 //! every implementation must refuse. Run from the repository root:
-//! `cargo run --bin make-conformance`.
+//! `cargo run --bin spu-make-conformance`.
 //!
 //! Most cases are written the way older files were (a ZIP of JSON and PNGs)
 //! and converted, which also checks the converter: each must draw exactly

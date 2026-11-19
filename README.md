@@ -59,7 +59,11 @@ On disk: a 16-byte header, then checksummed chunks. Files start with
 `89 53 50 55 0D 0A 1A 0A`. The [specification](docs/spec.md#the-file) gives
 every byte.
 
-## Credits
+## License
 
-Sprites shown are from Pokémon Black 2 and White 2 (Nintendo, Game Freak,
-Creatures) and Pokémon Uranium, and belong to their owners.
+[MIT](LICENSE): the specification, the library and the conformance suite.
+Use them for anything.
+
+The sprites in the video are from Pokémon Black 2 and White 2 (Nintendo, Game
+Freak, Creatures) and Pokémon Uranium, and belong to their owners. The license
+does not cover them.

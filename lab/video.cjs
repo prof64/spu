@@ -1,5 +1,5 @@
 // Capture the frames of the tour video from the built lab page: out/video/*.png and out/video/frames.json.
-// Then `python video.py` adds visual labels and selectable captions and encodes ../docs/spu-tour.mp4.
+// Then `python video.py` adds visual labels and selectable captions and encodes out/spu-tour.mp4.
 // The video builds one sprite up a layer at a time: the flat color it is stored as, its pieces and the animation that moves
 // them, facing and the light that uses it, materials and glow. Then places, variants and views.
 const { chromium } = require(process.env.PLAYWRIGHT_CORE || 'playwright-core');

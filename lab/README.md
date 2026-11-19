@@ -47,8 +47,7 @@ an ordinary `.spu` with a Light sheet.
 ## Files
 
 Still pictures can be made from the built page: `node readme.cjs` captures
-them and `python readme.py` lays them out into `../docs/images/` (the
-repository README shows the tour video instead). The capture scripts
+them and `python readme.py` lays them out into `../docs/images/`. The capture scripts
 (`readme.cjs`, `shot.cjs`) drive a headless Chromium through playwright-core;
 set `PLAYWRIGHT_CORE` and `CHROME_PATH` to where yours are.
 
@@ -65,7 +64,7 @@ set `PLAYWRIGHT_CORE` and `CHROME_PATH` to where yours are.
 | `build.py`, `standalone.py` | Assemble the pages into single files. |
 | `shading.py` | Builds `out/painted-or-flat.html` from captures of the page (`out/shading-shots.json`, and `out/shading-shots-old.json` made with `FIT=0`). |
 | `readme.cjs`, `readme.py`, `shot.cjs` | Headless captures of the page, and still pictures made from them. |
-| `video.cjs`, `video.py`, `video_numbers.py`, `video_looks.cjs` | The tour video; [VIDEO.md](VIDEO.md) says how it is made and changed. `video.cjs` holds the storyboard (each scene: chapter, length, what the page shows, its note and caption) and captures every frame. `video.py` lays them out with labels at integer pixel scales, adds selectable English captions and encodes `../docs/spu-tour.mp4` with ffmpeg. `video_numbers.py` draws the palette and material numbers and the material lists; `video_looks.cjs` assembles Jellicent's two variants from one sheet. The page can lay a sprite's pieces out as a sheet and move them between sheet and pose (`S.sheet`, 0 to 1), which the video uses. |
+| `video.cjs`, `video.py`, `video_numbers.py`, `video_looks.cjs` | The tour video; [VIDEO.md](VIDEO.md) says how it is made and changed. `video.cjs` holds the storyboard (each scene: chapter, length, what the page shows, its note and caption) and captures every frame. `video.py` lays them out with labels at integer pixel scales, adds selectable English captions and encodes `out/spu-tour.mp4` with ffmpeg. `video_numbers.py` draws the palette and material numbers and the material lists; `video_looks.cjs` assembles Jellicent's two variants from one sheet. The page can lay a sprite's pieces out as a sheet and move them between sheet and pose (`S.sheet`, 0 to 1), which the video uses. |
 
 ## How the surface direction is made
 

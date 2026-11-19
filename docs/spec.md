@@ -9,11 +9,9 @@ implemented by this repository (`src/`) and pinned down by the
 [conformance suite](../conformance/README.md). The words *must*, *must not*
 and *may* are requirements on files and readers.
 
-**Status.** The file layout, the reference picture and the converter from
-older files are implemented and tested. How a *lit* picture should look is
-described but not pinned down. Details may still change before the version
-is declared final; [What has been tried](#what-has-been-tried) says what
-stands on evidence.
+The unlit picture is exact: every reader must draw the same pixels. The lit
+picture is described, not fixed pixel for pixel: this document says what the
+lighting data means, and each renderer decides how to draw it.
 
 ## Scope
 

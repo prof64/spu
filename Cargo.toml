@@ -2,6 +2,11 @@
 name = "spu"
 version = "0.2.0"
 edition = "2024"
+license = "MIT"
+repository = "https://github.com/prof64/spu"
+readme = "README.md"
+keywords = ["sprite", "pixel-art", "animation", "file-format", "gamedev"]
+categories = ["encoding", "multimedia::images", "game-development"]
 publish = false
 description = "SPU: a file format for animated 2D sprites. The reference library and the `spu` command."
 
@@ -19,5 +24,5 @@ name = "spu"
 path = "src/bin/spu.rs"
 
 [[bin]]
-name = "make-conformance"
-path = "src/bin/make_conformance.rs"
+name = "spu-make-conformance"
+path = "src/bin/spu_make_conformance.rs"

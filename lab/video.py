@@ -321,7 +321,7 @@ def leave_captions_off(path):
                 return
         raise ValueError("Missing subtitle track in generated MP4")
 
-out = os.path.join(here, "..", "docs", "spu-tour.mp4"); size = f"{W * S}x{H * S}"
+out = os.path.join(here, "out", "spu-tour.mp4"); size = f"{W * S}x{H * S}"
 if "--poster-only" not in sys.argv:
     subtitles = os.path.join(src, "captions.srt")
     write_subtitles(subtitles)

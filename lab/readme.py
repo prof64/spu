@@ -1,4 +1,4 @@
-"""Lay out the README pictures from out/readme-shots.json (made by readme.cjs) into ../docs/images/."""
+"""Lay out the README pictures from out/readme-shots.json (made by readme.cjs) into ../docs/images/ (not committed)."""
 import json, base64, io, os, shutil
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont

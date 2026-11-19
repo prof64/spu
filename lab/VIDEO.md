@@ -1,13 +1,15 @@
 # The tour video
 
-`docs/spu-tour.mp4` is made from the demo page, in two steps.
+`out/spu-tour.mp4` is made from the demo page, in two steps. It is not
+committed: the README plays a copy uploaded to GitHub (drag the file into any
+issue or comment box on github.com and use the link it gives).
 
 ```sh
 cd lab
 python3 build.py && python3 standalone.py      # only if anything under page/ changed
 node video.cjs                                  # capture every frame from the page: about 35 seconds
 uv run --no-project --with pillow --with numpy python video.py 692 1780   # lay out, caption, encode; the numbers save those frames as out/video/still-N.png
-open ../docs/spu-tour.mp4
+open out/spu-tour.mp4
 ```
 
 `video.cjs` needs playwright-core and a Chromium: set `PLAYWRIGHT_CORE` and

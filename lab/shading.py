@@ -24,7 +24,6 @@ LIGHTS = [["left", "Upper left", "The lamp is about where the artist imagined th
           ["right", "From the right", "The opposite side from the artist’s light. The two lit versions should still agree."],
           ["low", "From low right", "Light from below, which no sprite was painted for."]]
 page = r'''<title>Painted or Flat</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Pixelify+Sans:wght@500;600&display=swap">
 <style>
 /* One question, four pictures. Same dark viewing room as the format lab, on purpose. */

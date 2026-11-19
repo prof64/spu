@@ -17,7 +17,7 @@ active looks, in order.
 
 ```sh
 cargo test --test conformance      # this repository's implementation
-cargo run --bin make-conformance   # regenerate the suite (output is reproducible)
+cargo run --bin spu-make-conformance   # regenerate the suite (output is reproducible)
 ```
 
 The art is a made-up 5×6 mark; nothing here comes from a game. The expected
