@@ -4,7 +4,7 @@ SPU (`.spu`) is a file format for animated 2D sprites. One file holds a
 character's drawings, the parts they are joined into, how the parts move, its
 alternate looks, and how every pixel takes light.
 
-https://github.com/user-attachments/assets/8d6daa1c-b2e2-4372-9551-996d32052126
+https://github.com/user-attachments/assets/69108e18-9bcb-4981-8136-95383cd1fe09
 
 ## What's here
 
