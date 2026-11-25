@@ -6,22 +6,21 @@ field, snow, deep water). The page has one tab per thing the format does:
 light, materials, surface, glow, parts, motion, views, looks, and the stored
 sheets.
 
-It does two jobs. It **makes lighting data** for sprites that have none, and it
-**shows `.spu` files**: the page reads them with its own reader (`page/spu.js`),
-which shares no code with the Rust library. Drop any `.spu` file on the stage.
+The page reads `.spu` files with its own reader (`page/spu.js`), which shares
+no code with the Rust library. Drop any `.spu` file on the stage.
 
 ```sh
-cargo build --release --bin spu      # in the repository root: the converter this uses
+cargo build --release --bin spu      # in the repository root: draws each sprite's button
 cd lab
-uv run --no-project --with numpy --with scipy --with pillow python export.py   # -> out/spu/*.spu, out/sprites.json
+uv run --no-project --with pillow python sprites.py   # out/spu/*.spu -> out/sprites.json
 python3 build.py                     # -> out/spu-material-lab.html, out/material-spheres.html
 python3 standalone.py                # -> out/html/*.html, complete files that open from disk
 open out/html/spu-format-lab.html
 ```
 
-`out/` holds game art and is not committed. Sprites are read from a checkout
-of [pku-spu](https://github.com/prof64/pku-spu); set `SPU_LIBRARY` to its
-folder (default: `pk-mono/pku-spu` beside this repository).
+`out/` holds game art and is not committed. The page's sixteen sprites are lit
+`.spu` files, `out/spu/<id>.spu` (set `SPU_SPRITES` to read them from another
+folder), listed in `sprites.py`.
 
 ## Making an SPU from an existing sprite
 
@@ -36,13 +35,8 @@ Most sprites will be made by taking apart art that already exists:
    glows.
 5. **Do the same for the back view.** If the game has none, draw one.
 
-Steps 2 and 3 are automatic here. Steps 1, 4 and 5 need a person or a model,
-and are what the editor ([Smeargle](https://smeargle.prof64.net)) is for.
-
-`export.py` works out each drawing's facing, material and glow, writes them as
-a lighting folder (`out/light/<sprite>/`: `materials.json` and one PNG per
-drawing), and runs `spu convert --light` on the library's file. The result is
-an ordinary `.spu` with a Light sheet.
+This is what the editor, [Smeargle](https://smeargle.prof64.net), is for. Step 3
+is automatic there: its baker is a port of the one that lit the sprites here.
 
 ## Files
 
@@ -53,20 +47,14 @@ set `PLAYWRIGHT_CORE` and `CHROME_PATH` to where yours are.
 
 | File | What it does |
 | --- | --- |
-| `recipes.py` | Per sprite: which palette colors are the shades of which material, and where a color means two things. |
-| `materials.py` | The named materials as two dials, plus how the baker shapes each surface. |
-| `spu.py` | Reads the library's older ZIP files and places their parts at a tick, for the baker. |
-| `bake.py` | Makes each drawing's facing, material number and glow. |
-| `fitcheck.py` | Lights each sprite's flat base colors from the upper left and counts how many pixels land on the shade the artist painted. `FIT=0` in the environment gives the plain blown-up shape (about 24%); the default gives 100%. |
-| `export.py` | Writes the lighting folders and converts each sprite to `out/spu/<id>.spu`. |
+| `sprites.py` | The page's sprites: each one's title, the place it opens in and the views it shows. Packs their files into `out/sprites.json`. |
 | `page/spu.js` | Reads `.spu` files in the browser and lays a sprite out for drawing. Checked against `spu render`: Charizard, Klinklang and Arceus match on every pixel; Jellicent differs on 8 of 2,603, at the edge of a turned part, where the GPU and the reference round differently. |
 | `page/` | The WebGL page. `shaders.js`: the six places and the lighting. `app.js`: drawing a frame. `balls.js`: the two-dial material map and its test ball. `spheres.html`, `spheres.js`: the material spheres page. `ui.js`: the nine tabs; each entry in `PANELS` is one tab. `index.html`: layout and styles. |
 | `build.py`, `standalone.py` | Assemble the pages into single files. |
-| `shading.py` | Builds `out/painted-or-flat.html` from captures of the page (`out/shading-shots.json`, and `out/shading-shots-old.json` made with `FIT=0`). |
 | `readme.cjs`, `readme.py`, `shot.cjs` | Headless captures of the page, and still pictures made from them. |
 | `video.cjs`, `video.py`, `video_numbers.py`, `video_looks.cjs` | The tour video; [VIDEO.md](VIDEO.md) says how it is made and changed. `video.cjs` holds the storyboard (each scene: chapter, length, what the page shows, its note and caption) and captures every frame. `video.py` lays them out with labels at integer pixel scales, adds selectable English captions and encodes `out/spu-tour.mp4` with ffmpeg. `video_numbers.py` draws the palette and material numbers and the material lists; `video_looks.cjs` assembles Jellicent's two variants from one sheet. The page can lay a sprite's pieces out as a sheet and move them between sheet and pose (`S.sheet`, 0 to 1), which the video uses. |
 
-## How the surface direction is made
+## How the facing data was made
 
 No hand painting. The sprite is posed (at the tick that shows most of each
 drawing) and the assembled picture is inflated with a Poisson solve, so a disc
@@ -81,16 +69,18 @@ shows up as dark bands. Two more rules came out of the same fix:
 
 - A line counts as an edge only if it is part of the outline. A pupil or wrinkle
   standing alone is a mark and does not dent the surface.
-- After the shape is blown up, every pixel is refit to the painted shading
-  (`finish` in `bake.py`): it is turned toward or away from the upper left just
-  far enough that light from there, on the material's base shade, picks the
-  shade the artist painted. A pixel the shape already gets right is left alone.
-  This is what lets light alone redraw the art, and it replaced an earlier
-  rule that left painted shading out of the facing data.
+- After the shape is blown up, every pixel is refit to the painted shading:
+  it is turned toward or away from the upper left just far enough that light
+  from there, on the material's base shade, picks the shade the artist
+  painted. A pixel the shape already gets right is left alone. This is what
+  lets light alone redraw the art: lit from the upper left, flat base colors
+  land on the painted shade for every shaded pixel, against about 24% for the
+  blown-up shape alone. It replaced an earlier rule that left painted shading
+  out of the facing data.
 
 A sprite whose contour lines are not black (Arcanine's are dark brown) needs
-that color listed in its `outline` row, and markings in the outline color
-(stripes) need a rule moving them to a material of their own.
+the baker told that color, and markings in the outline color (stripes) need a
+material of their own.
 
 ## How the light stays on the palette
 
@@ -120,15 +110,8 @@ A place with no `lamp` hands the pointer to its sun or moon through `live()`.
 | Christmas Corsoreef | 172 colors, 37 parts |
 | Nuclear Gyarados, Metalynx | glow on a dark body; metal beside hide; a second animation |
 
-The page exports every animation a view has (`idle`, `alert`, `alternate-1`) and
+The page shows every animation a view has (`idle`, `alert`, `alternate-1`) and
 every look: palette swaps, drawing swaps, or both.
-
-**A version 1 bug this turned up.** When a look replaces a drawing, the
-reference picture still paints the *original* drawing's overlays on top, so a
-female Jellicent gets the male's eye patch (`spu render --variant female`
-shows it). 47 library sprites have a replaced drawing whose overlays differ.
-The converter fixes it: where a look replaces a drawing, it replaces the
-overlay too.
 
 ## Big palettes and soft pixels
 
@@ -136,13 +119,12 @@ Four Uranium sprites test what the 16-color Black 2 / White 2 ones cannot:
 Halloween Titanice (160 colors in its front view, 138 of them partly
 see-through), Christmas Corsoreef (192 colors), Nuclear Gyarados and Metalynx.
 
-- **Shades are gathered automatically** (`auto` in `recipes.py`, `auto_rows` in
-  `bake.py`). A surface is named by a few sample colors or by which drawings
-  it is; every color the sprite uses joins the surface it most resembles, and
-  each surface's shades are sorted dark to light. Lists of over a hundred
-  shades work, and the light may move a pixel about half way along a long list.
-- **Opacity is per pixel.** The older files keep it in the palette; the
-  converter moves it to the pixels. Solid pixels and soft ones are drawn as two
+- **Shades were gathered automatically.** A surface was named by a few sample
+  colors or by which drawings it is; every color the sprite uses joined the
+  surface it most resembles, and each surface's shades were sorted dark to
+  light. Lists of over a hundred shades work, and the light may move a pixel
+  about half way along a long list.
+- **Opacity is per pixel.** Solid pixels and soft ones are drawn as two
   layers; a soft pixel blends over the solid one beneath. Soft over soft keeps
   only the front one.
 - **A material can have no surface** (mist): it stays flat and does not join the
@@ -156,19 +138,19 @@ A real editor needs per-drawing hints or painting on top of the automatic pass.
 
 ## Adding a sprite
 
-Add an entry to `recipes.py`: rows of `(name, material, [palette indices dark to
-light], glow per shade or None)` and `rules` for colors used by two surfaces.
+Light it in Smeargle, put the file at `out/spu/<id>.spu`, and add a line to
+`SPRITES` in `sprites.py`.
 
-A row's shades must all be the same surface. Rotom's eye once listed iris blue
-and eye white together, and the white shine on its head was filed under it, so
-a dimmer light slid the shine down into blue. Give each surface its own row,
-and use a rule when one color (white, here) belongs to different rows in
-different drawings.
+A material's shades must all be the same surface. Rotom's eye once listed iris
+blue and eye white together, and the white shine on its head was filed under
+it, so a dimmer light slid the shine down into blue. Give each surface its own
+material, and where one color (white, here) belongs to different surfaces in
+different drawings, give those pixels different materials.
 
 ## A material is two dials
 
-`materials.py` and `page/balls.js` define a material as two numbers and derive
-the six values the lighting works on (`values()` / `dials()`):
+`page/balls.js` defines a material as two numbers, and the sprite shader
+(`page/shaders.js`) derives the six values the lighting works on from them:
 
 - **finish**: -1 fuzzy, 0 matte, +1 polished. What the surface is like.
 - **body**: -1 metal, 0 solid, 0.5 translucent, +1 clear. What happens to light

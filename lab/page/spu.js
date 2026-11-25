@@ -47,7 +47,8 @@ const SPU = (() => {
   async function read(file){
     if(file.length < 16 || MAGIC.some((b, i) => file[i] !== b)) throw new Error('Not an SPU file');
     const head = new DataView(file.buffer, file.byteOffset, file.byteLength);
-    if(head.getUint16(8, true) !== 2) throw new Error('This reader knows SPU version 2');
+    const version = head.getUint16(8, true);
+    if(version !== 2) throw new Error(`The header's version is ${version}; this reader reads version 2`);
     if(head.getUint32(12, true) !== file.length) throw new Error('The file is not the length its header says');
     const s = { views: [], parts: [], drawings: [], palettes: [], materials: [], variants: [], animations: [], extras: [], bytes: file.length };
     let counts = [];

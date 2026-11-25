@@ -14,7 +14,7 @@ open out/spu-tour.mp4
 
 `video.cjs` needs playwright-core and a Chromium: set `PLAYWRIGHT_CORE` and
 `CHROME_PATH`. `video.py` needs ffmpeg. The page needs `out/sprites.json`,
-which `export.py` makes (see [README.md](README.md)).
+which `sprites.py` makes (see [README.md](README.md)).
 
 ## Where things are
 
