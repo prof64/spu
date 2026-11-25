@@ -5,7 +5,7 @@ use serde_json::Value;
 use spu::{
     binary,
     picture::{Frame, picture_named},
-    sprite::Sprite,
+    sprite::{Extra, Sprite},
 };
 use std::path::PathBuf;
 
@@ -139,6 +139,6 @@ fn what_a_reader_does_not_understand_survives_saving() {
     let bytes = std::fs::read(root().join("valid/unknown-fields.spu")).unwrap();
     let sprite = binary::read(&bytes).unwrap();
     assert_eq!(sprite.unknown, vec![(*b"note", b"A chunk this reader does not know.".to_vec())]);
-    assert!(sprite.extras.iter().any(|e| e.path == "notes/readme.txt" && e.bytes == b"Unknown members are kept."));
+    assert_eq!(sprite.extras, vec![Extra { path: "notes/readme.txt".into(), bytes: b"Extras are kept.".to_vec() }]);
     assert_eq!(binary::write(&sprite).unwrap(), bytes, "reading and writing a file gives the same bytes");
 }

@@ -31,7 +31,6 @@ target/release/spu info     sprite.spu                 # what is in it
 target/release/spu validate sprite.spu ...             # is it a correct file
 target/release/spu render   sprite.spu out.png --view front --animation idle --tick 0
 target/release/spu animate  sprite.spu out.png --variant shiny
-target/release/spu convert  old.spu new.spu --verify   # upgrade an older file; check every picture
 cargo test                                             # includes the conformance suite
 ```
 

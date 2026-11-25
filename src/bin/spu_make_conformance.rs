@@ -131,14 +131,14 @@ fn valid() -> Vec<Valid> {
     let mut cases = Vec::new();
     cases.push(Valid {
         name: "still",
-        about: "One full-color drawing at the origin. The picture is the drawing itself, placed on the canvas.",
+        about: "One drawing at the origin. The picture is the drawing itself, placed on the canvas.",
         sprite: still(),
         frames: ticks(&[0, 5]),
     });
 
     cases.push(Valid {
         name: "palettes-and-variants",
-        about: "Indexed drawings take their colors from the file's palettes, not from the PNG. Index 0 is transparent; index 4 is half transparent. One variant swaps the palette, another swaps the drawing, and both can be active together.",
+        about: "A drawing's pixels are color numbers into the active palette; color 4's pixels are half transparent. One variant swaps the palette, another swaps the drawing, and both can be active together.",
         sprite: palettes_and_variants(),
         frames: front(&[("main", 0.0, &[]), ("main", 0.0, &["shiny"]), ("main", 0.0, &["hat"]), ("main", 0.0, &["shiny", "hat"]), ("main", 0.0, &["hat", "shiny"])]),
     });
@@ -222,20 +222,17 @@ fn valid() -> Vec<Valid> {
     s.variants = vec![Variant { id: "blink".into(), name: "Blink".into(), replace: vec![Replace { view: 0, from: 1, to: 2 }], ..Variant::default() }];
     cases.push(Valid {
         name: "overlays",
-        about: "A drawing can carry overlays: other drawings painted straight over it, moving with the same part. A variant can replace an overlay, which is how a blink is stored.",
+        about: "Eyes painted over the body as a part of their own, joined to it, turn with it. A variant replaces the eyes' drawing, which is how a blink is stored.",
         sprite: s,
         frames: front(&[("main", 0.0, &[]), ("main", 0.0, &["blink"]), ("main", 1.0, &["blink"])]),
     });
 
     let mut s = still();
-    s.extras = vec![
-        Extra { path: "notes/readme.txt".into(), bytes: b"Unknown members are kept.".to_vec() },
-        Extra { path: "legacy/fields.json".into(), bytes: br#"{"futureTool":{"anything":[1,2,3]}}"#.to_vec() },
-    ];
+    s.extras = vec![Extra { path: "notes/readme.txt".into(), bytes: b"Extras are kept.".to_vec() }];
     s.unknown.push((*b"note", b"A chunk this reader does not know.".to_vec()));
     cases.push(Valid {
         name: "unknown-fields",
-        about: "Fields and archive members a reader does not know are ignored when drawing and kept when saving. The picture equals the 'still' case.",
+        about: "A chunk a reader does not know, and the extras a file carries, are ignored when drawing and kept when saving. The picture equals the 'still' case.",
         sprite: s,
         frames: ticks(&[0]),
     });
@@ -256,7 +253,7 @@ fn valid() -> Vec<Valid> {
     s.views[0].light = Some(light(&s.views[0].color, [128, 128, 1, 255]));
     cases.push(Valid {
         name: "materials-do-not-change-the-reference",
-        about: "Materials and their maps describe how light treats a drawing. The reference picture has no light, so it equals the 'still' case.",
+        about: "Materials and the Light sheet describe how light treats a drawing. The reference picture has no light, so it equals the 'still' case.",
         sprite: s,
         frames: ticks(&[0]),
     });

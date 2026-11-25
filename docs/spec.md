@@ -4,8 +4,7 @@ SPU (`.spu`) is a file for one animated 2D character,
 object or effect: its drawings, the parts they are joined into, how the parts
 move, its alternate looks, and how every pixel takes light.
 
-This document describes **format version 2**, the current one. It is
-implemented by this repository (`src/`) and pinned down by the
+The format is implemented by this repository (`src/`) and pinned down by the
 [conformance suite](../conformance/README.md). The words *must*, *must not*
 and *may* are requirements on files and readers.
 
@@ -44,7 +43,7 @@ and everything refers to everything else by number. Ids are non-empty text,
 unique within their list; names are for people and may be any text.
 
 - **Basics**: `name`, `author`, `version` (the sprite's own version, a whole
-  number from 1 that goes up each time it is published; not the format
+  number from 1 that goes up each time it is published; not the header's
   version), and ticks per second (more than 0).
 - **Parts**: id, name, `extra`, `depth`. One list for all views. A part marked
   `extra` is hidden unless an active look shows it (a hat, a costume piece).
@@ -285,7 +284,7 @@ Everything is little-endian. A file is a header and then chunks.
 | Bytes | |
 | --- | --- |
 | 8 | `89 53 50 55 0D 0A 1A 0A` (`\x89SPU\r\n\x1a\n`). Like PNG's, these catch a file damaged by being handled as text. |
-| 2 | format version: 2 |
+| 2 | header version: 2 |
 | 2 | flags: 0 |
 | 4 | the file's total length in bytes |
 
@@ -365,40 +364,10 @@ A reader may refuse files beyond these, and writers must stay within them:
 drawings; 65,536 colors per palette; 256 materials; sheets up to 16,384
 pixels a side; canvases up to 4,096 pixels a side; names up to 65,535 bytes.
 
-## Older files
-
-Before version 2, an `.spu` file was a ZIP archive of `sprite.json` and one
-PNG per drawing: Smeargle's version 0, the `.sprite` prototype, and version 1
-(this repository at the tag `v1`, with its own specification). They are not
-this format, and a reader need not open them. `spu convert` upgrades them:
-
-- Parts and drawings with the same id in several views become one.
-- Each view keeps its own order of parts, its own joins, and its own length
-  for each animation.
-- A drawing's overlay (eyes painted over a head) becomes a part of its own,
-  joined to the part it sat on and listed straight after it. Where a look
-  replaces a drawing, it now replaces the overlay too; version 1 kept the
-  original's overlay, which was a bug.
-- "Hidden" keys become "no drawing" keys. Keys that repeat the value before
-  them are dropped.
-- Where every palette gives a color the same opacity, that opacity moves to
-  the pixels. Where palettes disagree, it stays in the palettes.
-- Full-color drawings get a palette made of the colors they use.
-- Version 1's lighting maps become a Light sheet as far as they translate:
-  normals and emission carry over, and each material becomes a row with the
-  nearest finish and body and no shades.
-- Whatever else the archive carried becomes extras.
-
-Leaving aside the overlay fix, the reference picture is identical at every
-tick.
-
 ## What has been tried
 
 **Tried**
 
-- The whole sprite library (1,134 files) converts, and every picture of every
-  tick, view and look matches the older renderer: 2,115,922 pictures. The
-  converted files total 42 MiB against 75 MiB before.
 - The conformance suite: 15 files that must be accepted, each with its
   expected pictures, and 36 that must be refused.
 - The lighting design, in `lab/`, on sixteen sprites lit in six places:

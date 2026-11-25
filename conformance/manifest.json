@@ -148,7 +148,7 @@
   ],
   "valid": [
     {
-      "about": "One full-color drawing at the origin. The picture is the drawing itself, placed on the canvas.",
+      "about": "One drawing at the origin. The picture is the drawing itself, placed on the canvas.",
       "file": "valid/still.spu",
       "frames": [
         {
@@ -168,7 +168,7 @@
       ]
     },
     {
-      "about": "Indexed drawings take their colors from the file's palettes, not from the PNG. Index 0 is transparent; index 4 is half transparent. One variant swaps the palette, another swaps the drawing, and both can be active together.",
+      "about": "A drawing's pixels are color numbers into the active palette; color 4's pixels are half transparent. One variant swaps the palette, another swaps the drawing, and both can be active together.",
       "file": "valid/palettes-and-variants.spu",
       "frames": [
         {
@@ -633,7 +633,7 @@
       ]
     },
     {
-      "about": "A drawing can carry overlays: other drawings painted straight over it, moving with the same part. A variant can replace an overlay, which is how a blink is stored.",
+      "about": "Eyes painted over the body as a part of their own, joined to it, turn with it. A variant replaces the eyes' drawing, which is how a blink is stored.",
       "file": "valid/overlays.spu",
       "frames": [
         {
@@ -664,7 +664,7 @@
       ]
     },
     {
-      "about": "Fields and archive members a reader does not know are ignored when drawing and kept when saving. The picture equals the 'still' case.",
+      "about": "A chunk a reader does not know, and the extras a file carries, are ignored when drawing and kept when saving. The picture equals the 'still' case.",
       "file": "valid/unknown-fields.spu",
       "frames": [
         {
@@ -690,7 +690,7 @@
       ]
     },
     {
-      "about": "Materials and their maps describe how light treats a drawing. The reference picture has no light, so it equals the 'still' case.",
+      "about": "Materials and the Light sheet describe how light treats a drawing. The reference picture has no light, so it equals the 'still' case.",
       "file": "valid/materials-do-not-change-the-reference.spu",
       "frames": [
         {
