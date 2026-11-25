@@ -23,7 +23,3 @@ cargo run --bin spu-make-conformance   # regenerate the suite (output is reprodu
 The art is a made-up 5×6 mark; nothing here comes from a game. The expected
 pictures are drawn by the reference library, and several are also checked
 from first principles in `tests/conformance.rs`.
-
-Most cases are written the way older files were (a ZIP of JSON and PNGs) and
-converted. Generating the suite therefore also checks the converter: each
-case must draw exactly what the older reference renderer drew.
