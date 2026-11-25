@@ -1,8 +1,7 @@
-//! Command-line tool: inspect, check, upgrade and draw `.spu` files.
+//! Command-line tool: inspect, check and draw `.spu` files.
 use anyhow::{Context, Result, bail};
 use spu::{
-    binary, convert,
-    legacy::format::Package,
+    binary,
     picture::{Frame, picture},
     sprite::Sprite,
 };
@@ -10,16 +9,12 @@ use spu::{
 const USAGE: &str = "\
 spu info <file>
 spu validate <file>...
-spu convert <older file> <out.spu> [--light FOLDER] [--verify]
-        upgrade an older file. --light adds lighting made elsewhere (materials.json and <view>/<drawing>.png).
-        --verify draws every tick both ways and fails if any picture differs.
 spu render <file> <out.png> [--view ID] [--animation ID] [--tick N] [--variant ID]...
 spu animate <file> <out.png> [--view ID] [--animation ID] [--variant ID]... [--step N]
-        a looping animated PNG, drawn every N ticks
-Older files (ZIP archives) open everywhere and are upgraded in memory.";
+        a looping animated PNG, drawn every N ticks";
 
-fn open(path: &str) -> Result<(Sprite, Option<String>)> {
-    spu::open(&std::fs::read(path).with_context(|| format!("Cannot read {path}"))?).with_context(|| path.to_owned())
+fn open(path: &str) -> Result<Sprite> {
+    binary::read(&std::fs::read(path).with_context(|| format!("Cannot read {path}"))?).with_context(|| path.to_owned())
 }
 
 fn main() -> Result<()> {
@@ -27,8 +22,8 @@ fn main() -> Result<()> {
     let rest: Vec<&str> = args.iter().skip(1).map(String::as_str).collect();
     match (args.first().map(String::as_str), rest.as_slice()) {
         (Some("info"), [path]) => {
-            let (s, from) = open(path)?;
-            println!("{} (SPU {}{})", s.name, binary::VERSION, from.map_or(String::new(), |f| format!(", upgraded from {f}")));
+            let s = open(path)?;
+            println!("{}", s.name);
             if !s.author.is_empty() {
                 println!("by {}", s.author);
             }
@@ -65,36 +60,8 @@ fn main() -> Result<()> {
                 bail!("{failed} invalid");
             }
         }
-        (Some("convert"), [input, output, options @ ..]) => {
-            let bytes = std::fs::read(input).with_context(|| format!("Cannot read {input}"))?;
-            if bytes.starts_with(&binary::MAGIC) {
-                bail!("{input} is already in the current format");
-            }
-            let package = Package::read(&bytes).with_context(|| (*input).to_owned())?;
-            let (mut light, mut verify, mut i) = (None, false, 0);
-            while i < options.len() {
-                match options[i] {
-                    "--verify" => verify = true,
-                    "--light" if i + 1 < options.len() => {
-                        i += 1;
-                        light = Some(convert::Lighting::load(std::path::Path::new(options[i]))?);
-                    }
-                    _ => bail!("{USAGE}"),
-                }
-                i += 1;
-            }
-            if verify {
-                let (frames, wrong) = convert::verify(&package)?;
-                if wrong > 0 {
-                    bail!("{input}: {wrong} of {frames} pictures differ after converting");
-                }
-                println!("{frames} pictures identical");
-            }
-            let sprite = convert::from_legacy(&package, light.as_ref(), true)?;
-            std::fs::write(output, binary::write(&sprite)?)?;
-        }
         (Some(mode @ ("render" | "animate")), [path, output, options @ ..]) => {
-            let (s, _) = open(path)?;
+            let s = open(path)?;
             let (mut view, mut animation, mut tick, mut variants) = (0, None, 0.0, Vec::new());
             let mut step = 1u16;
             for pair in options.chunks(2) {

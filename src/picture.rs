@@ -1,11 +1,87 @@
 //! The reference picture: exactly what a sprite looks like at a tick, with
 //! no lighting. Every renderer can be checked against it pixel for pixel.
 //! Materials, facing and glow never change this picture.
-use crate::legacy::reference::{blend, texel};
-pub use crate::legacy::reference::Frame;
-use crate::legacy::timing::Trs;
 use crate::sprite::*;
 use anyhow::{Context, Result};
+use std::{collections::HashMap, io::Cursor};
+
+/// Straight (not premultiplied) 8-bit RGBA, row by row from the top.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Frame {
+    pub width: u32,
+    pub height: u32,
+    pub pixels: Vec<u8>,
+}
+impl Frame {
+    pub fn png(&self) -> Result<Vec<u8>> {
+        let mut out = Vec::new();
+        image::write_buffer_with_format(
+            &mut Cursor::new(&mut out),
+            &self.pixels,
+            self.width,
+            self.height,
+            image::ColorType::Rgba8,
+            image::ImageOutputFormat::Png,
+        )?;
+        Ok(out)
+    }
+    /// An animated PNG that loops forever. Each frame is shown for
+    /// `ticks / ticks_per_second` seconds.
+    pub fn apng(frames: &[(Frame, u16)], ticks_per_second: u16) -> Result<Vec<u8>> {
+        let first = &frames.first().context("No frames")?.0;
+        let mut out = Vec::new();
+        // Pixel art rarely needs more than 256 colors: store indices then.
+        let mut colors: Vec<[u8; 4]> = Vec::new();
+        let mut lookup = HashMap::new();
+        let mut indexed = Some(Vec::new());
+        'frames: for (frame, _) in frames {
+            let mut data = Vec::with_capacity(frame.pixels.len() / 4);
+            for p in frame.pixels.chunks_exact(4) {
+                let color = if p[3] == 0 { [0; 4] } else { [p[0], p[1], p[2], p[3]] };
+                let next = colors.len();
+                let i = *lookup.entry(color).or_insert(next);
+                if i == next {
+                    if next == 256 {
+                        indexed = None;
+                        break 'frames;
+                    }
+                    colors.push(color);
+                }
+                data.push(i as u8);
+            }
+            indexed.as_mut().unwrap().push(data);
+        }
+        let mut encoder = png::Encoder::new(&mut out, first.width, first.height);
+        encoder.set_depth(png::BitDepth::Eight);
+        if indexed.is_some() {
+            encoder.set_color(png::ColorType::Indexed);
+            encoder.set_palette(colors.iter().flat_map(|c| [c[0], c[1], c[2]]).collect::<Vec<_>>());
+            encoder.set_trns(colors.iter().map(|c| c[3]).collect::<Vec<_>>());
+        } else {
+            encoder.set_color(png::ColorType::Rgba);
+        }
+        encoder.set_compression(png::Compression::Best);
+        encoder.set_animated(frames.len() as u32, 0)?;
+        let mut writer = encoder.write_header()?;
+        for (i, (frame, ticks)) in frames.iter().enumerate() {
+            writer.set_frame_delay(*ticks, ticks_per_second)?;
+            match &indexed {
+                Some(data) => writer.write_image_data(&data[i])?,
+                None => writer.write_image_data(&frame.pixels)?,
+            }
+        }
+        writer.finish()?;
+        Ok(out)
+    }
+    pub fn from_png(bytes: &[u8]) -> Result<Self> {
+        let image = image::load_from_memory_with_format(bytes, image::ImageFormat::Png)?.to_rgba8();
+        Ok(Self {
+            width: image.width(),
+            height: image.height(),
+            pixels: image.into_raw(),
+        })
+    }
+}
 
 /// The value of a number at `tick`: the key at or before it, eased toward
 /// the next. Before the first key, the first key's value holds.
@@ -184,4 +260,87 @@ pub fn picture_named(s: &Sprite, view: &str, animation: &str, tick: f64, variant
     let a = s.animation(animation).with_context(|| format!("No animation {animation}"))?;
     let active = variants.iter().map(|id| s.variant(id).with_context(|| format!("No variant {id}"))).collect::<Result<Vec<_>>>()?;
     Ok(picture(s, v, a, tick, &active))
+}
+
+/// A part's placement. Joined parts combine these, never whole matrices: a
+/// child's position goes through its parent's full placement, its rotation
+/// adds to the parent's (reversed under a mirroring parent) and its scale
+/// multiplies per axis. A part therefore never skews.
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct Trs {
+    x: f64,
+    y: f64,
+    rotation: f64,
+    scale_x: f64,
+    scale_y: f64,
+}
+impl Trs {
+    /// `[a, b, c, d, tx, ty]`: `x' = a·x + c·y + tx`, `y' = b·x + d·y + ty`.
+    fn matrix(&self) -> [f64; 6] {
+        let (sin, cos) = self.rotation.to_radians().sin_cos();
+        [
+            cos * self.scale_x,
+            sin * self.scale_x,
+            -sin * self.scale_y,
+            cos * self.scale_y,
+            self.x,
+            self.y,
+        ]
+    }
+    /// `local` placed under this placement as its parent. Results within
+    /// 1e-9 of a multiple of 2^-20 land exactly on it, so a joined part
+    /// draws exactly where the same numbers would put it on its own.
+    fn then(&self, local: &Trs) -> Trs {
+        let m = self.matrix();
+        let x = m[0] * local.x + m[2] * local.y + m[4];
+        let y = m[1] * local.x + m[3] * local.y + m[5];
+        let mirrors = (self.scale_x < 0.0) != (self.scale_y < 0.0);
+        let turn = if mirrors {
+            -local.rotation
+        } else {
+            local.rotation
+        };
+        let tidy = |v: f64| {
+            const STEP: f64 = (1u32 << 20) as f64;
+            let snapped = (v * STEP).round() / STEP;
+            if (snapped - v).abs() < 1e-9 {
+                snapped
+            } else {
+                v
+            }
+        };
+        Trs {
+            x: tidy(x),
+            y: tidy(y),
+            rotation: tidy(self.rotation + turn),
+            scale_x: tidy(self.scale_x * local.scale_x),
+            scale_y: tidy(self.scale_y * local.scale_y),
+        }
+    }
+}
+
+/// The texel a local coordinate falls in. A sample within 1e-9 of a texel
+/// edge counts as on it, so equivalent placements pick the same texel.
+fn texel(local: f64) -> f64 {
+    let edge = local.round();
+    if (local - edge).abs() < 1e-9 {
+        edge
+    } else {
+        local.floor()
+    }
+}
+
+/// Paint `color`, faded by `opacity`, over `dst`. Both are straight RGBA.
+fn blend(dst: &mut [u8], color: [u8; 4], opacity: f32) {
+    let a = opacity * f32::from(color[3]) / 255.0;
+    let da = f32::from(dst[3]) / 255.0;
+    let oa = a + da * (1.0 - a);
+    if oa <= 0.0 {
+        return;
+    }
+    for c in 0..3 {
+        let v = (f32::from(color[c]) * a + f32::from(dst[c]) * da * (1.0 - a)) / oa;
+        dst[c] = v.round() as u8;
+    }
+    dst[3] = (oa * 255.0).round() as u8;
 }

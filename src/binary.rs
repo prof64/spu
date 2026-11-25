@@ -11,7 +11,7 @@ use anyhow::{Context, Result, bail, ensure};
 /// The first 8 bytes of every file. Like PNG's, they catch a file that was
 /// damaged by being handled as text.
 pub const MAGIC: [u8; 8] = [0x89, b'S', b'P', b'U', 0x0D, 0x0A, 0x1A, 0x0A];
-/// The format version this crate reads and writes.
+/// The version number in the header of every file this crate reads and writes.
 pub const VERSION: u16 = 2;
 const NONE: u16 = u16::MAX;
 
@@ -63,7 +63,7 @@ impl Out {
         Ok(())
     }
     fn align(&mut self, to: usize) {
-        while self.0.len() % to != 0 {
+        while !self.0.len().is_multiple_of(to) {
             self.0.push(0);
         }
     }
@@ -121,7 +121,7 @@ impl<'a> In<'a> {
         Ok(std::str::from_utf8(self.take(n)?).context("A name is not UTF-8")?.to_owned())
     }
     fn align(&mut self, to: usize) -> Result<()> {
-        while self.at % to != 0 {
+        while !self.at.is_multiple_of(to) {
             ensure!(self.u8()? == 0, "Padding must be zero");
         }
         Ok(())
@@ -144,7 +144,7 @@ fn chunk(file: &mut Vec<u8>, kind: &[u8; 4], data: &[u8], compress: bool) {
     file.extend(crc32(&[kind, data]).to_le_bytes());
     file.extend(flags.to_le_bytes());
     file.extend(data);
-    while file.len() % 8 != 0 {
+    while !file.len().is_multiple_of(8) {
         file.push(0);
     }
 }
@@ -372,7 +372,7 @@ pub fn read(file: &[u8]) -> Result<Sprite> {
     ensure!(file.len() <= MAX_FILE, "A file is at most 64 MiB");
     ensure!(file.len() >= 16 && file[..8] == MAGIC, "Not an SPU file");
     let version = u16::from_le_bytes([file[8], file[9]]);
-    ensure!(version == VERSION, "This is SPU version {version}; this reader knows version {VERSION}");
+    ensure!(version == VERSION, "The header's version is {version}; this reader reads version {VERSION}");
     ensure!(file[10..12] == [0, 0], "Unknown header flags");
     ensure!(u32::from_le_bytes(file[12..16].try_into().unwrap()) as usize == file.len(), "The file is not the length its header says");
 

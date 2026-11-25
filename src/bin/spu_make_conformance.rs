@@ -78,9 +78,10 @@ fn animation(id: &str, name: &str, length: u32, looping: bool, tracks: Vec<Track
 fn main_animation(length: u32, looping: bool, tracks: Vec<Track>) -> Animation {
     animation("main", "Main", length, looping, tracks)
 }
-/// A part's drawings from each tick on, and keys for some of its numbers:
-/// (property, keys as tick, value, ease).
-fn track(part: u16, image: &[(u32, Option<u16>)], numbers: &[(usize, &[(u32, f64, Ease)])]) -> Track {
+/// Keys for one number, as (tick, value, ease).
+type Keys<'a> = &'a [(u32, f64, Ease)];
+/// A part's drawings from each tick on, and keys for some of its numbers.
+fn track(part: u16, image: &[(u32, Option<u16>)], numbers: &[(usize, Keys)]) -> Track {
     let mut t = Track { part, image: image.to_vec(), ..Track::default() };
     for &(property, keys) in numbers {
         t.numbers[property] = keys.iter().map(|&(tick, value, ease)| Key { tick, value, ease }).collect();
@@ -126,7 +127,7 @@ fn valid() -> Vec<Valid> {
     let ticks = |list: &[u32]| list.iter().map(|&t| ("front", "main", f64::from(t), vec![])).collect::<Frames>();
     let front = |list: &[(&'static str, f64, &[&'static str])]| list.iter().map(|&(a, t, v)| ("front", a, t, v.to_vec())).collect::<Frames>();
     // Part 0 showing the mark.
-    let mark = |numbers: &[(usize, &[(u32, f64, Ease)])]| track(0, &[(0, Some(0))], numbers);
+    let mark = |numbers: &[(usize, Keys)]| track(0, &[(0, Some(0))], numbers);
     let mut cases = Vec::new();
     cases.push(Valid {
         name: "still",
@@ -239,7 +240,7 @@ fn valid() -> Vec<Valid> {
         frames: ticks(&[0]),
     });
 
-    let numbers: [(usize, &[_]); 4] = [(X, &held(&[(0, 3.0)])), (Y, &held(&[(0, -2.0)])), (SCALE_X, &held(&[(0, 2.0)])), (SCALE_Y, &held(&[(0, 2.0)]))];
+    let numbers: [(usize, Keys); 4] = [(X, &held(&[(0, 3.0)])), (Y, &held(&[(0, -2.0)])), (SCALE_X, &held(&[(0, 2.0)])), (SCALE_Y, &held(&[(0, 2.0)]))];
     let mut s = sprite(&[("body", "Body", None)], &[MARK_ART], vec![main_animation(1, true, vec![mark(&numbers)])]);
     (s.views[0].x, s.views[0].y, s.views[0].width, s.views[0].height) = (5, 0, 7, 9);
     cases.push(Valid {
